@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  font-family: Outfit;
+}
+
+.active hr {
+  @apply block
+}
+
+::-webkit-scrollbar{
+  display:none;
+}
+
+@media (max-width:740px) {
+  .active li{
+    @apply border-b-[3px] border-b-orange-500
+  }
+}
+
