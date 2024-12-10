@@ -8,7 +8,7 @@ const TopRestaurants = () => {
         <p className=" text-center text-3xl font-semibold mb-10">Top Restaurants</p>
         <div className=" flex gap-5 justify-center items-center flex-wrap ">
           {topRestuarants.map((item, index) => (
-            <div className="max-w-[300px] px-5 py-4 border bg-zinc-200 rounded-md flex flex-col items-center shadow-inner shadow-zinc-700 hover:scale-105 transition-all duration-700 cursor-pointer group">
+            <div key={index} className="max-w-[300px] px-5 py-4 border bg-zinc-200 rounded-md flex flex-col items-center shadow-inner shadow-zinc-700 hover:scale-105 transition-all duration-700 cursor-pointer group">
               <img src={item.img} alt="" className=" w-64 h-48 bg-center object-cover rounded-md group-hover:scale-105 transition-all duration-700"/>
               <div className=" mt-3">
                 <p className=" text-xl font-bold text-zinc-900 ">{item.name}</p>
