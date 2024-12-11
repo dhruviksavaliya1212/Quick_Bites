@@ -38,6 +38,15 @@ const Navbar = () => {
             </li>
             <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
           </NavLink>
+          <NavLink to="/offer-zone">
+            <li
+              onClick={() => scrollTo(0, 0)}
+              className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
+            >
+              Offer Zone
+            </li>
+            <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
+          </NavLink>
           <NavLink to="/about">
             <li
               onClick={() => scrollTo(0, 0)}
@@ -126,6 +135,14 @@ const Navbar = () => {
                   className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
                 >
                   All Foods
+                </li>
+              </NavLink>
+              <NavLink to="/offer-zone">
+                <li
+                  onClick={() => scrollTo(0, 0)}
+                  className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
+                >
+                  offer zone
                 </li>
               </NavLink>
               <NavLink to="/about">

@@ -10,7 +10,7 @@ import About from './Pages/About'
 
 const App = () => {
   return (
-    <div className=' min-h-screen px-2 sm:px-10 md:px-14 lg:px-28 bg-orange-50'>
+    <div className=' min-h-screen px-2 sm:px-10 md:px-14 lg:px-28 bg-orange-100'>
       <Navbar/>
       <Routes>
         <Route path='/' element={<Home/>}/>

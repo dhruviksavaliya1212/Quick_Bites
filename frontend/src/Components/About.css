@@ -32,7 +32,7 @@
   /* Slider styles */
   .slider {
     width: 0;
-    transition: width 2s ease-in-out;
+    transition: width 2s ease-in;
     position: relative;
     overflow: hidden;
   }
@@ -47,7 +47,7 @@
     position: absolute;
     top: -0.5rem;
     left: 0;
-    transition: left 2s ease-in-out;
+    transition: left 3s ease-out;
   }
   
   /* Synchronize pointer movement with the slider */
