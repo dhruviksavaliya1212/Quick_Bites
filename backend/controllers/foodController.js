@@ -5,11 +5,13 @@ import {v2 as cloudinary} from 'cloudinary'
 const addFood = async (req,res) => {
   try {
     
-    const {name,oldprice, newprice, rating, veg, desc} = req.body;
+    const {name,oldprice, newprice, rating, veg, desc, restoId} = req.body;
 
     console.log(name,oldprice, newprice, rating, veg, desc)
 
     const imageFile = req.file
+
+    console.log(imageFile);
 
     // Checking missing details
     if(!name, !newprice, !veg, !desc){
@@ -31,6 +33,7 @@ const addFood = async (req,res) => {
 
     // Add data in database
     const foodData = {
+      restoId,
       name,
       oldprice,
       newprice,
@@ -49,8 +52,20 @@ const addFood = async (req,res) => {
     res.json({success:true, message:"Food upload successfully"})
 
   } catch (err) {
+    console.log(err)
     res.status(404).json({success: false, message: "Something went wrong, please try again"});
   }
 }
 
-export {addFood}
+const allFoods = async(req,res) => {
+  try {
+    const foods = await foodModel.find({});
+
+    res.json({success:true, foods, message:"Foods fetched"})
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Foods not fetched" });
+  }
+}
+
+export {addFood, allFoods}

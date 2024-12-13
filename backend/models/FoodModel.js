@@ -1,40 +1,55 @@
 import mongoose from "mongoose";
 
-const foodSchema = new mongoose.Schema ({
-  name:{
+const foodSchema = new mongoose.Schema({
+  restoId:{
     type:String,
-    required:true
+    required:true,
   },
-  image:{
+  name: {
+    type: String,
+    required: true,
+  },
+  restoname: {
+    type: String,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  oldprice: {
+    type: String,
+    required: false,
+  },
+  newprice: {
+    type: String,
+    required: true,
+  },
+  rating: {
+    type: String,
+    default: "0.0",
+  },
+  desc: {
+    type: String,
+    required: true,
+  },
+  veg: {
+    type: String,
+    required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now(),
+  },
+  bestSeller:{
+    type:Boolean,
+    default:false
+  },
+  category:{
     type:String,
-    required:true
-  },
-  oldprice:{
-    type:String,
-    required:false
-  },
-  newprice:{
-    type:String,
-    required:true
-  },
-  rating:{
-    type:String,
-    required:false
-  },
-  desc:{
-    type:String,
-    required:true
-  },
-  veg:{
-    type:String,
-    required:true
-  },
-  date:{
-    type:Date,
-    default: Date
+    // required:true
+    default:""
   }
-
-})
+});
 
 const foodModel = mongoose.models.food || mongoose.model("food", foodSchema);
 
