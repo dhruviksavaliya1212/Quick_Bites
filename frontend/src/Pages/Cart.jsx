@@ -6,7 +6,6 @@ import remove from "../assets/remove.png";
 import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-
   const navigate = useNavigate();
 
   const {
@@ -19,10 +18,8 @@ const Cart = () => {
     currency,
     calculateDelivery,
     calculateGst,
-    calculatePlatformFee
+    calculatePlatformFee,
   } = useContext(AppContext);
-
-
 
   return (
     <div className="flex items-center flex-col mb-20 py-10 min-h-screen">
@@ -170,7 +167,10 @@ const Cart = () => {
           </p>
         </div>
       </div>
-      <button onClick={()=> navigate('/checkout')} className="w-[300px] sm:w-[400px] border bg-orange-500 py-3 text-zinc-100 font-medium rounded mt-4 text-[16px] hover:bg-orange-600 hover:text-black hover:scale-105 transition-all duration-300">
+      <button
+        onClick={() => navigate("/checkout")}
+        className="w-[300px] sm:w-[400px] border bg-orange-500 py-3 text-zinc-100 font-medium rounded mt-4 text-[16px] hover:bg-orange-600 hover:text-black hover:scale-105 transition-all duration-300"
+      >
         Next
       </button>
     </div>

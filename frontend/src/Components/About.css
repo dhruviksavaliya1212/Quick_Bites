@@ -1,0 +1,66 @@
+/* Underline animation for bold text */
+.underline-animation {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .underline-animation::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: #FFA500; /* text-orange-500 */
+    left: 0;
+    bottom: -2px;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 2s ease-out;
+  }
+  
+  /* Trigger underline animation on page load */
+  .underline-animation.active::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+  
+  /* Hover state for underline animation */
+  .underline-animation:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+  
+  /* Slider styles */
+  .slider {
+    width: 0;
+    transition: width 2s ease-in;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Trigger slider expansion on hover */
+  .slider:hover {
+    width: 100%; /* Trigger the slider expansion on hover */
+  }
+  
+  /* Pointer inside slider */
+  .pointer {
+    position: absolute;
+    top: -0.5rem;
+    left: 0;
+    transition: left 3s ease-out;
+  }
+  
+  /* Synchronize pointer movement with the slider */
+  .slider:hover .pointer {
+    left: 100%; /* Move the pointer along with the slider */
+  }
+  
+  /* Trigger initial animation on page load */
+  .slider.active {
+    width: 100%;
+  }
+  
+  .pointer.active {
+    left: 100%;
+  }
+    
