@@ -4,41 +4,48 @@ import './About.css'; // Ensure this file contains the necessary styles
 const teamData = [
   {
     name: "Ridham Savaliya",
-    role: "Founder & CEO",
-    description: "John is the visionary behind QuickBites, ensuring the best customer experience and innovative services.",
+    role: "FullStack Developer",
+    description:
+      "Hi, I’m Ridham! I ensure seamless integration between the frontend and backend to deliver a great user experience.",
     img: "https://source.unsplash.com/200x200/?person,1",
   },
   {
     name: "Dhruvik Savaliya",
-    role: "Head Chef",
-    description: "Jane ensures that every dish we deliver is of the highest quality and made with the finest ingredients.",
+    role: "FullStack Developer",
+    description:
+      "Hello, I’m Dhruvik! I love solving complex problems and building reliable, scalable systems.",
     img: "https://source.unsplash.com/200x200/?person,2",
   },
   {
     name: "Jenish Galani",
-    role: "Marketing Specialist",
-    description: "Michael brings QuickBites to the world with creative campaigns and social media strategies.",
+    role: "Frontend Developer",
+    description:
+      "Hi there! I’m Jenish, focused on creating interactive and visually appealing user interfaces.",
     img: "https://source.unsplash.com/200x200/?person,3",
   },
   {
     name: "Milan Panchani",
-    role: "Customer Support",
-    description: "Sara ensures that all of our customers' needs are met with the utmost care and attention.",
+    role: "Frontend Developer",
+    description:
+      "Hey, I’m Milan! I design responsive frontends to ensure a smooth user experience.",
     img: "https://source.unsplash.com/200x200/?person,4",
   },
   {
     name: "Rushik Khothiya",
-    role: "Operations Manager",
-    description: "Emily oversees day-to-day operations, ensuring smooth service and customer satisfaction.",
+    role: "QA (Quality Assurance)",
+    description:
+      "Hi, I’m Rushik! I test and debug features to ensure a flawless experience for our users.",
     img: "https://source.unsplash.com/200x200/?person,5",
   },
   {
     name: "Dishant Domadiya",
-    role: "Finance Director",
-    description: "James handles all financial operations, ensuring our business stays on track and profitable.",
+    role: "Frontend Developer",
+    description:
+      "Hello! I’m Dishant, crafting dynamic and user-friendly designs to enhance our platform.",
     img: "https://source.unsplash.com/200x200/?person,6",
   },
 ];
+
 
 const About = () => {
   useEffect(() => {
@@ -202,11 +209,11 @@ useEffect(() => {
       <h2 className="text-2xl mb-4 text-center text-[#FF7A00]">
         M<span className="text-[#000000]">eet</span> O<span className="text-[#000000]">ur</span> T<span className="text-[#000000]">eam</span>
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 ">
         {teamData.map((member, index) => (
           <div
             key={index}
-            className="team-card bg-white p-6 rounded-xl shadow-md opacity-0 transform transition-all duration-1000"
+            className="team-card bg-white hover:bg-orange-500 hover:text-white p-6 rounded-xl shadow-md opacity-0 transform transition-all duration-1000"
           >
             <img
               src={member.img}
