@@ -1,48 +1,42 @@
 import React, { useEffect,useRef } from 'react';
 import './About.css'; // Ensure this file contains the necessary styles
-import ridham from "../assets/members/ridham.jpg"
-import milan from "../assets/members/milan.png"
-import dhruvik from "../assets/members/dhruvik.png"
-import jenish from "../assets/members/jenish.png"
-import dishant from "../assets/members/dishant.png"
-import rushik  from "../assets/members/rushik.png"
 
 const teamData = [
   {
     name: "Ridham Savaliya",
     role: "Founder & CEO",
     description: "John is the visionary behind QuickBites, ensuring the best customer experience and innovative services.",
-    img: `${ridham}`,
+    img: "https://source.unsplash.com/200x200/?person,1",
   },
   {
     name: "Dhruvik Savaliya",
     role: "Head Chef",
     description: "Jane ensures that every dish we deliver is of the highest quality and made with the finest ingredients.",
-    img: `${dhruvik}`,
+    img: "https://source.unsplash.com/200x200/?person,2",
   },
   {
     name: "Jenish Galani",
     role: "Marketing Specialist",
     description: "Michael brings QuickBites to the world with creative campaigns and social media strategies.",
-    img: `${jenish}`,
+    img: "https://source.unsplash.com/200x200/?person,3",
   },
   {
     name: "Milan Panchani",
     role: "Customer Support",
     description: "Sara ensures that all of our customers' needs are met with the utmost care and attention.",
-    img: `${milan}`,
+    img: "https://source.unsplash.com/200x200/?person,4",
   },
   {
     name: "Rushik Khothiya",
     role: "Operations Manager",
     description: "Emily oversees day-to-day operations, ensuring smooth service and customer satisfaction.",
-    img: `${rushik}`,
+    img: "https://source.unsplash.com/200x200/?person,5",
   },
   {
     name: "Dishant Domadiya",
     role: "Finance Director",
     description: "James handles all financial operations, ensuring our business stays on track and profitable.",
-    img: `${dishant}`,
+    img: "https://source.unsplash.com/200x200/?person,6",
   },
 ];
 
@@ -212,7 +206,7 @@ useEffect(() => {
         {teamData.map((member, index) => (
           <div
             key={index}
-            className="team-card hover:bg-orange-500 hover:text-white bg-white p-6 rounded-xl shadow-md opacity-0 transform transition-all duration-1000"
+            className="team-card bg-white p-6 rounded-xl shadow-md opacity-0 transform transition-all duration-1000"
           >
             <img
               src={member.img}

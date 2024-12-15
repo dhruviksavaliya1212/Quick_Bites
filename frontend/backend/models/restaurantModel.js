@@ -1,0 +1,55 @@
+import mongoose from "mongoose";
+
+const restaurantSchema = new mongoose.Schema({
+  name:{
+    type:String,
+    required:true,
+  },
+  ownername:{
+    type:String,
+    required:true,
+  },
+  image:{
+    type:String,
+    required:true
+  },
+  desc:{
+    type:String,
+    required:true
+  },
+  contactno:{
+    type:String,
+    required:true
+  },
+  address:{
+    type:String,
+    required:true
+  },
+  email:{
+    type:String,
+    required:true
+  },
+  rating:{
+    type:String,
+    required:false,
+    default:"0"
+  },
+  deliverytime:{
+    type:String,
+    required:false,
+    default:"0"
+  },
+  timing:{
+    type:String,
+    required:true
+  },
+  isopen:{
+    type:Boolean,
+    required:false,
+    default:false
+  }
+})
+
+const restaurantModel = mongoose.models.restaurant || mongoose.model("restaurant", restaurantSchema);
+
+export default restaurantModel

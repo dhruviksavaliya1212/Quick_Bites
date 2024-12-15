@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 
 const Header = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   const images = [
     assets.header,
@@ -15,20 +15,23 @@ const Header = () => {
 
   const words = ["Food", "Dinner", "Snacks", "Meals"];
 
-  // Function to handle synchronized transitions for images and words
+  // Change images every 1500ms without delay (immediate start)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTransitioning(true);
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 1500);
 
-      // Wait for the transition effect to complete
-      setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-        setIsTransitioning(false);
-      }, 1000); // Matches the CSS transition duration
-    }, 3000); // Total display duration for each image/word
-
-    return () => clearInterval(interval);
+    return () => clearInterval(imageInterval);
   }, [images.length]);
+
+  // Change words every 1500ms without delay (immediate start)
+  useEffect(() => {
+    const wordInterval = setInterval(() => {
+      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }, 1500);
+
+    return () => clearInterval(wordInterval);
+  }, [words.length]);
 
   return (
     <div>
@@ -38,11 +41,11 @@ const Header = () => {
           <p className="text-4xl sm:text-5xl md:text-3xl lg:text-5xl font-semibold text-zinc-100">
             Desire{" "}
             <span
-              className={`bg-[#4C281A] text-orange-300 px-6 py-1 text-2xl sm:text-3xl md:text-2xl lg:text-3xl rounded-full md:ml-2 -rotate-12 inline-block shadow-sm shadow-zinc-300 transition-all duration-1000 transform ${
-                isTransitioning ? "scale-0 opacity-0" : "scale-100 opacity-100"
+              className={`bg-[#4C281A] text-orange-300 px-6 py-1 text-2xl sm:text-3xl md:text-2xl lg:text-3xl rounded-full md:ml-2 -rotate-12 inline-block shadow-sm shadow-zinc-300 transition-all duration-500 transform ${
+                currentWordIndex % 2 === 0 ? "scale-0 opacity-0" : "scale-100 opacity-100"
               }`}
             >
-              {words[currentIndex % words.length]}
+              {words[currentWordIndex]}
             </span>
           </p>
           <p className="text-4xl sm:text-5xl md:text-3xl lg:text-5xl font-semibold text-zinc-100 mt-3">
@@ -61,10 +64,10 @@ const Header = () => {
         {/* Right Side (Image) */}
         <div className="overflow-hidden flex sm:w-[70%] md:w-[45%] lg:w-[40%] items-center justify-center relative">
           <img
-            src={images[currentIndex]}
+            src={images[currentImageIndex]}
             alt="Header Image"
             className={`transition-all duration-1000 ease-in-out transform ${
-              isTransitioning ? "opacity-0 scale-90" : "opacity-100 scale-100"
+              currentImageIndex % 2 === 0 ? "scale-0 opacity-0" : "scale-100 opacity-100"
             } sm:w-[26rem] lg:w-[30rem]`}
           />
         </div>
