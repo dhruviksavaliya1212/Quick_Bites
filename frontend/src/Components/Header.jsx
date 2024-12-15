@@ -13,7 +13,13 @@ const Header = () => {
     assets.header5,
   ];
 
-  const words = ["Food", "Dinner", "Snacks", "Meals"];
+  const spanTexts = [
+    "for Your Taste",
+    "for Great Flavors",
+    "for Your Cravings",
+    "for Unique Delights",
+    "for Best Experience",
+  ];
 
   // Function to handle synchronized transitions for images and words
   useEffect(() => {
@@ -45,20 +51,15 @@ const Header = () => {
               {words[currentIndex % words.length]}
             </span>
           </p>
-          <p className="text-4xl sm:text-5xl md:text-3xl lg:text-5xl font-semibold text-zinc-100 mt-3">
-            for Your Taste
-          </p>
           <p className="mt-5 text-zinc-300 text-sm font-normal text-center">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto
-            laborum consectetur culpa aliquam quasi enim aperiam! Laudantium,
-            tempore, ducimus officia non aut illo nisi nesciunt
+          Satisfy your hunger with flavors that excite your taste buds and warm your heart.Taste the magic, feel the love, and make every meal a memory worth savoring."Explore a world of taste that’s bold, exciting, and utterly irresistible."
           </p>
           <button className="px-8 py-2 bg-zinc-200 text-orange-500 mt-5 rounded-full text-md font-semibold shadow-md shadow-zinc-800">
             Order Now
           </button>
         </div>
 
-        {/* Right Side (Image) */}
+        {/* Right Side (Image with Slide-In Effect) */}
         <div className="overflow-hidden flex sm:w-[70%] md:w-[45%] lg:w-[40%] items-center justify-center relative">
           <img
             src={images[currentIndex]}

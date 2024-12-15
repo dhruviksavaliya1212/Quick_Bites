@@ -2,7 +2,7 @@ import { v2 as cloudinary } from "cloudinary";
 import restaurantModel from "../models/restaurantModel.js";
 import validator from 'validator'
 
-const addRestaurant = async (req, response) => {
+const addRestaurant = async (req, res) => {
   try {
     const {
       name,
@@ -29,16 +29,16 @@ const addRestaurant = async (req, response) => {
       !deliverytime,
       !timing)
     ) {
-      return response.json({ success: false, message: "Missing details" });
+      return res.json({ success: false, message: "Missing details" });
     }
 
     // validate data
     if(!validator.isEmail(email)){
-      return response.json({ success: false, message: "Email must be in formate" });
+      return res.json({ success: false, message: "Email must be in formate" });
     }
 
     if(!validator.isMobilePhone(contactno)){
-      return response.json({ success: false, message: "contact no must be in formate" });
+      return res.json({ success: false, message: "contact no must be in formate" });
     }
   
     // upload img in cloudinary
@@ -65,11 +65,11 @@ const addRestaurant = async (req, response) => {
   
     await newRestaurant.save();
   
-    response.json({ success: true, message: "request sent successfully for adding restaurant" });
+    res.json({ success: true, message: "request sent successfully for adding restaurant" });
 
   } catch (err) {
     console.log(err)
-    response.json({ success: false, message: "Something went wrong" });
+    res.json({ success: false, message: "Something went wrong" });
   }
 };
 

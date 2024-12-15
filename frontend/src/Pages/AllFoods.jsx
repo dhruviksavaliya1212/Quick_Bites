@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { bestSeller, filterFood } from "../assets/assets";
 import vegetarian from "../assets/vegetarian.webp";
 import plus from "../assets/plus.png";
 import remove from "../assets/remove.png";
 import { useNavigate, useParams } from "react-router-dom";
+import { AppContext } from "../Context/AppContext";
 
 const AllFoods = () => {
   const navigate = useNavigate();
+
+  const { cart, addToCart, removeFromCart, food_list } = useContext(AppContext);
 
   const [popup, setPopup] = useState(false);
   const [filter, setFilter] = useState([]);
@@ -15,20 +18,20 @@ const AllFoods = () => {
   const applyFilter = () => {
     if (category !== "All") {
       console.log(category);
-      setFilter(bestSeller.filter((food) => food.category === category));
+      setFilter(food_list.filter((food) => food.category === category));
     } else {
-      setFilter(bestSeller);
+      setFilter(food_list);
     }
   };
 
   const removeFilter = () => {
-    setCategory("All")
-  }
+    setCategory("All");
+  };
 
   useEffect(() => {
     applyFilter();
     console.log(category);
-  }, [bestSeller, category]);
+  }, [food_list, category]);
 
   const handlePopup = () => {
     setPopup((prev) => !prev);
@@ -59,7 +62,10 @@ const AllFoods = () => {
               key={index}
               src={item.img}
               alt=""
-              className={` w-32 cursor-pointer hover:scale-105 transition-all duration-700  ${category === item.category && 'bg-gradient-to-t from-orange-400 to-orange-700 text-zinc-100 rounded-full p-2'}`}
+              className={` w-32 cursor-pointer hover:scale-105 transition-all duration-700  ${
+                category === item.category &&
+                "bg-gradient-to-t from-orange-400 to-orange-700 text-zinc-100 rounded-full p-2"
+              }`}
               onClick={() => setCategory(item.category)}
             />
           ))}
@@ -73,23 +79,38 @@ const AllFoods = () => {
               <div className=" my-5 flex flex-col sm:flex-row items-center justify-start gap-5 lg:gap-10 ">
                 <div className=" relative">
                   <img
-                    src={item.img}
+                    src={item.image}
                     alt=""
                     className=" min-w-52 max-w-52 h-48 rounded bg-gradient-to-t from-slate-500 to-slate-900"
                   />
-                  <div className=" w-32 h-fit bg-white shadow shadow-zinc-700 absolute -bottom-3 left-10 rounded flex items-center justify-between p-1">
-                    <img
-                      src={plus}
-                      alt=""
-                      className=" w-6 cursor-pointer hover:scale-110 transition-all duration-500 "
-                    />
-                    <p className=" text-xl text-[#38913b] font-semibold">5</p>
-                    <img
-                      src={remove}
-                      alt=""
-                      className=" w-6 cursor-pointer hover:scale-110 transition-all duration-500"
-                    />
-                  </div>
+                  {!cart[item._id] ? (
+                    <div className="w-full flex justify-center -mt-6">
+                      <button
+                        onClick={() => addToCart(item._id)}
+                        className=" w-[65%] border bg-orange-500 py-1 text-zinc-100 font-medium rounded text-[16px] hover:bg-orange-600 hover:text-black hover:scale-105 transition-all duration-300"
+                      >
+                        Add To Cart
+                      </button>
+                    </div>
+                  ) : (
+                    <div className=" w-32 h-fit bg-white shadow shadow-zinc-700 absolute -bottom-3 left-10 rounded flex items-center justify-between p-1">
+                      <img
+                        onClick={() => addToCart(item._id)}
+                        src={plus}
+                        alt=""
+                        className=" w-6 cursor-pointer hover:scale-110 transition-all duration-500 "
+                      />
+                      <p className=" text-xl text-[#38913b] font-semibold">
+                        {cart[item._id]}
+                      </p>
+                      <img
+                        onClick={() => removeFromCart(item._id)}
+                        src={remove}
+                        alt=""
+                        className=" w-6 cursor-pointer hover:scale-110 transition-all duration-500"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className=" max-md:ml-5 max-sm:mt-5">
                   <div className=" flex gap-2 items-center ">
@@ -101,14 +122,17 @@ const AllFoods = () => {
                   <p className=" text-xl font-bold text-zinc-900">
                     {item.name}
                   </p>
+                  <p className=" text-md font-semibold text-zinc-900 -mt-1">
+                    {item.restoname}
+                  </p>
                   <div className=" mt-1 flex gap-3 item-center">
                     <p className=" line-through font-semibold text-zinc-500">
                       <span>₹</span>
-                      {item.oldPrice}
+                      {item.oldprice}
                     </p>
                     <p className=" font-semibold text-zinc-900">
                       <span>₹</span>
-                      {item.newPrice}
+                      {item.newprice}
                     </p>
                   </div>
                   <div className=" flex items-center my-3">
@@ -128,9 +152,6 @@ const AllFoods = () => {
                     </svg>
                     <p className=" text-green-700 font-semibold ml-1">
                       {item.rating}
-                    </p>
-                    <p className=" ml-[2px] text-sm font-medium text-zinc-700">
-                      ({item.ratingCount})
                     </p>
                   </div>
                   <p className=" text-md font-normal text-zinc-800 max-w-[90%]">

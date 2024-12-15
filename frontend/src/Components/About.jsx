@@ -46,6 +46,7 @@ const teamData = [
   },
 ];
 
+
 const About = () => {
   useEffect(() => {
     // Trigger underline animation on component mount
@@ -208,7 +209,7 @@ useEffect(() => {
       <h2 className="text-2xl mb-4 text-center text-[#FF7A00]">
         M<span className="text-[#000000]">eet</span> O<span className="text-[#000000]">ur</span> T<span className="text-[#000000]">eam</span>
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 ">
         {teamData.map((member, index) => (
           <div
             key={index}
