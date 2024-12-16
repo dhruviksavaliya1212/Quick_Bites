@@ -1,4 +1,4 @@
-# ![QuickBites](./assets/logo.png)
+# ![QuickBites](./admin/src/assets/logo.png)
 
 # QuickBites: Online Food Ordering System
 
