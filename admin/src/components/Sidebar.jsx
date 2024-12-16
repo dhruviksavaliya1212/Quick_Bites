@@ -32,10 +32,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             style={{ width: isOpen ? "80vw" : "20vw" }}
           >
             {/* Sidebar Header */}
-            <div className="flex lg:w- items-center rounded-md justify-between p-4 text-lg font-bold border-b border-orange-400">
-              <div className="w-fit rounded-md   bg-[#ea580c]">
-                <img className="w-60 h-10 object-contain" src={logo} alt="Logo" />
+            <div className="flex items-center lg:justify-center justify-between p-4 text-lg font-bold border-b border-orange-400">
+              {/* Centered Logo Container */}
+              <div className="flex items-center justify-center rounded-md bg-[#673f05]">
+                <img
+                  className="w-50 h-10 object-contain"
+                  src={logo}
+                  alt="Logo"
+                />
               </div>
+
               {/* Close Button for Small Screens */}
               <button
                 onClick={() => toggleSidebar(false)}
