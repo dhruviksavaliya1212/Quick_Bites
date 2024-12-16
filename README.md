@@ -92,7 +92,7 @@ QuickBites/
 ```
 
 ## 🖼️ Screenshot
-![QuickBites UI](./screenshot.png)
+![QuickBites UI](./admin/src/assets/screenshot.png)
 
 ---
 
