@@ -26,7 +26,7 @@ const Header = ({ toggleSidebar }) => {
       </button>
 
       {/* Title */}
-      <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold sm:pl-16 lg:pl-72">
+      <h1 className="text-sm lg:tracking-widest sm:text-base md:text-lg lg:text-xl font-bold sm:pl-16 lg:pl-72">
   QuickBites Admin Suite
 </h1>
 
@@ -76,12 +76,15 @@ const Header = ({ toggleSidebar }) => {
 
         {/* User Icon with Dropdown */}
         <div className="relative">
-          <div
-            onClick={toggleDropdown}
-            className="w-8 h-8 sm:w-10 sm:h-10 cursor-pointer rounded-full bg-orange-400 flex justify-center items-center"
-          >
-            <CgProfile className="w-6 h-6 sm:w-8 sm:h-8" />
-          </div>
+        <div className="flex flex-col items-center">
+      {/* Profile Icon */}
+      <div onClick={toggleDropdown} className="w-8 h-8 sm:w-10 sm:h-7 cursor-pointer rounded-full flex justify-center items-center">
+        <CgProfile className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+      </div>
+
+      {/* Downward Triangle */}
+      <div onClick={toggleDropdown} className="w-3 h-3 overflow-y-hidden border-t-2 border-r-2 border-white rotate-[-230deg] cursor-pointer"></div>
+    </div>
 
           {dropdownVisible && (
             <div className="absolute top-12 right-0 w-40 bg-white rounded shadow-lg z-50">

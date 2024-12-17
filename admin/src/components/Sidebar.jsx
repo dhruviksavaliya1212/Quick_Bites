@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import logo from "../assets/logo.png";
+
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const closeSidebar = () => {
     if (window.innerWidth < 1024) {
@@ -51,8 +52,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </button>
             </div>
 
-            {/* Navigation Links (No Scroll) */}
-            <nav className="flex-1 overflow-hidden">
+            {/* Navigation Links */}
+            <nav className="flex-1 overflow-y-auto">
               <div className="overflow-y-hidden">
                 <NavLink
                   to="/"
@@ -160,6 +161,27 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 </NavLink>
               </div>
             </nav>
+
+            {/* User Profile with Logout */}
+
+            {/* User Profile with Logout */}
+            <div className="mb-auto p-4 bg-[#e65c00] text-white flex items-center gap-4">
+              <div className="w-10 h-10 bg-orange-600 rounded-full flex justify-center items-center text-lg font-bold">
+                A
+              </div>
+
+              <div className="flex-1">
+                <p className="font-semibold">Admin Name</p>
+                <p className="text-sm text-orange-200">admin@example.com</p>
+              </div>
+
+              <button
+                className="text-sm text-red-200 hover:text-red-400"
+                onClick={() => alert("Logging Out...")}
+              >
+                Logout
+              </button>
+            </div>
           </aside>
         </div>
       </div>
