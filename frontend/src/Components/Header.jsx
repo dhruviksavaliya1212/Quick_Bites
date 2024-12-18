@@ -36,6 +36,17 @@ const Header = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+   const words = ["Food", "Dinner", "Snacks", "Meals"];
+   
+    // Change words every 1500ms without delay (immediate start)
+    useEffect(() => {
+      const wordInterval = setInterval(() => {
+        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+      }, 1500);
+  
+      return () => clearInterval(wordInterval);
+    }, [words.length]);
+
   return (
     <div>
       <div className="bg-orange-600 md:h-[80vh] rounded-lg mt-5 flex flex-col md:flex-row justify-between items-center shadow-lg shadow-zinc-500">
