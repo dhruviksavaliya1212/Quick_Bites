@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { MdNotificationsNone } from "react-icons/md";
-
+import { FaBars } from "react-icons/fa";
 const Header = ({ toggleSidebar }) => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -12,17 +12,13 @@ const Header = ({ toggleSidebar }) => {
   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
   return (
-    <header className="bg-[#f97316] border border-orange-400 text-white shadow p-4 flex justify-between items-center w-full fixed top-0 z-30">
+    <header className="bg-[#F26B0F] border border-orange-400 text-white shadow p-4 flex justify-between items-center w-full right-0 fixed top-0 z-30">
       {/* Sidebar Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="lg:hidden p-3 bg-orange-500 text-white rounded-full"
+        className="text-white p-2 lg:hidden rounded-full hover:bg-orange-600 transition-all duration-300"
       >
-        <div className="flex flex-col justify-center items-center space-y-1">
-          <div className="w-6 h-1 bg-white rounded-full"></div>
-          <div className="w-6 h-1 bg-white rounded-full"></div>
-          <div className="w-6 h-1 bg-white rounded-full"></div>
-        </div>
+        <FaBars size={24} />
       </button>
 
       {/* Title */}
@@ -43,14 +39,14 @@ const Header = ({ toggleSidebar }) => {
 
         {/* Search Input (conditionally visible when toggle is on) */}
         {searchVisible && (
-          <div className="absolute top-14 left-0 right-0 mx-4 sm:relative sm:mx-0 z-50">
+          <div className="absolute top-14 -left-2 right-0 mx-4 sm:relative sm:mx-0 z-50">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search..."
                 className="border rounded px-3 py-2 outline-none shadow bg-white text-gray-800 w-full sm:w-auto"
               />
-              <div className="absolute top-[-8px] sm:left-2 w-4 h-4 bg-white rotate-45 border-t border-l"></div>
+              <div className="absolute top-[-8px] left-1 w-4 h-4 bg-white rotate-45 border-t border-l"></div>
             </div>
           </div>
         )}
@@ -85,11 +81,11 @@ const Header = ({ toggleSidebar }) => {
       {/* Downward Triangle */}
       <div onClick={toggleDropdown} className="w-3 h-3 overflow-y-hidden border-t-2 border-r-2 border-white rotate-[-230deg] cursor-pointer"></div>
     </div>
-
+ 
           {dropdownVisible && (
             <div className="absolute top-12 right-0 w-40 bg-white rounded shadow-lg z-50">
               {/* Arrow pointing to the profile icon */}
-              <div className="absolute -top-2 right-1 rounded w-4 h-4 bg-white rotate-45 border-t border-l"></div>
+     
 
               {/* Dropdown Items */}
               <ul className="text-gray-800 text-sm">
