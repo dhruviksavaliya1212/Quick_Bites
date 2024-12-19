@@ -175,63 +175,66 @@ const Dashboard = () => {
         </table>
       </div>
 
-      {/* Review and Feedback Section */}
-      <div className="bg-white p-4 mt-8 rounded-md">
-        <h2 className="text-lg font-bold mb-4">Customer Reviews & Feedback</h2>
-        <table className="w-full text-sm text-left">
-          <thead>
-            <tr className="border-b">
-              <th className="p-2">Product</th>
-              <th className="p-2">Rating</th>
-              <th className="p-2">Review</th>
-              <th className="p-2">Customer</th>
-              <th className="p-2">Response</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reviewsData.map((review) => (
-              <tr key={review.id} className="border-b hover:bg-orange-300">
-                <td className="p-2">{review.product}</td>
-                <td className="p-2">{review.rating}</td>
-                <td className="p-2">{review.review}</td>
-                <td className="p-2">{review.customer}</td>
-                <td className="p-2">
-                  {review.response ? (
-                    <p>{review.response}</p>
-                  ) : selectedReviewId === review.id ? (
-                    <textarea
-                      value={responseText}
-                      onChange={handleResponseChange}
-                      className="border rounded-md p-2 w-full"
-                      placeholder="Write your response..."
-                    />
-                  ) : (
-                    <p>No response yet</p>
-                  )}
-                </td>
-                <td className="p-2">
-                  {selectedReviewId === review.id ? (
-                    <button
-                      onClick={() => handleSubmitResponse(review.id)}
-                      className="text-green-500 hover:underline"
-                    >
-                      Submit
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setSelectedReviewId(review.id)}
-                      className="text-blue-500 hover:underline"
-                    >
-                      Respond
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    {/* Review and Feedback Section */}
+<div className="bg-white p-4 mt-8 rounded-md">
+  <h2 className="text-lg font-bold mb-4">Customer Reviews & Feedback</h2>
+  <div className="overflow-x-auto">
+    <table className="min-w-full text-sm text-left border-collapse border border-gray-300">
+      <thead>
+        <tr className="border-b">
+          <th className="p-2">Product</th>
+          <th className="p-2">Rating</th>
+          <th className="p-2">Review</th>
+          <th className="p-2">Customer</th>
+          <th className="p-2">Response</th>
+          <th className="p-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {reviewsData.map((review) => (
+          <tr key={review.id} className="border-b hover:bg-orange-300">
+            <td className="p-2">{review.product}</td>
+            <td className="p-2">{review.rating}</td>
+            <td className="p-2">{review.review}</td>
+            <td className="p-2">{review.customer}</td>
+            <td className="p-2">
+              {review.response ? (
+                <p>{review.response}</p>
+              ) : selectedReviewId === review.id ? (
+                <textarea
+                  value={responseText}
+                  onChange={handleResponseChange}
+                  className="border rounded-md p-2 w-full"
+                  placeholder="Write your response..."
+                />
+              ) : (
+                <p>No response yet</p>
+              )}
+            </td>
+            <td className="p-2">
+              {selectedReviewId === review.id ? (
+                <button
+                  onClick={() => handleSubmitResponse(review.id)}
+                  className="text-green-500 hover:underline"
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  onClick={() => setSelectedReviewId(review.id)}
+                  className="text-blue-500 hover:underline"
+                >
+                  Respond
+                </button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
   
     </div>
   );
