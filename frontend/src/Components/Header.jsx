@@ -3,6 +3,7 @@ import { assets } from "../assets/assets";
 
 const Header = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0); // Define state for current word index
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const images = [
@@ -36,16 +37,16 @@ const Header = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-   const words = ["Food", "Dinner", "Snacks", "Meals"];
+  const words = ["Food", "Dinner", "Snacks", "Meals"];
    
-    // Change words every 1500ms without delay (immediate start)
-    useEffect(() => {
-      const wordInterval = setInterval(() => {
-        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
-      }, 1500);
+  // Change words every 1500ms without delay (immediate start)
+  useEffect(() => {
+    const wordInterval = setInterval(() => {
+      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }, 1500);
   
-      return () => clearInterval(wordInterval);
-    }, [words.length]);
+    return () => clearInterval(wordInterval);
+  }, [words.length]);
 
   return (
     <div>
@@ -59,11 +60,11 @@ const Header = () => {
                 isTransitioning ? "scale-0 opacity-0" : "scale-100 opacity-100"
               }`}
             >
-              {words[currentIndex % words.length]}
+              {words[currentWordIndex]} {/* Update to use currentWordIndex */}
             </span>
           </p>
           <p className="mt-5 text-zinc-300 text-sm font-normal text-center">
-          Satisfy your hunger with flavors that excite your taste buds and warm your heart.Taste the magic, feel the love, and make every meal a memory worth savoring."Explore a world of taste that’s bold, exciting, and utterly irresistible."
+            Satisfy your hunger with flavors that excite your taste buds and warm your heart. Taste the magic, feel the love, and make every meal a memory worth savoring. Explore a world of taste that’s bold, exciting, and utterly irresistible.
           </p>
           <button className="px-8 py-2 bg-zinc-200 text-orange-500 mt-5 rounded-full text-md font-semibold shadow-md shadow-zinc-800">
             Order Now
