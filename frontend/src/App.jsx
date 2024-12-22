@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
 import MyOrders from "./Pages/MyOrders";
 import OrderDesc from "./Pages/OrderDesc";
+import About from "./Components/About";
 
 const App = () => {
   return (

@@ -161,7 +161,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className="bg-[#FFF7ED] min-h-screen text-gray-800 p-8 rounded-lg">
+    <div className="bg-[#FFF7ED] min-h-screen text-gray-800 p-8 rounded-lg pt-24">
       <h1 className="text-4xl text-black text-center mb-6">
         <span className="text-orange-500">A</span>bout <span className="text-orange-500">U</span>s
       </h1>

@@ -11,6 +11,7 @@ import userRouter from './routes/userRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import sellerRouter from './routes/sellerRoute.js';
 // import { app, server } from './config/socket.js';
 
 
@@ -26,10 +27,11 @@ connectCloudinary();
 //midlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin:process.env.FRONTEND,
-  credentials:true,
-}));
+// app.use(cors({
+//   origin:process.env.FRONTEND,
+//   credentials:true,
+// }));
+app.use(cors());
 
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);
@@ -37,6 +39,7 @@ app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/seller", sellerRouter);
 
 // testing api
 app.get('/',(req,res)=>{

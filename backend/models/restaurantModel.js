@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const restaurantSchema = new mongoose.Schema({
+  sellerId:{
+    type:String,
+    required:true,
+  },
   name:{
     type:String,
     required:true,
@@ -17,7 +21,7 @@ const restaurantSchema = new mongoose.Schema({
     type:String,
     required:true
   },
-  contactno:{
+  phone:{
     type:String,
     required:true
   },
@@ -46,6 +50,10 @@ const restaurantSchema = new mongoose.Schema({
   isopen:{
     type:Boolean,
     required:false,
+    default:false
+  },
+  isrequested:{
+    type:Boolean,
     default:false
   }
 })

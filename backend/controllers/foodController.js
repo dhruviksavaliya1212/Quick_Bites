@@ -1,71 +1,66 @@
 import mongoose from "mongoose";
 import foodModel from "../models/FoodModel.js";
-import {v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from "cloudinary";
 
-const addFood = async (req,res) => {
+const addFood = async (req, res) => {
   try {
-    
-    const {name,oldprice, newprice, rating, veg, desc, restoId} = req.body;
+    const { name, oldprice, newprice, category, veg, desc, sellerId } =
+      req.body;
 
-    console.log(name,oldprice, newprice, rating, veg, desc)
-
-    const imageFile = req.file
-
-    console.log(imageFile);
+    const imageFile = req.file;
 
     // Checking missing details
-    if(!name, !newprice, !veg, !desc){
-      return res.json({success:false, message:"Missing details"})
+    if ((!name, !newprice, !veg, !desc, !category)) {
+      return res.json({ success: false, message: "Missing details" });
     }
 
     // validate price
-    const regex = /^[0-9]+$/;
-    if(!oldprice === regex || !newprice === regex){
-      return res.json({success:false, message:"price must be in number"})
+    if(oldprice < newprice){
+      return res.json({ success: false, message: "The new price cannot be higher than the old price." })
     }
 
     // upload image in cloudinary
-    const uploadImage = await cloudinary.uploader.upload(imageFile.path,{resource_type:"image"})
+    const uploadImage = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
 
-    const imageUrl = uploadImage.secure_url
-
-    console.log(imageUrl)
+    const imageUrl = uploadImage.secure_url;
 
     // Add data in database
     const foodData = {
-      restoId,
+      sellerId,
       name,
       oldprice,
       newprice,
       veg,
       desc,
-      rating,
-      image:imageUrl
-    }
-
-    console.log(foodData);
+      category,
+      image: imageUrl,
+    };
 
     const newFood = new foodModel(foodData);
 
     await newFood.save();
 
-    res.json({success:true, message:"Food upload successfully"})
-
+    res.json({ success: true, message: "Food upload successfully" });
   } catch (err) {
-    console.log(err)
-    res.status(404).json({success: false, message: "Something went wrong, please try again"});
+    console.log(err);
+    res.status(404).json({
+      success: false,
+      message: "Something went wrong, please try again",
+    });
   }
-}
+};
 
-const allFoods = async(req,res) => {
+// display all foods in frontend
+const allFoods = async (req, res) => {
   try {
     const foods = await foodModel.find({});
-
-    res.json({success:true, foods, message:"Foods fetched"})
+    res.json({ success: true, foods, message: "Foods fetched" });
   } catch (err) {
     console.log(err);
     res.json({ success: false, message: "Foods not fetched" });
   }
-}
+};
 
-export {addFood, allFoods}
+export { addFood, allFoods };
