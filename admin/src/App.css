@@ -1,0 +1,35 @@
+body {
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+  
+  h1, h2 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700; /* Bold */
+  }
+  
+  /* Scrollbar.css */
+
+/* Target the entire scrollbar */
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+/* Track (background of the scrollbar) */
+::-webkit-scrollbar-track {
+  background-color: #f97316; /* Background color */
+  border-radius: 1px; /* Rounded corners */
+}
+
+/* Scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background-color: #ffffff; /* Thumb color */
+  border-radius: 1px; /* Rounded corners */
+  border: 2px solid #f97316; /* To give an outer edge with the track's color */
+}
+
+/* On hover effect for the thumb */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #f0f0f0; /* Slightly off-white for hover effect */
+}
