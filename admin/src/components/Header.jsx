@@ -12,7 +12,7 @@ const Header = ({ toggleSidebar }) => {
   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
   return (
-    <header className="bg-[#F26B0F] border border-orange-400 text-white shadow p-4 flex justify-between items-center w-full right-0 fixed top-0 z-30">
+    <header className="bg-[#F26B0F] mx-auto  border border-orange-400 text-white shadow p-4 flex justify-between items-center w-full right-0 fixed top-0 z-30">
       {/* Sidebar Toggle Button */}
       <button
         onClick={toggleSidebar}
@@ -22,7 +22,7 @@ const Header = ({ toggleSidebar }) => {
       </button>
 
       {/* Title */}
-      <h1 className="text-sm lg:tracking-widest sm:text-base md:text-lg lg:text-xl font-bold sm:pl-16 lg:pl-72">
+      <h1 className="text-sm  lg:tracking-widest sm:text-base md:text-lg lg:text-xl font-bold sm:pl-16 lg:ml-72 z-50">
   QuickBites Admin Suite
 </h1>
 

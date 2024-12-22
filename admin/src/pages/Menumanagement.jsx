@@ -158,7 +158,7 @@ const MenuManagement = () => {
   };
 
   return (
-    <div className="min-h-screen p-1">
+    <div className="min-h-screen lg:p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Menu Management</h1>
 
       {/* Category Management */}

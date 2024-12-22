@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       <div>
         <div className="fixed left-0 z-50 top-0">
           <aside
-            className={`fixed overflow-y-hidden top-0 left-0 z-40 ${
+            className={`fixed overflow-y-hidden top-0 left-0 z-40  ${
               isOpen ? "translate-x-0" : "-translate-x-[80vw]"
             } lg:translate-x-0 lg:static lg:w-[20vw] bg-[#F26B0F] min-h-screen text-white flex flex-col ease-in-out duration-500 shadow-lg`}
             style={{ width: isOpen ? "80vw" : "20vw" }}
