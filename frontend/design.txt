@@ -1,0 +1,21 @@
+admin panel 
+
+1) dashboard page
+	1) total orders
+	2) total restauarants
+	3) total foods
+
+  2) new restauarants request accept and cancel button with some details about restauarants same like all restauarants page 
+  3) je restauarants admin accept karse aej user panel par display thase 
+	
+2) all orders page
+	1) user panel nu my order page same design and aek button add kari deje cancel order nu
+	2)order na onclick par order description page open thase tya lst ma order status change thase admin thi
+
+3) all foods 
+	1)user panel nu all foods page same design and ama aek checkbox mukje best seller che ke nai
+  2) filter :- 1) as per foods 2) as per restauarants(optional) last ma karje
+
+3) all restauarants
+  1) all restauarants same design like all foods   
+  2) onclick par restauarants description page

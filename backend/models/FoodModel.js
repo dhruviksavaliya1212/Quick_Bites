@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const foodSchema = new mongoose.Schema({
-  restoId:{
+  sellerId:{
     type:String,
     required:true,
   },
@@ -46,7 +46,6 @@ const foodSchema = new mongoose.Schema({
   },
   category:{
     type:String,
-    // required:true
     default:""
   }
 });

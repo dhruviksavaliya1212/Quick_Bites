@@ -5,6 +5,10 @@ const orderSchema = new mongoose.Schema({
     type:String,
     required:true
   },
+  sellerId:{
+    type:String,
+    required:true
+  },
   items:{
     type:Array,
     required:true
@@ -32,6 +36,18 @@ const orderSchema = new mongoose.Schema({
   paymentType:{
     type:String,
     required:true
+  },
+  isCancelled:{
+    type:Boolean,
+    default:false
+  },
+  isCompleted:{
+    type:Boolean,
+    default:false
+  },
+  isAccepted:{
+    type:Boolean,
+    default:false
   }
 })
 
