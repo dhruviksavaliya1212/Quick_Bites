@@ -152,7 +152,7 @@ const UserManagement = () => {
       <h1 className="text-xl font-bold mb-4">User Management</h1>
       <div className="bg-white p-2 shadow rounded-lg overflow-x-auto">
         {/* Search Bar */}
-        <div className="flex items-center space-x-4 overflow-x-auto mb-4">
+        <div className="flex justify-between items-center space-x-4 overflow-x-auto mb-4">
           <div className="relative w-full max-w-sm">
             <FaSearch className="absolute top-2.5 left-3 text-gray-400" />
             <input
@@ -164,7 +164,8 @@ const UserManagement = () => {
             />
           </div>
           {/* Items Per Page Selector */}
-          <select
+   <div className="flex gap-2">
+   <select
             className="border rounded p-2"
             value={itemsPerPage}
             onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -181,6 +182,7 @@ const UserManagement = () => {
           >
             Export to CSV
           </button>
+   </div>
         </div>
 
         {/* User Table */}
