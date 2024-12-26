@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
 import MyOrders from "./Pages/MyOrders";
 import OrderDesc from "./Pages/OrderDesc";
+import Support from "./Pages/Support";
 // import About from "./Components/About";
 
 const App = () => {
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/order/:id" element={<OrderDesc />} />
         <Route path="/about" element={<About />} />
+        <Route path="/support" element={<Support/>} />
       </Routes>
       <Footer />
     </div>

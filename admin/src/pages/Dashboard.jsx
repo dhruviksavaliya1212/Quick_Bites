@@ -130,6 +130,19 @@ const Dashboard = () => {
           <h2 className="text-gray-600">Pending Orders</h2>
           <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
         </div>
+        <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Restaurants</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>   <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Delivered Orders</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>   <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Categories</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>   <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Promotions</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>
       </div>
 
       {/* Charts */}
