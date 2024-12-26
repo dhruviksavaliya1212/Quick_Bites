@@ -152,9 +152,9 @@ const RestaurantManagement = () => {
   );
 
   return (
-    <div className="p-6 min-h-screen bg-gry-50">
+    <div className="p-3 min-h-screen bg-gry-50">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900">
           Restaurant Management
         </h1>
         <div className="text-center mb-6">
