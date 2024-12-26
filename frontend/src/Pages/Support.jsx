@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import chatbot from "../assets/chatbot.png"; // Chatbot icon
+import userIcon from "../assets/user.png"; // User icon
 
 const Support = () => {
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
-  const apiKey = "AIzaSyDNtnai9OK_cB_NkbVDqZS1Gh1vCcCxzok";
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const apiKey = "YOUR_API_KEY_HERE";
+  const genAI = new GoogleGenerativeAI("AIzaSyDNtnai9OK_cB_NkbVDqZS1Gh1vCcCxzok");
 
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash-exp",
-    systemInstruction: `Prompt
+    systemInstruction: `prompt:
 You are a chatbot for the project QuickBites, designed to provide exceptional customer support. Your role is to assist customers with their queries and provide accurate information based on the following details:
 
 Core Features:
@@ -57,133 +59,133 @@ Objective:
 To provide clear, professional, and accurate responses within the outlined scope of QuickBites. Ensure customer satisfaction by addressing queries effectively and maintaining a friendly tone. Provide the menu in a tabular format when asked!`,
   });
 
-  const generationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 40,
-    maxOutputTokens: 8192,
-    responseMimeType: "text/plain",
-  };
-
-  async function generateResponse() {
-    setLoading(true);
-    try {
-      const chatSession = model.startChat({
-        generationConfig,
-        history: [
-          {
-            role: "user",
-            parts: [{ text: userInput }],
-          },
-          {
-            role: "model",
-            parts: [
-              {
-                text: "Hello! Welcome to QuickBites! How can I help you today? Are you looking for information about our menu, delivery options, or payment methods? I'm here to assist you with those!\n",
-              },
-            ],
-          },
-        ],
-      });
-
-      const result = await chatSession.sendMessage(userInput);
-      setResponse(result.response.text());
-    } catch (error) {
-      console.error("Error generating text:", error);
-      setResponse("An error occurred while generating the response.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Function to return the menu in tabular format
-  const getMenuResponse = () => {
-    return `
-      | Category        | Items                             |
-      |-----------------|-----------------------------------|
-      | Fast Food       | Pizza, Burger, French Fries, Puffs, Pani Puri |
-      | Gujarati Dish   | Gujarati Full Dish               |
-      | Appetizers      | Manchow Soup, Corn Soup, Hakka Noodles, Lahori Chaat |
-      | Beverages       | Sosyo, Mazza, Sprite             |
-      | Main Course     | Gujarati Full Dish, Punjabi Dishes, Chinese Platter |
-      | Desserts        | Mava Kulfi, Family Combo Ice Cream, Ice Cream Cones |
-    `;
-  };
-
-  // Check if the user input includes the word 'menu' and return the menu
-  const handleUserInput = () => {
-    if (userInput.toLowerCase().includes("menu")) {
-      setResponse(getMenuResponse());
-    } else {
-      generateResponse();
-    }
-  };
-
-  // Suggested prompts for the user
-  const suggestedPrompts = [
-    { text: "Know about Menu", value: "Tell me the menu" },
-    { text: "Contact Us", value: "How can I contact support?" },
-    { text: "Suggest a Meal to Choose", value: "Can you suggest a meal for me?" },
+  const prompts = [
+    "Tell me the menu!",
+    "How can I contact support?",
+    "Can you suggest a meal for me?",
+    "Who am I speaking to?",
   ];
 
-  // Handle clicking a suggestion prompt
-  const handlePromptClick = (suggestion) => {
-    setUserInput(suggestion.value);
-    handleUserInput();
+  const handleSend = async (input) => {
+    if (!input) return;
+
+    const userMessage = { sender: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setUserInput("");
+
+    try {
+      setIsTyping(true);
+
+      const chatSession = model.startChat({
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 100,
+        },
+        history: messages.map((msg) => ({
+          role: msg.sender === "user" ? "user" : "model",
+          parts: [{ text: msg.text }],
+        })),
+      });
+
+      const response = await chatSession.sendMessage(input);
+      const botMessage = {
+        sender: "bot",
+        text: response.response.text(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      const errorMessage = { sender: "bot", text: "Sorry, I encountered an error." };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen pt-32 pb-20 bg-gradient-to-br from-blue-50 via-orange-500 to-purple-300 flex items-center justify-center">
-      <div className="max-w-2xl w-full bg-white shadow-xl rounded-xl p-8">
-        <h1 className="text-3xl font-extrabold text-center text-orange-600 mb-6">
-          QuickBites Chat Support
-        </h1>
-        <div className="flex flex-col space-y-6">
-          <div className="flex flex-wrap gap-4">
-            {suggestedPrompts.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handlePromptClick(suggestion)}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none"
-              >
-                {suggestion.text}
-              </button>
-            ))}
-          </div>
-
-          <textarea
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            placeholder="Type your query here..."
-            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-orange-400 text-lg"
-            rows={5}
+  const renderMessages = () =>
+    messages.map((msg, index) => (
+      <div
+        key={index}
+        className={`flex items-center ${
+          msg.sender === "user" ? "justify-end" : "justify-start"
+        } my-2`}
+      >
+        {msg.sender === "bot" && (
+          <img
+            src={chatbot}
+            alt="Chatbot Icon"
+            className="h-8 w-8 rounded-full mr-2 shadow-lg"
           />
-          <button
-            onClick={handleUserInput}
-            className="w-full py-3 bg-gradient-to-r from-orange-500 to-blue-500 text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl transition-transform transform hover:scale-105"
-            disabled={loading}
-          >
-            {loading ? "Generating..." : "Ask the ChatBot!"}
-          </button>
-          <div className="bg-gray-100 p-6 rounded-lg h-60 overflow-y-auto border border-gray-300 relative">
-            {loading ? (
-              <div className="absolute inset-0 flex flex-col justify-center items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-orange-500"></div>
-                <p className="mt-4 text-orange-500 font-medium text-lg">
-                  Generating response...
-                </p>
-              </div>
-            ) : response ? (
-              <p className="text-gray-700 whitespace-pre-wrap text-lg">
-                {response}
-              </p>
-            ) : (
-              <p className="text-gray-400 text-center">
-                Bot response will appear here...
-              </p>
-            )}
-          </div>
+        )}
+        <div
+          className={`p-4 rounded-lg shadow-lg transition transform ${
+            msg.sender === "user"
+              ? "bg-orange-500 text-white scale-105"
+              : "bg-gray-100 text-gray-800"
+          } max-w-xs`}
+        >
+          {msg.text}
         </div>
+        {msg.sender === "user" && (
+          <img
+            src={userIcon}
+            alt="User Icon"
+            className="h-8 w-8 rounded-full ml-2 shadow-lg"
+          />
+        )}
+      </div>
+    ));
+
+  return (
+    <div className="flex pt-24 flex-col h-screen bg-orane-500 text-white">
+      <div className="bg-gradient-to-r from-orange-600 to-orange-500 text-white p-4 text-center font-bold text-lg shadow-md">
+        Chat Support
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        {renderMessages()}
+        {isTyping && (
+          <div className="flex items-center my-2">
+            <img
+              src={chatbot}
+              alt="Chatbot Typing"
+              className="h-8 w-8 rounded-full mr-2 shadow-lg"
+            />
+            <div className="p-4 rounded-lg bg-gray-100 text-gray-800 max-w-xs animate-pulse">
+              ...
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="p-4 bg-white border-t">
+        <div className="flex flex-wrap gap-2">
+          {prompts.map((prompt, index) => (
+            <button
+              key={index}
+              onClick={() => handleSend(prompt)}
+              className="px-4 py-2 bg-orange-400 text-white rounded-lg shadow-md hover:bg-orange-500 transition transform hover:scale-105"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex p-4 bg-white border-t">
+        <input
+          type="text"
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          placeholder="Type your message..."
+          className="flex-1 p-2 border text-black rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+        <button
+          onClick={() => handleSend(userInput)}
+          className="px-4 bg-orange-500 text-white rounded-r-lg hover:bg-orange-600 transition transform hover:scale-105"
+        >
+          Send
+        </button>
       </div>
     </div>
   );

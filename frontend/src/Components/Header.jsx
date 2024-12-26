@@ -14,39 +14,23 @@ const Header = () => {
     assets.header5,
   ];
 
-  const spanTexts = [
-    "for Your Taste",
-    "for Great Flavors",
-    "for Your Cravings",
-    "for Unique Delights",
-    "for Best Experience",
-  ];
+  const words = ["Food", "Dinner", "Snacks", "Meals"];
 
   // Function to handle synchronized transitions for images and words
   useEffect(() => {
     const interval = setInterval(() => {
+      // Trigger transition for images
       setIsTransitioning(true);
 
-      // Wait for the transition effect to complete
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length); // Update image index
+        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length); // Update word index
         setIsTransitioning(false);
       }, 1000); // Matches the CSS transition duration
     }, 3000); // Total display duration for each image/word
 
-    return () => clearInterval(interval);
-  }, [images.length]);
-
-  const words = ["Food", "Dinner", "Snacks", "Meals"];
-   
-  // Change words every 1500ms without delay (immediate start)
-  useEffect(() => {
-    const wordInterval = setInterval(() => {
-      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
-    }, 1500);
-  
-    return () => clearInterval(wordInterval);
-  }, [words.length]);
+    return () => clearInterval(interval); // Cleanup interval
+  }, [images.length, words.length]);
 
   return (
     <div>
@@ -77,7 +61,9 @@ const Header = () => {
             src={images[currentIndex]}
             alt="Header Image"
             className={`transition-all duration-1000 ease-in-out transform ${
-              isTransitioning ? "opacity-0 scale-90" : "opacity-100 scale-100"
+              isTransitioning
+                ? "opacity-0 scale-90 translate-x-[100%]" // Move off-screen to the right
+                : "opacity-100 scale-100 translate-x-0" // Slide back to normal position
             } sm:w-[26rem] lg:w-[30rem]`}
           />
         </div>

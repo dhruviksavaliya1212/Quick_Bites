@@ -168,6 +168,14 @@ const Navbar = () => {
                   About
                 </li>
               </NavLink>
+              <NavLink to="/support">
+                <li
+                  onClick={() => scrollTo(0, 0)}
+                  className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
+                >
+                  Chat Support
+                </li>
+              </NavLink>
               <NavLink to="/contact">
                 <li
                   onClick={() => scrollTo(0, 0)}
