@@ -8,8 +8,8 @@ const Support = () => {
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
-  const apiKey = "YOUR_API_KEY_HERE";
-  const genAI = new GoogleGenerativeAI("AIzaSyDNtnai9OK_cB_NkbVDqZS1Gh1vCcCxzok");
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_API_KEY);
 
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash-exp",
@@ -43,7 +43,7 @@ Ensure customers are aware of these timings when discussing order statuses or su
 
 Customer Support Details:
 For further assistance, customers can reach out to:
-Contact Person: Ridham Savaliya
+Main Branch Head Person: Ridham Savaliya
 Email: quickbites.help@gmail.com
 
 Knowledge Scope:

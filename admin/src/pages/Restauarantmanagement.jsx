@@ -168,7 +168,7 @@ const RestaurantManagement = () => {
       </div>
 
       {/* Pending Restaurants Table */}
-      <div className="bg-white p-4 shadow-lg rounded-xl mb-6">
+      <div className="bg-white p-4 shadow-lg rounded-xl mb-6 overflow-x-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Pending Restaurants
         </h2>
@@ -210,7 +210,7 @@ const RestaurantManagement = () => {
       </div>
 
       {/* Rejected Restaurants Table */}
-      <div className="bg-white p-4 shadow-lg rounded-xl mb-6">
+      <div className="bg-white p-4 shadow-lg rounded-xl mb-6 overflow-x-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Rejected Restaurants
         </h2>
