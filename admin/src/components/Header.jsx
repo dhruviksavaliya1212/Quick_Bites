@@ -159,13 +159,13 @@ const Header = ({ toggleSidebar }) => {
             <div className="absolute top-12 right-0 w-40 bg-white rounded shadow-lg z-50">
               {/* Dropdown Items */}
               <ul className="text-gray-800 text-sm">
-                <li className="hover:bg-orange-100 px-4 py-2 cursor-pointer rounded-t">
-                  Profile
+                <li onClick={()=> navigate("/profile")}  className="hover:bg-orange-100 px-4 py-2 cursor-pointer rounded-t">
+               Profile
                 </li>
-                <li className="hover:bg-orange-100 px-4 py-2 cursor-pointer">
-                  Settings
+                <li onClick={()=> navigate("/chatsupport")} className="hover:bg-orange-100 px-4 py-2 cursor-pointer">
+                chatsupport
                 </li>
-                <li className="hover:bg-orange-100 px-4 py-2 cursor-pointer rounded-b">
+                <li onClick={()=> navigate("/login")} className="hover:bg-orange-100 px-4 py-2 cursor-pointer rounded-b">
                   Logout
                 </li>
               </ul>
