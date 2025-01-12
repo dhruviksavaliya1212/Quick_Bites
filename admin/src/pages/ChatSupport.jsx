@@ -31,7 +31,7 @@ const ChatSupport = () => {
 **Operational Hours**:
 QuickBites operates from Monday to Sunday, 8:00 AM to 10:00 PM. Provide operational hours when discussing availability.
 
-**Admin Support Chatbot handler **:
+**Admin Chatbot Support  handler **:
 Ridham Savaliya! or for quicker response Contact him at quickbites.help@gmail.com
 `});
 

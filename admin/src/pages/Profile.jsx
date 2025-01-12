@@ -58,7 +58,7 @@ const Profile = () => {
       <ToastContainer />
       <div className="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-4xl">
         <div className="bg-gradient-to-r from-orange-500 to-red-500 h-40"></div>
-        <div className="p-6 relative -mt-20">
+        <d5iv className="p-6 relative -mt-20">
           <div className="flex items-center space-x-4">
             <label htmlFor="profileImage" className="cursor-pointer">
               <img
@@ -177,7 +177,7 @@ const Profile = () => {
               Logout
             </button>
           </div>
-        </div>
+        </d5iv>
       </div>
     </div>
   );

@@ -104,8 +104,7 @@ const Dashboard = () => {
     setReviewsData(updatedReviews);
     setResponseText(""); // Clear the input after submission
     setSelectedReviewId(null); // Close the response textarea
-    // You can also send the response to the backend here (e.g., using Axios or Fetch)
-    // Example: axios.post('/api/reviews/response', { reviewId, responseText });
+ 
   };
 
   return (

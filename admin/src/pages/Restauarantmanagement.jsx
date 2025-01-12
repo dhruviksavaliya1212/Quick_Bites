@@ -18,7 +18,7 @@ const RestaurantManagement = () => {
       pickUpCommission: 5,
       revenue: 103058.34,
       status: "Active",
-      verified: false, // New field
+      verified: true, // New field
     },
     // Add more approved restaurants...
   ]);
