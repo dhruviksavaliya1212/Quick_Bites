@@ -1,4 +1,5 @@
 import React from "react";
+
 import Navbar from "./Components/Navbar";
 import { Route, Routes } from "react-router-dom";
 import Home from "./Pages/Home";
@@ -7,7 +8,7 @@ import AllFoods from "./Pages/AllFoods";
 import Login from "./Pages/Login";
 import Cart from "./Pages/Cart";
 import Checkout from "./Pages/Checkout";
-import About from '../src/Pages/About'
+import About from "../src/Pages/About";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
@@ -15,6 +16,8 @@ import MyOrders from "./Pages/MyOrders";
 import OrderDesc from "./Pages/OrderDesc";
 import AllResto from "./Pages/AllResto";
 import RestoDesc from "./Pages/RestoDesc";
+import Support from "./Pages/Support";
+// import About from "./Components/About";
 
 const App = () => {
   return (
@@ -33,6 +36,7 @@ const App = () => {
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/order/:id" element={<OrderDesc />} />
         <Route path="/about" element={<About />} />
+        <Route path="/support" element={<Support />} />
       </Routes>
       <Footer />
     </div>

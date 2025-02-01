@@ -11,6 +11,8 @@ import Restauarantmanagement from "../pages/Restauarantmanagement"
 import Settings from "../pages/Settings"
 import Usermanagement from "../pages/Usermanagement"
 import Dashboard from "../pages/Dashboard"
+import Profile from '../pages/Profile';
+import ChatSupport from '../pages/ChatSupport';
 
 
 const Approutes = () => {
@@ -26,6 +28,8 @@ const Approutes = () => {
         <Route path='/DeliveryAgentmanagement'  element={<DeliveryAgentmanagement />} />
         <Route path='/Promotionmanagement'  element={<Promotionmanagement />} />
         <Route path='/Reportsmanagement'  element={<Reportsmanagement />} />
+        <Route path='/profile'  element={<Profile />} />
+        <Route path='/chatsupport'  element={<ChatSupport />} />
         </Route>
       </Routes>
     </div>

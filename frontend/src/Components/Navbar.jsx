@@ -61,6 +61,15 @@ const Navbar = () => {
             </li>
             <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
           </NavLink>
+          <NavLink to="/support">
+            <li
+              onClick={() => scrollTo(0, 0)}
+              className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
+            >
+              Chat Support
+            </li>
+            <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
+          </NavLink>
           <NavLink to="/contact">
             <li
               onClick={() => scrollTo(0, 0)}
@@ -70,6 +79,7 @@ const Navbar = () => {
             </li>
             <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
           </NavLink>
+        
         </ul>
 
         <div className=" flex gap-5 items-center">
@@ -156,6 +166,14 @@ const Navbar = () => {
                   className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
                 >
                   About
+                </li>
+              </NavLink>
+              <NavLink to="/support">
+                <li
+                  onClick={() => scrollTo(0, 0)}
+                  className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
+                >
+                  Chat Support
                 </li>
               </NavLink>
               <NavLink to="/contact">

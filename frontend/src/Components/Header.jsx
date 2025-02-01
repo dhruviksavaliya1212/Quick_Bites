@@ -3,7 +3,11 @@ import { assets } from "../assets/assets";
 
 const Header = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+<<<<<<< HEAD
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+=======
+  const [currentWordIndex, setCurrentWordIndex] = useState(0); // Define state for current word index
+>>>>>>> 62960dfe91b389b7bb65f192ed2847a4331da780
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const images = [
@@ -14,39 +18,23 @@ const Header = () => {
     assets.header5,
   ];
 
-  const spanTexts = [
-    "for Your Taste",
-    "for Great Flavors",
-    "for Your Cravings",
-    "for Unique Delights",
-    "for Best Experience",
-  ];
+  const words = ["Food", "Dinner", "Snacks", "Meals"];
 
   // Function to handle synchronized transitions for images and words
   useEffect(() => {
     const interval = setInterval(() => {
+      // Trigger transition for images
       setIsTransitioning(true);
 
-      // Wait for the transition effect to complete
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length); // Update image index
+        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length); // Update word index
         setIsTransitioning(false);
       }, 1000); // Matches the CSS transition duration
     }, 3000); // Total display duration for each image/word
 
-    return () => clearInterval(interval);
-  }, [images.length]);
-
-   const words = ["Food", "Dinner", "Snacks", "Meals"];
-   
-    // Change words every 1500ms without delay (immediate start)
-    useEffect(() => {
-      const wordInterval = setInterval(() => {
-        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
-      }, 1500);
-  
-      return () => clearInterval(wordInterval);
-    }, [words.length]);
+    return () => clearInterval(interval); // Cleanup interval
+  }, [images.length, words.length]);
 
   return (
     <div className="h-full">
@@ -60,11 +48,11 @@ const Header = () => {
                 isTransitioning ? "scale-0 opacity-0" : "scale-100 opacity-100"
               }`}
             >
-              {words[currentIndex % words.length]}
+              {words[currentWordIndex]} {/* Update to use currentWordIndex */}
             </span>
           </p>
           <p className="mt-5 text-zinc-300 text-sm font-normal text-center">
-          Satisfy your hunger with flavors that excite your taste buds and warm your heart.Taste the magic, feel the love, and make every meal a memory worth savoring."Explore a world of taste that’s bold, exciting, and utterly irresistible."
+            Satisfy your hunger with flavors that excite your taste buds and warm your heart. Taste the magic, feel the love, and make every meal a memory worth savoring. Explore a world of taste that’s bold, exciting, and utterly irresistible.
           </p>
           <button className="px-8 py-2 bg-zinc-200 text-orange-500 mt-5 rounded-full text-md font-semibold shadow-md shadow-zinc-800">
             Order Now
@@ -77,7 +65,9 @@ const Header = () => {
             src={images[currentIndex]}
             alt="Header Image"
             className={`transition-all duration-1000 ease-in-out transform ${
-              isTransitioning ? "opacity-0 scale-90" : "opacity-100 scale-100"
+              isTransitioning
+                ? "opacity-0 scale-90 translate-x-[100%]" // Move off-screen to the right
+                : "opacity-100 scale-100 translate-x-0" // Slide back to normal position
             } sm:w-[26rem] lg:w-[30rem]`}
           />
         </div>

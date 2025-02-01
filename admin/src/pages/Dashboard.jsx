@@ -104,8 +104,7 @@ const Dashboard = () => {
     setReviewsData(updatedReviews);
     setResponseText(""); // Clear the input after submission
     setSelectedReviewId(null); // Close the response textarea
-    // You can also send the response to the backend here (e.g., using Axios or Fetch)
-    // Example: axios.post('/api/reviews/response', { reviewId, responseText });
+ 
   };
 
   return (
@@ -128,6 +127,19 @@ const Dashboard = () => {
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Pending Orders</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>
+        <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Restaurants</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>   <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Delivered Orders</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>   <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Categories</h2>
+          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+        </div>   <div className="p-4 bg-white shadow rounded-lg">
+          <h2 className="text-gray-600">Promotions</h2>
           <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
         </div>
       </div>
