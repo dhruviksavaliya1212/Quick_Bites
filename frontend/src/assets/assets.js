@@ -18,6 +18,7 @@ import peopleimg from '../assets/people.jpeg'
 import pizza1 from '../assets/pizza1.png'
 import food from '../assets/foodpng.png'
 import burger from '../assets/burger.png'
+import processing from '../assets/processing.png'
 import home from '../assets/house.png'
 import office from '../assets/office.png'
 import other from '../assets/other.png'
@@ -26,6 +27,7 @@ import fooddelivery from '../assets/food-delivery.png'
 import paymentmethod from '../assets/payment-method.png'
 import tracking from '../assets/tracking.png'
 import orderhistory from '../assets/order-history.png'
+import pending from "../assets/pending.png";
 import invoice from '../assets/invoice.png'
 import kachori from '../assets/kachori.png'
 import resto from '../assets/resto.png'
@@ -165,6 +167,22 @@ export const topRestuarants = [
     desc:"[Extra Spicy] Green, red sauce, jalapenos, black olive, sweet corn, red paprika, capsicum and green chilli."
   },
   {
+    id:2,
+    img:resto1,
+    name:"Lapino'z pizza",
+    rating:"4.4",
+    deliveryTime:"15-20 mins",
+    desc:"[Extra Spicy] Green, red sauce, jalapenos, black olive, sweet corn, red paprika, capsicum and green chilli."
+  },
+  {
+    id:2,
+    img:resto1,
+    name:"Lapino'z pizza",
+    rating:"4.4",
+    deliveryTime:"15-20 mins",
+    desc:"[Extra Spicy] Green, red sauce, jalapenos, black olive, sweet corn, red paprika, capsicum and green chilli."
+  },
+  {
     id:3,
     img:resto2,
     name:"Radhe Dhokla",
@@ -290,5 +308,7 @@ export const assets = {
   delivery,
   home,
   office,
-  other
+  other,
+  processing,
+  pending
 }

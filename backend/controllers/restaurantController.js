@@ -61,7 +61,7 @@ const addRestaurant = async (req, res) => {
       return res.json({ success: false, message: "Email must be in formate" });
     }
 
-    if (!validator.isMobilePhone(phone, ['en-IN'])) {
+    if (!validator.isMobilePhone(phone, ["en-IN"])) {
       return res.json({
         success: false,
         message: "contact no must be in formate",
@@ -155,6 +155,17 @@ const getFoods = async (req, res) => {
   }
 };
 
+const getFoodsFrontend = async (req, res) => {
+  try {
+    const { sellerId } = req.body;
+    const foods = await foodModel.find({ sellerId });
+    res.json({ success: true, foods, message: "Foods founded" });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+};
+
 // remove food from seller panel
 const removeFood = async (req, res) => {
   try {
@@ -174,7 +185,10 @@ const acceptOrder = async (req, res) => {
   try {
     const { orderId } = req.body;
 
-    await orderModel.findByIdAndUpdate(orderId, { isAccepted: true });
+    await orderModel.findByIdAndUpdate(orderId, {
+      isAccepted: true,
+      status: "Accepted",
+    });
 
     res.json({ success: true, message: "Order Accepted" });
   } catch (err) {
@@ -188,7 +202,7 @@ const rejectOrder = async (req, res) => {
   try {
     const { orderId } = req.body;
 
-    await orderModel.findByIdAndUpdate(orderId, { isCancelled: true });
+    await orderModel.findByIdAndUpdate(orderId, { isCancelled: true, status:"Cancelled" });
 
     res.json({ success: true, message: "Order Accepted" });
   } catch (err) {
@@ -205,6 +219,7 @@ const completeOrder = async (req, res) => {
     await orderModel.findByIdAndUpdate(orderId, {
       isCompleted: true,
       payment: true,
+      status:"Out for Delivery"
     });
 
     res.json({ success: true, message: "Order Completed" });
@@ -217,25 +232,27 @@ const completeOrder = async (req, res) => {
 // update profile
 const updateProfile = async (req, res) => {
   try {
-    const {
-      restoId,
-      email,
-      phone,
-      address,
-      deliverytime,
-      timing,
-    } = req.body;
+    const { restoId, email, phone, address, deliverytime, timing } = req.body;
 
-    if(email === "" || phone === "" || address === "" || deliverytime === "" || timing === ""){
-      return res.json({success:false, message:"Some fields arre empty. Please fill it"});
+    if (
+      email === "" ||
+      phone === "" ||
+      address === "" ||
+      deliverytime === "" ||
+      timing === ""
+    ) {
+      return res.json({
+        success: false,
+        message: "Some fields arre empty. Please fill it",
+      });
     }
 
-    if(!validator.isEmail(email)){
-      return res.json({success:false, message:"Email must be in formate"});
+    if (!validator.isEmail(email)) {
+      return res.json({ success: false, message: "Email must be in formate" });
     }
 
-    if(!validator.isMobilePhone(phone, ['en-IN'])){
-      return res.json({success:false, message:"Phone no must be 10 digit"});
+    if (!validator.isMobilePhone(phone, ["en-IN"])) {
+      return res.json({ success: false, message: "Phone no must be 10 digit" });
     }
 
     await restaurantModel.findByIdAndUpdate(restoId, {
@@ -254,32 +271,58 @@ const updateProfile = async (req, res) => {
 };
 
 // change Availability of restuarants
-const changeAvailability = async (req,res) => {
+const changeAvailability = async (req, res) => {
   try {
-    
-    const {restoId} = req.body
+    const { restoId } = req.body;
 
     const restoData = await restaurantModel.findById(restoId);
-    await restaurantModel.findByIdAndUpdate(restoId,{isopen: !restoData.isopen});
+    await restaurantModel.findByIdAndUpdate(restoId, {
+      isopen: !restoData.isopen,
+    });
 
-    res.json({success:true, message:"Availability changed"})
-
+    res.json({ success: true, message: "Availability changed" });
   } catch (err) {
     console.log(err);
-    res.json({success:false, message:"Something went wrong"})
+    res.json({ success: false, message: "Something went wrong" });
+  }
+};
+
+const changeOrderStatus = async(req,res) => {
+  try {
+    const {status, orderId} = req.body;
+
+  await orderModel.findByIdAndUpdate(orderId, {status:status});
+
+  res.json({success:true, message:"Status Changed"});
+  } catch (err) {
     
+    console.log(err);
+      res.json({ success: false, message: "Something went wrong" });
   }
 }
+
+const getRestoData = async(req,res) => {
+  try {
+    const restoData = await restaurantModel.find({});
+    res.json({success:true, restoData, message:"Fetch successfully"});
+  } catch (err) {
+    res.json({ success: false, message: "Something went wrong" });
+  }
+}
+
 
 export {
   addRestaurant,
   checkResto,
   getOrders,
   getFoods,
+  getFoodsFrontend,
   removeFood,
   acceptOrder,
   rejectOrder,
   completeOrder,
   updateProfile,
-  changeAvailability
+  changeAvailability,
+  changeOrderStatus,
+  getRestoData
 };

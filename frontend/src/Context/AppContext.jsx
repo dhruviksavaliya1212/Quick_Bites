@@ -12,6 +12,7 @@ const AppContextProvider = (props) => {
   const [token, setToken] = useState("");
   const [cart, setCart] = useState({});
   const [food_list, setFood_list] = useState([]);
+  const [restoData, setRestoData] = useState([]);
 
   const backend = "http://localhost:3000";
   const currency = "₹"
@@ -97,9 +98,21 @@ const AppContextProvider = (props) => {
     }
   };
 
+  // Get all resto data
+  const getRestoData = async () => {
+    const {data} = await axios.post(`${backend}/api/restaurant/get-resto-data`);
+    console.log(data)
+    if(data.success){
+      setRestoData(data.restoData)
+    } else {
+      toast.error(data.message)
+    }
+  };
+
   useEffect(() => {
     async function loadData() {
       await fetchFoodList();
+      await getRestoData();
       if(localStorage.getItem("user-token")){
         const token = localStorage.getItem("user-token");
         console.log(token);
@@ -119,6 +132,7 @@ const AppContextProvider = (props) => {
     addToCart,
     removeFromCart,
     food_list,
+    restoData,
     currency,
     getTotalCartAmount,
     calculateDelivery,

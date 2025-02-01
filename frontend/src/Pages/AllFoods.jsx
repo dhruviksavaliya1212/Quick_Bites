@@ -18,7 +18,10 @@ const AllFoods = () => {
   const applyFilter = () => {
     if (category !== "All") {
       console.log(category);
-      setFilter(food_list.filter((food) => food.category === category));
+      const filterFoods = food_list.filter((food) => {
+        return food.category.toLowerCase() === category
+      })
+      setFilter(filterFoods);
     } else {
       setFilter(food_list);
     }

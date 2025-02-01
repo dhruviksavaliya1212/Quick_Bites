@@ -192,16 +192,26 @@ const OrderDesc = () => {
               <div className=" flex gap-2 items-center ">
                 {order.payment ? (
                   <img src={assets.checkmark} className="w-8"></img>
+                ) : order.paymentType === "Cash On Delivery" ? (
+                  <img src={assets.pending} className=" w-9"></img>
                 ) : (
                   <img src={assets.close} className=" w-7"></img>
                 )}
 
                 <span
                   className={`text-base font-medium text-zinc-800 ${
-                    order.payment ? "text-green-600" : "text-red-600"
+                    order.payment
+                      ? "text-green-600"
+                      : order.paymentType === "Cash On Delivery"
+                      ? "text-yellow-600"
+                      : "text-red-600"
                   }`}
                 >
-                  {order.payment ? "Payment successfull" : "Payment Failed"}
+                  {order.payment
+                    ? "Payment successfull"
+                    : order.paymentType === "Cash On Delivery"
+                    ? "Payment Pending"
+                    : "Payment Failed"}
                 </span>
               </div>
             </div>
@@ -214,15 +224,15 @@ const OrderDesc = () => {
                   className={` w-full rounded mt-3 shadow-inner shadow-slate-800 py-5 px-5 bg-slate-200 cursor-pointer relative `}
                 >
                   <div className=" text-lg font-medium text-zinc-800 flex gap-2 items-center">
-                    {
-                      order.address.category === "Office" && (<img src={assets.office} className="w-8"/>)
-                    }
-                    {
-                      order.address.category === "Home" && (<img src={assets.home} className="w-8"/>)
-                    }
-                    {
-                      order.address.category === "Other" && (<img src={assets.other} className="w-8"/>)
-                    }
+                    {order.address.category === "Office" && (
+                      <img src={assets.office} className="w-8" />
+                    )}
+                    {order.address.category === "Home" && (
+                      <img src={assets.home} className="w-8" />
+                    )}
+                    {order.address.category === "Other" && (
+                      <img src={assets.other} className="w-8" />
+                    )}
                     {order.address.category}
                   </div>
                   <div className=" flex gap-2 capitalize text-lg font-medium text-zinc-800 mt-5 ">
@@ -247,53 +257,104 @@ const OrderDesc = () => {
                   </div>
                 </div>
               )}
-            </div>
-            <div className="">
-              <p className="mt-10 text-xl font-semibold text-zinc-800">
-                Delivery Status
-              </p>
               {/* <div
                 ref={mapRef}
                 className="map"
                 style={{ height: "400px", width: "100%" }}
               ></div> */}
-              <div className="mt-2">
-                <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                  <p>🟠</p>
-                  <img src={assets.checkout} alt="" className="w-10" />
-                  <p>Order Placed</p>
-                </div>
-                {order.status === "Processing" && (
-                  <>
-                    <hr className=" w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                    <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                      <p>🟠</p>
-                      <img src={assets.tracking} alt="" className="w-10" />
-                      <p>Order Processing</p>
-                    </div>
-                  </>
-                )}
+            </div>
+            <div className="">
+              <p className="mt-10 text-xl font-semibold text-zinc-800">
+                Delivery Status
+              </p>
 
-                {order.status === "Out for Delivery" && (
-                  <>
-                    <hr className=" w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                    <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                      <p>🟠</p>
-                      <img src={assets.delivery} alt="" className="w-10" />
-                      <p>Order Out for Delivery</p>
-                    </div>
-                  </>
-                )}
-                {order.status === "Delivered" && (
-                  <>
-                    <hr className=" w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                    <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                      <p>🟠</p>
-                      <img src={assets.fooddelivery} alt="" className="w-10" />
-                      <p>Order Delivered</p>
-                    </div>
-                  </>
-                )}
+              <div className="mt-2">
+                <div className="mt-5 text-lg font-semibold text-zinc-700">
+                  <p>Order History</p>
+                  <div className="flex items-center justify-start gap-3 mt-2">
+                    <p>🟠</p>
+                    <img src={assets.checkout} alt="" className="w-10" />
+                    <p>Order Placed</p>
+                  </div>
+                  {order.status === "Accepted" ? (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.checkmark} alt="" className="w-10" />
+                        <p>Order Accepted</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.processing} alt="" className="w-10" />
+                        <p>Order Processing</p>
+                      </div>
+                    </>
+                  ) : order.status === "Cancelled" ? (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.close} alt="" className="w-8" />
+                        <p>Order Cancelled</p>
+                      </div>
+                    </>
+                  ) :
+                   order.status === "Out for Delivery" ? (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.checkmark} alt="" className="w-10" />
+                        <p>Order Accepted</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.processing} alt="" className="w-10" />
+                        <p>Order Processing</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.delivery} alt="" className="w-10" />
+                        <p>Out for Delivery</p>
+                      </div>
+                    </>
+                  ) : order.status === "Delivered" && (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.checkmark} alt="" className="w-10" />
+                        <p>Order Accepted</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.processing} alt="" className="w-10" />
+                        <p>Order Processing</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.delivery} alt="" className="w-10" />
+                        <p>Order Out for Delivery</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img
+                          src={assets.fooddelivery}
+                          alt=""
+                          className="w-10"
+                        />
+                        <p>Order Delivered</p>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -23,12 +23,6 @@ const Dashboard = () => {
     if (data.success) {
       setOrders(data.data);
     }
-    // console.log(order1);
-    // console.log(orders.foods);
-    // console.log(orders);
-    // if (order1.length > 0) {
-    //   order1.latestOrders.map((item) => console.log("first" + item));
-    // }
   };
 
   useEffect(() => {
@@ -70,42 +64,44 @@ const Dashboard = () => {
         </div>
         <div className=" bg-white">
           <div className=" flex items-center gap-2.5 px-4 py-4 md:mt-10 mt-5 rounded-t border bg-orange-50">
-            {/* <img src={assets.list_icon} alt="" /> */}
             <p className="font-semibold text-gray-800">Latest Orders</p>
           </div>
           <div className="pt-4 border border-t-0 h-96 overflow-y-scroll">
-            {orders.latestOrders.map((item, index) => (
+            {orders.latestOrders.reverse().map((item, index) => (
               <div
                 onClick={() => navigate(`/desc/${item._id}`)}
                 className=" flex flex-col sm:flex-row border-b border-b-gray-400 items-center px-6 py-3 gap-3 hover:bg-orange-100 "
               >
                 <div
-                  key={index}
-                  className="flex flex-col sm:flex-row gap-3 justify-between w-full cursor-pointer"
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="text-zinc-600 font-medium text-sm flex gap-2">
-                      <p className="">{item._id}</p>
-                    </div>
-                    <div className="text-gray-800 capitalize font-medium text-[16px] flex gap-2">
-                      {item.items.map((item, index) => (
-                        <div className=" flex gap-1 text-zinc-700 text-sm">
-                          <p>{item.name}</p>
-                          <p>-</p>
-                          <p>{item.quantity}</p>
-                        </div>
-                      ))}
-                    </div>
+                key={index}
+                className=" lg:grid flex flex-col sm:flex-row md:flex-col justify-between grid-cols-2 gap-5 w-full cursor-pointer "
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="text-zinc-600 font-medium text-sm flex gap-2">
+                    <p className="">{item._id}</p>
                   </div>
-                  <div>
-                    <div className="text-gray-800  flex flex-col gap-2">
-                      <div className=" flex items-center gap-3">
-                        <span className="font-medium text-zinc-700 text-sm">
-                          {currency}
-                          {item.amount}
-                        </span>
+                  <div className="text-gray-800 capitalize font-medium text-[16px] flex gap-2">
+                    {/* <p>{item.address.firstName}</p>
+                      <p>{item.address.lastName}</p> */}
+                    {item.items.map((item, index) => (
+                      <div className=" flex gap-1 text-zinc-700 text-sm">
+                        <p>{item.name}</p>
+                        <p>-</p>
+                        <p>{item.quantity}</p>
                       </div>
-                      {item.paymentType === "Cash On Delivery" ? (
+                    ))}
+                  </div>
+                </div>
+                <div className=" flex flex-col md:flex-row justify-between">
+                  <div className="text-gray-800  flex flex-col gap-2">
+                    <div className=" flex items-center gap-3">
+                      {/* <img src={assets.invoice} alt="" className=" w-10" /> */}
+                      <span className="font-medium text-zinc-700 text-sm">
+                        {currency}
+                        {item.amount}
+                      </span>
+                    </div>
+                    {item.paymentType === "Cash On Delivery" ? (
                         <div className=" flex gap-2 text-sm items-center">
                           <p>Cash on Delivery</p>
                         </div>
@@ -116,9 +112,7 @@ const Dashboard = () => {
                           <p>Online(Razorpay)</p>
                         )
                       )}
-                    </div>
                   </div>
-
                   <div className=" flex flex-col gap-2">
                     {item.isCancelled ? (
                       <p className=" text-red-600 text-sm">Order Cancelled</p>
@@ -133,6 +127,9 @@ const Dashboard = () => {
                     )}
                   </div>
                 </div>
+
+                
+              </div>
               </div>
             ))}
           </div>

@@ -16,7 +16,7 @@ const teamData = [
   },
   {
     name: "Dhruvik Savaliya",
-    role: "Head Chef",
+    role: "Chief Operating Officer",
     description: "Jane ensures that every dish we deliver is of the highest quality and made with the finest ingredients.",
     img: `${dhruvik}`,
   },

@@ -54,7 +54,7 @@ const restaurantSchema = new mongoose.Schema({
   },
   isrequested:{
     type:Boolean,
-    default:false
+    default:true
   }
 })
 

@@ -108,7 +108,8 @@ const SellerContextProvider = (props) => {
     rejectOrder,
     completeOrder,
     restoData,
-    setRestoData
+    setRestoData,
+    getOrders
   };
 
   return (

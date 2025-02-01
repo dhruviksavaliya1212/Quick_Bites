@@ -3,11 +3,13 @@ import { useParams } from "react-router-dom";
 import { SellerContext } from "../Context/SellerContext";
 import vegetarian from "../assets/vegetarian.webp";
 import { assets } from "../assets/assets";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const OrderDesc = () => {
   const { id } = useParams();
 
-  const { orders, currency, acceptOrder, rejectOrder, completeOrder } =
+  const { orders, currency, acceptOrder, rejectOrder, completeOrder, backend, stoken, getOrders } =
     useContext(SellerContext);
 
   const [orderData, setOrderData] = useState([]);
@@ -15,11 +17,20 @@ const OrderDesc = () => {
   useEffect(() => {
     if (orders) {
       const order = orders.find((item) => item._id === id);
-      console.log(order);
       setOrderData(order);
-      console.log(orderData);
     }
   }, [orders, id]);
+
+  const changeOrderStatus = async(orderId, status) => {
+    const {data} = await axios.post(`${backend}/api/restaurant/change-status`,{orderId, status},{headers:{token:stoken}});
+
+    if(data.success){
+      toast.success(data.message);
+      getOrders();
+    } else{
+      toast.error(data.message);
+    }
+  }
 
   return (
     <div className="flex flex-col mb-20 pt-5 px-5 min-h-screen ">
@@ -279,42 +290,109 @@ const OrderDesc = () => {
               </p>
 
               <div className="mt-2">
-                <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                  <p>🟠</p>
-                  <img src={assets.checkout} alt="" className="w-10" />
-                  <p>Order Placed</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-semibold text-zinc-700">
+                    Current Status:
+                  </p>
+                  <select
+                    className="border border-zinc-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    value={orderData.status}
+                    onChange={(e) => changeOrderStatus(orderData._id,e.target.value)}
+                  >
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
                 </div>
-                {orderData.status === "Processing" && (
-                  <>
-                    <hr className=" w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                    <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                      <p>🟠</p>
-                      <img src={assets.tracking} alt="" className="w-10" />
-                      <p>Order Processing</p>
-                    </div>
-                  </>
-                )}
 
-                {orderData.status === "Out for Delivery" && (
-                  <>
-                    <hr className=" w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                    <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                      <p>🟠</p>
-                      <img src={assets.delivery} alt="" className="w-10" />
-                      <p>Order Out for Delivery</p>
-                    </div>
-                  </>
-                )}
-                {orderData.status === "Delivered" && (
-                  <>
-                    <hr className=" w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                    <div className="flex items-center justify-start gap-3 mt-5 text-lg font-semibold text-zinc-700">
-                      <p>🟠</p>
-                      <img src={assets.fooddelivery} alt="" className="w-10" />
-                      <p>Order Delivered</p>
-                    </div>
-                  </>
-                )}
+                <div className="mt-5 text-lg font-semibold text-zinc-700">
+                  <p>Order History</p>
+                  <div className="flex items-center justify-start gap-3 mt-2">
+                    <p>🟠</p>
+                    <img src={assets.checkout} alt="" className="w-10" />
+                    <p>Order Placed</p>
+                  </div>
+                  {orderData.status === "Accepted" && (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.checkmark} alt="" className="w-10" />
+                        <p>Order Accepted</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.processing} alt="" className="w-10" />
+                        <p>Order Processing</p>
+                      </div>
+                    </>
+                  )}
+                  {orderData.status === "Cancelled" && (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.close} alt="" className="w-8" />
+                        <p>Order Cancelled</p>
+                      </div>
+                     
+                    </>
+                  )}
+                  {orderData.status === "Out for Delivery" && (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.checkmark} alt="" className="w-10" />
+                        <p>Order Accepted</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.processing} alt="" className="w-10" />
+                        <p>Order Processing</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.delivery} alt="" className="w-10" />
+                        <p>Out for Delivery</p>
+                      </div>
+                    </>
+                  )}
+                  {orderData.status === "Delivered" && (
+                    <>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.checkmark} alt="" className="w-10" />
+                        <p>Order Accepted</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.processing} alt="" className="w-10" />
+                        <p>Order Processing</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img src={assets.delivery} alt="" className="w-10" />
+                        <p>Order Out for Delivery</p>
+                      </div>
+                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                        <p>🟠</p>
+                        <img
+                          src={assets.fooddelivery}
+                          alt=""
+                          className="w-10"
+                        />
+                        <p>Order Delivered</p>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>

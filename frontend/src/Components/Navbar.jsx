@@ -43,12 +43,12 @@ const Navbar = () => {
             </li>
             <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
           </NavLink>
-          <NavLink to="/offer-zone">
+          <NavLink to="/all-resto">
             <li
               onClick={() => scrollTo(0, 0)}
               className=" py-1 hover:translate-y-[-5px] transition-all duration-200"
             >
-              Offer Zone
+              All Restaurants
             </li>
             <hr className="border-none outline-none h-0.5 bg-orange-500 w-3/5 m-auto hidden" />
           </NavLink>

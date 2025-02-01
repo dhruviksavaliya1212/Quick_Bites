@@ -3,6 +3,7 @@ import { assets } from "../assets/assets";
 
 const Header = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const images = [
@@ -48,8 +49,8 @@ const Header = () => {
     }, [words.length]);
 
   return (
-    <div>
-      <div className="bg-orange-600 md:h-[80vh] rounded-lg mt-5 flex flex-col md:flex-row justify-between items-center shadow-lg shadow-zinc-500">
+    <div className="h-full">
+      <div className="bg-orange-600 md:h-[500px] rounded-lg mt-5 flex flex-col md:flex-row justify-between items-center shadow-lg shadow-zinc-500">
         {/* Left Side */}
         <div className="px-6 py-10 max-md:py-10 relative md:w-[50%] flex flex-col items-center">
           <p className="text-4xl sm:text-5xl md:text-3xl lg:text-5xl font-semibold text-zinc-100">

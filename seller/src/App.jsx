@@ -13,9 +13,10 @@ import AllOrders from "./Pages/AllOrders";
 import AllFoods from "./Pages/AllFoods";
 import AddFood from "./Pages/AddFood";
 import Profile from "./Pages/Profile";
+import Requested from "./Pages/Requested";
 
 const App = () => {
-  const { stoken, isAvailable } = useContext(SellerContext);
+  const { stoken, isAvailable, restoData } = useContext(SellerContext);
 
   return stoken ? (
     isAvailable === false ? (
@@ -27,16 +28,21 @@ const App = () => {
       <div className="overflow-x-hidden overflow-y-scroll bg-orange-100 ">
         <Navabar />
         <div className=" flex items-start pt-14 bg-white h-fit border-r">
-          <Sidebar />
+          {!restoData.isrequested && <Sidebar />}
           <div className=" bg-orange-200 w-full h-screen min-h-fit pb-10">
+            {restoData.isrequested && <Requested />}
             <Routes>
               <Route path="/" element={<></>} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/desc/:id" element={<OrderDesc />} />
-              <Route path="/all-orders/" element={<AllOrders />} />
-              <Route path="/all-foods/" element={<AllFoods />} />
-              <Route path="/add-food/" element={<AddFood />} />
-              <Route path="/profile/" element={<Profile />} />
+              {!restoData.isrequested && (
+                <>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/desc/:id" element={<OrderDesc />} />
+                  <Route path="/all-orders/" element={<AllOrders />} />
+                  <Route path="/all-foods/" element={<AllFoods />} />
+                  <Route path="/add-food/" element={<AddFood />} />
+                  <Route path="/profile/" element={<Profile />} />
+                </>
+              )}
             </Routes>
           </div>
         </div>

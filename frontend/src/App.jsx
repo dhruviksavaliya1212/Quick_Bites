@@ -13,7 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Verify from "./Pages/Verify";
 import MyOrders from "./Pages/MyOrders";
 import OrderDesc from "./Pages/OrderDesc";
-import About from "./Components/About";
+import AllResto from "./Pages/AllResto";
+import RestoDesc from "./Pages/RestoDesc";
 
 const App = () => {
   return (
@@ -23,6 +24,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/all-foods" element={<AllFoods />} />
+        <Route path="/all-resto" element={<AllResto />} />
+        <Route path="/all-resto/:id" element={<RestoDesc />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />

@@ -15,6 +15,7 @@ import tracking from "../assets/tracking.png";
 import checkout from "../assets/checkout.png";
 import pending from "../assets/pending.png";
 import trash from "../assets/trash.png";
+import processing from "../assets/processing.png";
 import vegetarian from "../assets/vegetarian.webp";
 
 export const assets = {
@@ -35,5 +36,6 @@ export const assets = {
   checkout,
   pending,
   vegetarian,
-  trash
+  trash,
+  processing
 };
