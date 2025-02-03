@@ -36,7 +36,7 @@ const MyOrders = () => {
     }
   }, [token]);
   return (
-    <div className="flex flex-col mb-20 py-24 min-h-screen ">
+    <div className="flex flex-col mb-20 py-24 min-h-screen w-full xl:w-[90%]">
       <h1 className=" text-xl text-zinc-800 font-semibold">My Orders</h1>
       <div className=" flex flex-col gap-5 mt-4 ">
         {orders.reverse().map((item, index) => (

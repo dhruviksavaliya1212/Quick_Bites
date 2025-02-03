@@ -4,15 +4,16 @@ import vegetarian from "../assets/vegetarian.webp";
 import plus from "../assets/plus.png";
 import remove from "../assets/remove.png";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const navigate = useNavigate();
 
   const {
+    token,
     cart,
     addToCart,
     removeFromCart,
-    backend,
     food_list,
     getTotalCartAmount,
     currency,
@@ -21,8 +22,18 @@ const Cart = () => {
     calculatePlatformFee,
   } = useContext(AppContext);
 
+  const checkUserLogin = ()  => {
+    if(!token){
+      navigate('/login')
+      return  toast.warn("Plase Login to Place an order")
+    } else if(getTotalCartAmount() === 0){
+      return  toast.info("Plase add item into cart to Place an order")
+    }
+     navigate("/checkout")
+  }
+
   return (
-    <div className="flex items-center flex-col mb-20 py-10 min-h-screen">
+    <div className="flex items-center flex-col mb-20 py-10 min-h-screen w-full">
       <div className="  mt-10 w-full lg:w-[90%] xl:w-[80%]">
         {food_list.map((item, index) => {
           if (cart[item._id] > 0) {
@@ -105,9 +116,6 @@ const Cart = () => {
                       <p className=" text-green-700 font-semibold ml-1">
                         {item.rating}
                       </p>
-                      {/* <p className=" ml-[2px] text-sm font-medium text-zinc-700">
-                        ({item.ratingCount})
-                      </p> */}
                     </div>
                     <p className=" text-md font-normal text-zinc-800 max-w-[90%]">
                       {item.desc}
@@ -168,7 +176,7 @@ const Cart = () => {
         </div>
       </div>
       <button
-        onClick={() => navigate("/checkout")}
+        onClick={checkUserLogin}
         className="w-[300px] sm:w-[400px] border bg-orange-500 py-3 text-zinc-100 font-medium rounded mt-4 text-[16px] hover:bg-orange-600 hover:text-black hover:scale-105 transition-all duration-300"
       >
         Next

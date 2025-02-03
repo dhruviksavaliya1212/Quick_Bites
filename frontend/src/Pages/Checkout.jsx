@@ -123,6 +123,7 @@ const Checkout = () => {
 
     if(data.success){
       toast.success(data.message);
+      navigate('/my-orders')
     } else {
       toast.error(data.message);
     }
@@ -216,15 +217,16 @@ const Checkout = () => {
   }, [token]);
 
   return (
-    <div className="flex flex-col mb-20 py-28 min-h-screen relative">
+    <div className="flex flex-col items-center mb-20 py-28 min-h-screen relative w-full">
+      <div className="w-full xl:w-[90%]">
       <button
         onClick={showPopup}
-        className=" w-44 border border-zinc-600 px-5 py-2 rounded "
+        className=" w-44 border border-zinc-600 px-5 py-2 rounded"
       >
         Add New Address
       </button>
       <div
-        className={` w-full flex absolute z-40 justify-center backdrop-blur-lg h-screen  ${
+        className={` w-full xl:w-[90%]  top-20 flex absolute z-40 justify-center items-center backdrop-blur-lg h-screen  ${
           popup === false && "hidden"
         }`}
       >
@@ -489,6 +491,7 @@ const Checkout = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

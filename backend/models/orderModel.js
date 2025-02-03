@@ -9,6 +9,14 @@ const orderSchema = new mongoose.Schema({
     type:String,
     required:true
   },
+  restoName:{
+    type:String,
+    required:true
+  },
+  restoAddress:{
+    type:String,
+    required:true
+  },
   items:{
     type:Array,
     required:true
