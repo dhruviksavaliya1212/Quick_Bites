@@ -3,11 +3,7 @@ import { assets } from "../assets/assets";
 
 const Header = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-<<<<<<< HEAD
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-=======
-  const [currentWordIndex, setCurrentWordIndex] = useState(0); // Define state for current word index
->>>>>>> 62960dfe91b389b7bb65f192ed2847a4331da780
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const images = [
