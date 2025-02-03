@@ -33,8 +33,8 @@ const Header = () => {
   }, [images.length, words.length]);
 
   return (
-    <div className="h-full">
-      <div className="bg-orange-600 md:h-[500px] rounded-lg mt-5 flex flex-col md:flex-row justify-between items-center shadow-lg shadow-zinc-500">
+    <div className="h-full w-full flex justify-center">
+      <div className="w-full xl:w-[90%] bg-orange-600 md:h-[500px] rounded-lg mt-5 flex flex-col md:flex-row justify-between items-center shadow-lg shadow-zinc-500">
         {/* Left Side */}
         <div className="px-6 py-10 max-md:py-10 relative md:w-[50%] flex flex-col items-center">
           <p className="text-4xl sm:text-5xl md:text-3xl lg:text-5xl font-semibold text-zinc-100">

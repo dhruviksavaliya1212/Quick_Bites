@@ -84,7 +84,8 @@ const RestoDesc = () => {
         )))
       }
       <div className="w-full flex items-center justify-center flex-col mb-20 ">
-        <div className="  mt-5 w-full lg:w-[90%] xl:w-[80%]">
+        <h1 className=' text-4xl mt-5 font-semibold text-zinc-700'>Foods</h1>
+        <div className=" mt-5 w-full lg:w-[90%] xl:w-[80%]">
           {
             foods && (foods.map((item, index) => (
               <div key={index}>

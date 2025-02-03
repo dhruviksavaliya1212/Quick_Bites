@@ -44,6 +44,7 @@ import food8 from '../assets/food8.png'
 import food9 from '../assets/food9.png'
 import google from '../assets/google.webp'
 import payment from '../assets/payment.webp'
+import plainPaper from '../assets/A4.webp'
 
 export const qualities = [
   {
@@ -310,5 +311,6 @@ export const assets = {
   office,
   other,
   processing,
-  pending
+  pending,
+  plainPaper
 }

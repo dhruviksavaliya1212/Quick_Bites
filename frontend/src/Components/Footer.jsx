@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 
 const Footer = () => {
   return (
-    <div className=" pb-5 ">
+    <div className=" pb-5 w-full xl:w-[90%] ">
       <div className=" flex flex-col md:flex-row items-start md:item-center max-md:px-2 w-full gap-5 ">
         {/* left side */}
         <div>
