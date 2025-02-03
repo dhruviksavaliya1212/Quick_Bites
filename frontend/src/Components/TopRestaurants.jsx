@@ -4,9 +4,9 @@ import { topRestuarants } from "../assets/assets";
 const TopRestaurants = () => {
   return (
     <div>
-      <div className=" mt-20 p-1 flex flex-col justify-center items-center pb-32">
-        <p className=" text-center text-3xl font-semibold mb-10">Top Restaurants</p>
-        <div className=" flex gap-5 justify-center items-center flex-wrap ">
+      <div className="w-full mt-20 p-1 flex flex-col justify-center items-center pb-32">
+        <p className="  text-center text-3xl font-semibold mb-10">Top Restaurants</p>
+        <div className=" w-full  flex gap-5 justify-center items-center flex-wrap ">
           {topRestuarants.map((item, index) => (
             <div key={index} className="max-w-[300px] px-5 py-4 border bg-zinc-200 rounded-md flex flex-col items-center shadow-inner shadow-zinc-700 hover:scale-105 transition-all duration-700 cursor-pointer group">
               <img src={item.img} alt="" className=" w-64 h-48 bg-center object-cover rounded-md group-hover:scale-105 transition-all duration-700"/>

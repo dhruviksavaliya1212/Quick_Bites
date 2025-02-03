@@ -2,6 +2,7 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userMOdel.js";
 import Stripe from "stripe";
 import razorpay from "razorpay";
+import restaurantModel from "../models/restaurantModel.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -20,6 +21,8 @@ const cashOnDelivery = async (req, res) => {
 
     const sellerId = orderData.items.find((item) => item.sellerId)?.sellerId;
 
+    const sellerData = await restaurantModel.find({sellerId})
+
     const order = {
       userId,
       items: orderData.items,
@@ -27,6 +30,8 @@ const cashOnDelivery = async (req, res) => {
       address: orderData.address,
       paymentType: "Cash On Delivery",
       sellerId,
+      restoName : sellerData[0].name,
+      restoAddress : sellerData[0].address
     };
 
     const newOrder = await new orderModel(order);

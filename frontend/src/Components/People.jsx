@@ -4,7 +4,7 @@ import { assets, people } from "../assets/assets";
 const People = () => {
   return (
     <div className=" mt-20 p-1">
-      <div className=" w-full flex flex-col md:flex-row items-center justify-center md:gap-5 lg:gap-10 gap-10">
+      <div className=" w-full  flex flex-col md:flex-row items-center justify-center md:gap-5 lg:gap-10 gap-10">
         {/* left side */}
         <div className="">
           <img src={assets.peopleimg} alt="" className=" h-full w-[24rem] sm:w-[30rem] md:w-[20rem] lg:w-[24rem] rounded-md"/>
