@@ -13,12 +13,14 @@ import Usermanagement from "../pages/Usermanagement"
 import Dashboard from "../pages/Dashboard"
 import Profile from '../pages/Profile';
 import ChatSupport from '../pages/ChatSupport';
+import Login from '../pages/login';
 
 
 const Approutes = () => {
   return (
     <div>
       <Routes>
+        <Route path="/login" element={<Login/>} />
         <Route path='/' element={<MainLayout/>} >
         <Route path='/' index element={<Dashboard />} />
         <Route path='/Menumanagement'  element={<Menumanagement />} />
