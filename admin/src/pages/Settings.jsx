@@ -1,4 +1,5 @@
 import React from 'react'
+import withAuth from '../utills/hoc/withAuth'
 
 const Settings = () => {
   return (
@@ -8,4 +9,4 @@ const Settings = () => {
   )
 }
 
-export default Settings
+export default withAuth(Settings);

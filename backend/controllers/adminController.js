@@ -10,11 +10,21 @@ import { sendMail } from "../utills/sendEmail.js";
 
 const registerAdmin = async (req, res) => {
   const { userName, email, password } = req.body;
-  console.log(userName, email, password )
+
+  if (!userName || !email || !password) {
+    return res.status(400).json({ message: "Missing required fields!" });
+  }
+
   try {
-    const existingUser = await Admin.findOne({ email });
-    if (existingUser) {
+    const existingEmail = await Admin.findOne({ email });
+
+    if (existingEmail) {
       return res.status(409).json({ message: "Email already in use!" });
+    }
+
+    const existingUser = await Admin.findOne({ userName });
+    if (existingUser) {
+      return res.status(409).json({ message: "userName already in use!" });
     }
 
     const newAdmin = await Admin.create({
@@ -25,12 +35,13 @@ const registerAdmin = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Admin Registerd Successfully!", newAdmin });
+      .json({ message: "Admin Registered Successfully!", newAdmin });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: "internal server error!" });
+    console.error("Failed at registration!", error);
+    res.status(500).json({ message: "Internal server error!" });
   }
 };
+
 
 // login & send OTP
 

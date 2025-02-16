@@ -8,6 +8,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useContext } from "react";
 import { AdminContext } from "../Context/AdminContext";
+import withAuth from "../utills/hoc/withAuth";
 
 const RestaurantManagement = () => {
 
@@ -482,4 +483,4 @@ const RestaurantManagement = () => {
   );
 };
 
-export default RestaurantManagement;
+export default withAuth(RestaurantManagement) ;

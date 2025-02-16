@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import pizza from "../assets/pizza-pizza-filled-with-tomatoes-salami-olives.jpg";
+import withAuth from "../utills/hoc/withAuth";
 
 const MenuManagement = () => {
   const [categories, setCategories] = useState([
@@ -233,4 +234,4 @@ const MenuManagement = () => {
   );
 };
 
-export default MenuManagement;
+export default withAuth(MenuManagement) ;

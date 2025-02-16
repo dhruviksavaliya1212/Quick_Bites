@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import chatbot from "../assets/chatbot.png"; // Chatbot icon
 import userIcon from "../assets/user.png"; // Admin icon (you can change this to an admin-specific icon)
+import withAuth from "../utills/hoc/withAuth";
 
 const ChatSupport = () => {
   const [messages, setMessages] = useState([]);
@@ -166,4 +167,4 @@ Ridham Savaliya! or for quicker response Contact him at quickbites.help@gmail.co
   );
 };
 
-export default ChatSupport;
+export default withAuth(ChatSupport) ;

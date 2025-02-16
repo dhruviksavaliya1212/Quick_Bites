@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
+import logout from "../utills/hoc/logOut";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const closeSidebar = () => {
@@ -8,6 +10,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       toggleSidebar(false);
     }
   };
+
+  const navigate = useNavigate()
 
   return (
     <>
@@ -177,7 +181,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
               <button
                 className="text-sm text-red-200 hover:text-red-400"
-                onClick={() => alert("Logging Out...")}
+                onClick={() => {
+                  logout(navigate)
+                }}
               >
                 Logout
               </button>

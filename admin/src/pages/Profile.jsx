@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import adminProfile from "../assets/adminProfile.jpg"
+import withAuth from '../utills/hoc/withAuth';
+import logout from '../utills/hoc/logOut';
 
 const Profile = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -24,9 +26,7 @@ const Profile = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  const handleLogout = () => {
-    navigate('/login');
-  };
+
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -58,7 +58,7 @@ const Profile = () => {
       <ToastContainer />
       <div className="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-4xl">
         <div className="bg-gradient-to-r from-orange-500 to-red-500 h-40"></div>
-        <d5iv className="p-6 relative -mt-20">
+        <div className="p-6 relative -mt-20">
           <div className="flex items-center space-x-4">
             <label htmlFor="profileImage" className="cursor-pointer">
               <img
@@ -173,14 +173,14 @@ const Profile = () => {
                 Edit Profile
               </button>
             )}
-            <button onClick={handleLogout} className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow">
+            <button onClick={() => logout(navigate)} className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow">
               Logout
             </button>
           </div>
-        </d5iv>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default withAuth(Profile) ;

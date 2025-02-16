@@ -17,6 +17,7 @@ import { AdminContext } from "../Context/AdminContext";
 import { useEffect } from "react";
 import axios from 'axios'
 import { toast } from 'react-toastify';
+import withAuth from "../utills/hoc/withAuth";
 
 // Sample data for reviews
 const reviews = [
@@ -274,4 +275,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard) ;

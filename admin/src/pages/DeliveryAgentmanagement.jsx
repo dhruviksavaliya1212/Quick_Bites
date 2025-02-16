@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import withAuth from '../utills/hoc/withAuth';
 
 const DeliveryAgentmanagement = () => {
   const [drivers, setDrivers] = useState([
@@ -168,4 +169,4 @@ const DeliveryAgentmanagement = () => {
   );
 };
 
-export default DeliveryAgentmanagement;
+export default withAuth(DeliveryAgentmanagement) ;
