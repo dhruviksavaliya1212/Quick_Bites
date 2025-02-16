@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 const Navbar = () => {
 
-  const {token, setToken} = useContext(AppContext);
+  const {token, setToken, cart, getTotalCartAmount} = useContext(AppContext);
 
   const navigate = useNavigate();
 
@@ -85,7 +85,7 @@ const Navbar = () => {
         <div className=" flex gap-5 items-center">
           <div className=" relative">
             <img onClick={()=>navigate('/cart')} src="data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGRhdGEtbmFtZT0iTGF5ZXIgMiIgdmlld0JveD0iMCAwIDM1IDM1Ij48cGF0aCBkPSJNMjcuNDcsMjMuOTNIMTQuOTJBNS4wOSw1LjA5LDAsMCwxLDEwLDIwTDgsMTEuODdhNS4xMSw1LjExLDAsMCwxLDUtNi4zMmgxNi41YTUuMTEsNS4xMSwwLDAsMSw1LDYuMzJsLTIsOC4xNUE1LjEsNS4xLDAsMCwxLDI3LjQ3LDIzLjkzWk0xMi45NCw4LjA1YTIuNjIsMi42MiwwLDAsMC0yLjU0LDMuMjNsMiw4LjE1YTIuNiwyLjYsMCwwLDAsMi41NCwySDI3LjQ3YTIuNiwyLjYsMCwwLDAsMi41NC0ybDItOC4xNWEyLjYxLDIuNjEsMCwwLDAtMi41NC0zLjIzWiIvPjxwYXRoIGQ9Ik05LjQ2IDE0YTEuMjUgMS4yNSAwIDAgMS0xLjIxLTFMNi40NiA1LjIzQTMuMjEgMy4yMSAwIDAgMCAzLjMyIDIuNzVIMS42OWExLjI1IDEuMjUgMCAwIDEgMC0yLjVIMy4zMkE1LjcxIDUuNzEgMCAwIDEgOC45IDQuNjZsMS43OCA3Ljc3YTEuMjQgMS4yNCAwIDAgMS0uOTMgMS41QTEuNDMgMS40MyAwIDAgMSA5LjQ2IDE0ek0xNS4xMSAzNC43NWE0IDQgMCAxIDEgNC00QTQgNCAwIDAgMSAxNS4xMSAzNC43NXptMC01LjU0YTEuNTIgMS41MiAwIDEgMCAxLjUyIDEuNTJBMS41MiAxLjUyIDAgMCAwIDE1LjExIDI5LjIxek0yOC45MyAzNC43NWE0IDQgMCAxIDEgNC00QTQgNCAwIDAgMSAyOC45MyAzNC43NXptMC01LjU0YTEuNTIgMS41MiAwIDEgMCAxLjUzIDEuNTJBMS41MiAxLjUyIDAgMCAwIDI4LjkzIDI5LjIxeiIvPjxwYXRoIGQ9Ik0yOC45MywyOS4yMUgxMi4yN2EzLjg5LDMuODksMCwxLDEsMC03Ljc4aDIuNjVhMS4yNSwxLjI1LDAsMSwxLDAsMi41SDEyLjI3YTEuMzksMS4zOSwwLDEsMCwwLDIuNzhIMjguOTNhMS4yNSwxLjI1LDAsMCwxLDAsMi41WiIvPjwvc3ZnPg==" alt="" className=" w-8 cursor-pointer"/>
-            <div className=" w-3 h-3 bg-orange-500 absolute rounded-full top-0 -right-1"></div>
+            <div className={` ${getTotalCartAmount() === 0 ? "hidden" : "block"} w-3 h-3 bg-orange-500 absolute rounded-full top-0 -right-1`}></div>
           </div>
           {!token ? (
             <button onClick={()=>navigate('/login')}  className=" px-5 py-2 text-white bg-orange-500 rounded-full shadow-md shadow-zinc-500 max-md:hidden">
@@ -98,12 +98,12 @@ const Navbar = () => {
               <img src="data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDY0IDY0IiB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxwYXRoIHN0eWxlPSJmaWxsOiMxMzQ1NjMiIGQ9Im0tMjE4LjctMzA4LjYgMi0yIDExLjcgMTEuOCAxMS43LTExLjggMiAyLTEzLjcgMTMuNy0xMy43LTEzLjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIzNyAzMzUpIi8+PC9zdmc+" alt=""  className=" w-10 -mt-2"/>
               </div>
               <div className=" hidden group-hover:block absolute z-10 top-0 right-0 pt-14 text-base font-medium">
-                <div className=" min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4  shadow-sm shadow-zinc-300">
-                  <p className=" hover: text-black cursor-pointer">
+                <div className=" text-zinc-800 min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4  shadow-sm shadow-zinc-300">
+                  <p onClick={()=>navigate('/profile')} className=" hover:text-black cursor-pointer">
                     My Profile
                   </p>
-                  <p onClick={()=>navigate('/my-orders')} className=" hover: text-black cursor-pointer">My Orders</p>
-                  <p onClick={logOut} className=" hover: text-black cursor-pointer">Logout</p>
+                  <p onClick={()=>navigate('/my-orders')} className=" hover:text-black cursor-pointer">My Orders</p>
+                  <p onClick={logOut} className=" hover:text-black cursor-pointer">Logout</p>
                 </div>
               </div>
             </div>

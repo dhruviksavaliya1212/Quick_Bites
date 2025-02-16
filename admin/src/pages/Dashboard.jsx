@@ -12,6 +12,11 @@ import {
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AdminContext } from "../Context/AdminContext";
+import { useEffect } from "react";
+import axios from 'axios'
+import { toast } from 'react-toastify';
 
 // Sample data for reviews
 const reviews = [
@@ -35,15 +40,30 @@ ChartJS.register(
 
 const Dashboard = () => {
   const navigate = useNavigate();
+
+  const {backend, orderData} = useContext(AdminContext)
+
+  const [dashData, setDashData] = useState(false)
+  
+  const getDashData = async() => {
+    try {
+      
+      const {data} = await axios.get(`${backend}/api/admin/dash-data`)
+
+      if(data.success){-
+        setDashData(data.dashData)
+      }
+    } catch (err) {
+      toast.success("Something went wrong")
+    }
+  }
+  
+  useEffect(()=>{
+    getDashData()
+  },[])
+  
   const handleSeeMore = () => {
     navigate("/Ordermanagement");
-  };
-
-  const stats = {
-    totalOrders: 1200,
-    revenue: 54000,
-    activeUsers: 340,
-    pendingOrders: 24,
   };
 
   // Bar Chart - Orders by Day
@@ -112,37 +132,33 @@ const Dashboard = () => {
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {
+        dashData && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Total Orders</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.totalOrders}</p>
+          <p className="text-2xl font-bold text-orange-500">{dashData.totalOrders}</p>
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Revenue</h2>
-          <p className="text-2xl font-bold text-orange-500">₹{stats.revenue}</p>
+          <p className="text-2xl font-bold text-orange-500">₹{dashData.revenue}</p>
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Active Users</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.activeUsers}</p>
+          <p className="text-2xl font-bold text-orange-500">{dashData.totalUsers}</p>
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Pending Orders</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+          <p className="text-2xl font-bold text-orange-500">{dashData.pendingOrders}</p>
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Restaurants</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
+          <p className="text-2xl font-bold text-orange-500">{dashData.totalResto}</p>
         </div>   <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Delivered Orders</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
-        </div>   <div className="p-4 bg-white shadow rounded-lg">
-          <h2 className="text-gray-600">Categories</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
-        </div>   <div className="p-4 bg-white shadow rounded-lg">
-          <h2 className="text-gray-600">Promotions</h2>
-          <p className="text-2xl font-bold text-orange-500">{stats.pendingOrders}</p>
-        </div>
-      </div>
+          <p className="text-2xl font-bold text-orange-500">{dashData.deliveredOrders}</p>
+        </div>  
+      </div>)
+      }
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -169,18 +185,24 @@ const Dashboard = () => {
           <thead>
             <tr className="border-b">
               <th className="p-2">Order ID</th>
-              <th className="p-2">Product</th>
-              <th className="p-2">Quantity</th>
+              <th className="p-2">Food</th>
+              <th className="p-2">Qty</th>
               <th className="p-2">Date</th>
+              <th className="p-2">Payment</th>
             </tr>
           </thead>
           <tbody>
-            {recentOrders.map((order) => (
-              <tr key={order.id} className="border-b hover:bg-orange-300">
-                <td className="p-2">{order.id}</td>
-                <td className="p-2">{order.product}</td>
-                <td className="p-2">{order.quantity}</td>
-                <td className="p-2">{order.date}</td>
+            {orderData && orderData.reverse().slice(0,5).map((item,index) => (
+              <tr key={index} className="border-b hover:bg-orange-300">
+                <td className="p-2">{item._id}</td>
+                <td className="p-2">{item.items.map((order,index)=>(
+                  <p key={index}>{order.name}</p>
+                ))}</td>
+                <td className="p-2">{item.items.map((order,index)=>(
+                  <p key={index}>{order.quantity}</p>
+                ))}</td>
+                <td className="p-2">{item.date.slice(0,10)}</td>
+                <td className="p-2">{item.paymentType}</td>
               </tr>
             ))}
           </tbody>

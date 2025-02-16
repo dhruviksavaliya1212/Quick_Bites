@@ -17,6 +17,7 @@
     "easyinvoice": "^3.0.47",
     "gapi-script": "^1.2.0",
     "leaflet": "^1.9.4",
+    "pdfjs-dist": "^4.10.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.1",

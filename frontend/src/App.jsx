@@ -17,6 +17,7 @@ import OrderDesc from "./Pages/OrderDesc";
 import AllResto from "./Pages/AllResto";
 import RestoDesc from "./Pages/RestoDesc";
 import Support from "./Pages/Support";
+import MyProfile from "./Pages/MyProfile";
 // import About from "./Components/About";
 
 const App = () => {
@@ -37,6 +38,7 @@ const App = () => {
         <Route path="/order/:id" element={<OrderDesc />} />
         <Route path="/about" element={<About />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/profile" element={<MyProfile />} />
       </Routes>
       <Footer />
     </div>

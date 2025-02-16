@@ -269,6 +269,31 @@ const updateProfile = async (req, res) => {
     res.json({ success: false, message: "Something went wrong" });
   }
 };
+const updateProfileAdmin = async (req, res) => {
+  try {
+    const { email, phone, address, _id} = req.body;
+
+    if (!validator.isEmail(email)) {
+      return res.json({ success: false, message: "Email must be in formate" });
+    }
+
+    if (!validator.isMobilePhone(phone, ["en-IN"])) {
+      return res.json({ success: false, message: "Phone no must be 10 digit" });
+    }
+
+    await restaurantModel.findByIdAndUpdate(_id, {
+      email,
+      phone,
+      address,
+    });
+
+    res.json({ success: true, message: "Profile Updated" });
+  } catch (err) {
+    console.log(err);
+    console.log(err)
+    res.json({ success: false, message: "Something went wrong" });
+  }
+};
 
 // change Availability of restuarants
 const changeAvailability = async (req, res) => {
@@ -310,6 +335,18 @@ const getRestoData = async(req,res) => {
   }
 }
 
+const deleteResto = async(req,res) => {
+  try {
+    const {restoId} = req.body;
+    console.log(restoId)
+
+    await restaurantModel.findByIdAndDelete(restoId);
+    res.json({success:true, message:"Restaurant Deleted"})
+  } catch (err) {
+    res.json({ success: false, message: "Something went wrong" });
+  }
+}
+
 
 export {
   addRestaurant,
@@ -324,5 +361,7 @@ export {
   updateProfile,
   changeAvailability,
   changeOrderStatus,
-  getRestoData
+  getRestoData,
+  updateProfileAdmin,
+  deleteResto
 };

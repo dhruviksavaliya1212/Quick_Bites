@@ -4,40 +4,22 @@ import { FiEdit } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
 import { saveAs } from "file-saver";
 import { MdVerified } from "react-icons/md";
+import axios from "axios";
+import { useEffect } from "react";
+import { useContext } from "react";
+import { AdminContext } from "../Context/AdminContext";
 
 const RestaurantManagement = () => {
+
+  const {backend} = useContext(AdminContext)
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [restaurants, setRestaurants] = useState([
-    {
-      id: 54,
-      name: "Wok n Roll",
-      address: "Sahibzada Ajit Singh Nagar, Punjab, India",
-      phone: "9876543210",
-      email: "woknroll@example.com",
-      deliveryCommission: 10,
-      pickUpCommission: 5,
-      revenue: 103058.34,
-      status: "Active",
-      verified: true, // New field
-    },
-    // Add more approved restaurants...
-  ]);
+  const [restaurants, setRestaurants] = useState(false);
 
-  const [pendingRestaurants, setPendingRestaurants] = useState([
-    {
-      id: 56,
-      name: "Cafe Delight",
-      address: "MG Road, Bengaluru, India",
-      phone: "9876509876",
-      email: "cafedelight@example.com",
-      deliveryCommission: 8,
-      pickUpCommission: 4,
-    },
-    // Add more pending restaurants...
-  ]);
+  const [pendingRestaurants, setPendingRestaurants] = useState(false);
 
-  const [rejectedRestaurants, setRejectedRestaurants] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [rejectedRestaurants, setRejectedRestaurants] = useState(false);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
@@ -49,11 +31,59 @@ const RestaurantManagement = () => {
     address: "",
     phone: "",
     email: "",
-    deliveryCommission: 0,
-    pickUpCommission: 0,
-    revenue: 0,
-    status: "Active",
   });
+
+  // Get all resto data
+  const getRestoData = async () => {
+    const {data} = await axios.post(`${backend}/api/restaurant/get-resto-data`);
+    console.log(data)
+    if(data.success){
+      setPendingRestaurants(data.restoData.filter((resto,_)=> resto.isrequested))
+      setRestaurants(data.restoData.filter((resto,_) => resto.isrequested === false))
+    } else {
+      toast.error(data.message)
+    }
+  };
+
+  const updateProfile = async () => {
+    try {
+      const { data } = await axios.post(
+        `${backend}/api/restaurant/update-data-admin`,
+        newRestaurantData);
+        console.log(data)
+      if (data.success) {
+        // toast.success(data.message);
+        getRestoData()
+      } else {
+        // toast.error(data.message);
+      }
+    } catch (err) {
+      console.log(err);
+      // toast.error("Something went wrong");
+    }
+    setIsEditModalOpen(false);
+  };
+
+  const confirmDelete = async() => {
+    try {
+      const restoId = selectedRestaurant._id
+      const { data } = await axios.post(
+        `${backend}/api/restaurant/delete-resto`,
+        {restoId});
+        console.log(data)
+        if (data.success) {
+        console.log(data.message)
+        setRestaurants(restaurants.filter((r) => r._id !== restoId));
+      }
+    } catch (err) {
+      console.log(err)
+    }
+    setIsDeleteModalOpen(false);
+  }
+
+  useEffect(()=>{
+    getRestoData()
+  },[])
 
   // Handlers for Pending Table
   const handleApprove = (restaurant) => {
@@ -103,12 +133,6 @@ const RestaurantManagement = () => {
     setRejectionReason(""); // Clear the rejection reason after submission
   };
 
-  // Confirm Deletion Handler
-  const confirmDelete = () => {
-    setRestaurants(restaurants.filter((r) => r.id !== selectedRestaurant.id));
-    setIsDeleteModalOpen(false);
-  };
-
   // Export Restaurants to CSV
   const handleExport = () => {
     const csvData = restaurants.map((restaurant) => ({
@@ -139,15 +163,15 @@ const RestaurantManagement = () => {
     setIsAnalyticsModalOpen(true);
   };
 
-  const filteredRestaurants = restaurants.filter((restaurant) =>
+  const filteredRestaurants = restaurants && restaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredPendingRestaurants = pendingRestaurants.filter((restaurant) =>
+  const filteredPendingRestaurants = pendingRestaurants && pendingRestaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredRejectedRestaurants = rejectedRestaurants.filter((restaurant) =>
+  const filteredRejectedRestaurants = rejectedRestaurants && rejectedRestaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -175,7 +199,7 @@ const RestaurantManagement = () => {
         <table className="w-full text-left bg-white border border-gray-200 rounded-lg">
           <thead className="bg-orange-500 text-white">
             <tr>
-              <th className="py-3 px-4">ID</th>
+              <th className="py-3 px-4">No</th>
               <th className="py-3 px-4">Name</th>
               <th className="py-3 px-4">Address</th>
               <th className="py-3 px-4">Phone</th>
@@ -183,9 +207,9 @@ const RestaurantManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredPendingRestaurants.map((restaurant) => (
-              <tr key={restaurant.id} className="hover:bg-orange-50">
-                <td className="py-2 px-4">{restaurant.id}</td>
+            {pendingRestaurants && pendingRestaurants.map((restaurant,index) => (
+              <tr key={index} className="hover:bg-orange-50">
+                <td className="py-2 px-4">{index+1}</td>
                 <td className="py-2 px-4">{restaurant.name}</td>
                 <td className="py-2 px-4">{restaurant.address}</td>
                 <td className="py-2 px-4">{restaurant.phone}</td>
@@ -225,7 +249,7 @@ const RestaurantManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredRejectedRestaurants.map((restaurant) => (
+            {filteredRejectedRestaurants && filteredRejectedRestaurants.map((restaurant) => (
               <tr key={restaurant.id} className="hover:bg-red-50">
                 <td className="py-2 px-4">{restaurant.id}</td>
                 <td className="py-2 px-4">{restaurant.name}</td>
@@ -246,21 +270,25 @@ const RestaurantManagement = () => {
         <table className="w-full text-left bg-white border border-gray-200 rounded-lg">
           <thead className="bg-green-500 text-white">
             <tr>
-              <th className="py-3 px-4">ID</th>
+              <th className="py-3 px-4">No</th>
               <th className="py-3 px-4">Name</th>
+              <th className="py-3 px-4">Owner Name</th>
+              <th className="py-3 px-4">Description</th>
               <th className="py-3 px-4">Address</th>
               <th className="py-3 px-4">Phone</th>
               <th className="py-3 px-4">Email</th>
+              <th className="py-3 px-4">Timing</th>
+              <th className="py-3 px-4">Delivery Time</th>
               <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Commission</th>
               <th className="py-3 px-4">Verified</th>
               <th className="py-3 px-4">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredRestaurants.map((restaurant) => (
-              <tr key={restaurant.id} className="hover:bg-green-50">
-                <td className="py-2 px-4">{restaurant.id}</td>
+            {restaurants && restaurants.map((restaurant,index) => (
+              <tr key={index} className="hover:bg-green-50">
+                <td className="py-2 px-4">{index+1}</td>
+                
 
                 {/* Name - Horizontally scrollable */}
                 <td
@@ -270,34 +298,38 @@ const RestaurantManagement = () => {
                   <div className="overflow-x-auto whitespace-nowrap">
                     {restaurant.name}
                   </div>
-                  {restaurant.verified && (
-                    <span className="inline-block ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                      Verified
-                    </span>
-                  )}
+                  
+                </td>
+                <td className="py-2 px-4">
+                  <div className="overflow-x-auto whitespace-nowrap">
+                    {restaurant.ownername}
+                  </div>
+                </td>
+                <td className="py-2 px-4">
+                  <div className="flex flex-wrap w-[40rem]">
+                    {restaurant.desc}
+                  </div>
                 </td>
 
                 {/* Address - Horizontally scrollable */}
                 <td className="py-2 px-4">
-                  <div className="overflow-x-auto whitespace-nowrap">
+                  <div className="flex flex-wrap w-[40rem]">
                     {restaurant.address}
                   </div>
                 </td>
 
                 <td className="py-2 px-4">{restaurant.phone}</td>
                 <td className="py-2 px-4">{restaurant.email}</td>
-                <td className="py-2 px-4">{restaurant.status}</td>
-                <td className="py-2 px-4">
-                  Delivery: {restaurant.deliveryCommission}% / Pick-Up:{" "}
-                  {restaurant.pickUpCommission}%
-                </td>
+                <td className="py-2 px-4">{restaurant.timing}</td>
+                <td className="py-2 px-4">{restaurant.deliverytime}</td>
+                <td className="py-2 px-4">{restaurant.isOpen ? "Open" : "Close"}</td>
 
                 {/* Verified - Fancy sticker */}
                 <td className="py-2 px-4">
                   <MdVerified className="text-green-500 text-xl mx-auto" />
                 </td>
 
-                <td className="py-2 px-4 flex space-x-2">
+                <td className="py-2 px-4 flex space-x-2 items-center justify-center">
                   <button
                     onClick={() => handleEdit(restaurant)}
                     className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-200"
@@ -372,32 +404,6 @@ const RestaurantManagement = () => {
               className="w-full p-3 border rounded-lg mb-4"
               placeholder="Email"
             />
-            <div className="flex justify-between mb-4">
-              <input
-                type="number"
-                value={newRestaurantData.deliveryCommission}
-                onChange={(e) =>
-                  setNewRestaurantData({
-                    ...newRestaurantData,
-                    deliveryCommission: e.target.value,
-                  })
-                }
-                className="w-1/2 p-3 border rounded-lg mb-4"
-                placeholder="Delivery Commission (%)"
-              />
-              <input
-                type="number"
-                value={newRestaurantData.pickUpCommission}
-                onChange={(e) =>
-                  setNewRestaurantData({
-                    ...newRestaurantData,
-                    pickUpCommission: e.target.value,
-                  })
-                }
-                className="w-1/2 p-3 border rounded-lg mb-4"
-                placeholder="Pick-Up Commission (%)"
-              />
-            </div>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsEditModalOpen(false)}
@@ -406,15 +412,7 @@ const RestaurantManagement = () => {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  const updatedRestaurants = restaurants.map((restaurant) =>
-                    restaurant.id === selectedRestaurant.id
-                      ? { ...newRestaurantData, id: selectedRestaurant.id }
-                      : restaurant
-                  );
-                  setRestaurants(updatedRestaurants);
-                  setIsEditModalOpen(false);
-                }}
+                onClick={updateProfile}
                 className="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600"
               >
                 Save Changes

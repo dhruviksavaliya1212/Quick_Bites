@@ -13,11 +13,11 @@ const AppContextProvider = (props) => {
   const [cart, setCart] = useState({});
   const [food_list, setFood_list] = useState([]);
   const [restoData, setRestoData] = useState([]);
+  const [userData, setUserData] = useState(false);
 
   const backend = "http://localhost:3000";
   const currency = "₹"
   
-
   // handle google login
   const handleLogin = async (code) => {
     const { data } = await axios.get(
@@ -109,6 +109,22 @@ const AppContextProvider = (props) => {
     }
   };
 
+  const getUserProfileData = async () => {
+    try {
+      const { data } = await axios.get(backend + "/api/user/get-profile", {
+        headers: { token },
+      });
+
+      if (data.success) {
+        setUserData(data.userData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+
   useEffect(() => {
     async function loadData() {
       await fetchFoodList();
@@ -120,9 +136,16 @@ const AppContextProvider = (props) => {
         await getCartData(token);
       }
     }
-
     loadData();
   }, []);
+
+  useEffect(()=>{
+    if(token){
+      getUserProfileData()
+    } else {
+      setUserData(false)
+    }
+  },[token])
 
   const values = {
     bestSeller,
@@ -139,7 +162,10 @@ const AppContextProvider = (props) => {
     calculateGst,
     calculatePlatformFee,
     setToken,
-    token
+    token,
+    userData,
+    setUserData,
+    getUserProfileData
   };
 
   return (

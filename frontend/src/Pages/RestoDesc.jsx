@@ -29,6 +29,8 @@ const RestoDesc = () => {
       setFoods(data.foods);
     }
   };
+
+  console.log(restoData)
   
   useEffect(()=>{
     if(restoData.length !== 0){
@@ -74,7 +76,7 @@ const RestoDesc = () => {
                   <p><span className=' text-zinc-900'>Delivery Time : </span>{item.timing}</p>
                 </div>
                 <div className=' flex justify-between mt-3 text-base font-medium text-zinc-700'>
-                  <p><span className=' text-zinc-900'>Restaurant is </span>{!item.isopen ? "Open" : "Close"}</p>
+                  <p className={`${item.isopen ? "text-green-500" : "text-red-500"}`}><span className=' text-zinc-900'>Restaurant is </span>{item.isopen ? "Open" : "Close"}</p>
                 </div>
                 <p className=' text-base font-medium text-zinc-700 mt-3'>{item.address}</p>
               </div>
@@ -85,7 +87,8 @@ const RestoDesc = () => {
       }
       <div className="w-full flex items-center justify-center flex-col mb-20 ">
         <h1 className=' text-4xl mt-5 font-semibold text-zinc-700'>Foods</h1>
-        <div className=" mt-5 w-full lg:w-[90%] xl:w-[80%]">
+        {
+          restoDesc && restoDesc[0].isopen ? (<div className=" mt-5 w-full lg:w-[90%] xl:w-[80%]">
           {
             foods && (foods.map((item, index) => (
               <div key={index}>
@@ -176,7 +179,8 @@ const RestoDesc = () => {
               </div>
             )))
           }
-        </div>
+        </div>) : (<p className={` mt-5 text-xl font-medium text-red-500`}>Restorant is cureently closed. You can't place order from this restaurant</p>)
+        }
       </div>
     </div>
   )

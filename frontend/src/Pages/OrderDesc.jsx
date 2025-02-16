@@ -60,7 +60,7 @@ const OrderDesc = () => {
       mode: "development", // Production or development, defaults to production   
       images: {
           // The logo on top of your invoice
-          logo: "https://raw.githubusercontent.com/dhruviksavaliya1212/Quick_Bites/refs/heads/main/admin/src/assets/logo.png?token=GHSAT0AAAAAAC5HOWSGYD7WOPET3Z4LKICEZ5ATJTQ",
+          logo: "https://public.budgetinvoice.com/img/watermark-draft.jpg",
           // The invoice background
           background: "https://papersdb.com/img/formats/15.png"
       },
@@ -181,12 +181,15 @@ const OrderDesc = () => {
         <div className="flex items-center justify-center flex-col mb-20">
           <div className="  mt-5 w-full lg:w-[90%] xl:w-[80%]">
             <div className=" flex flex-col gap-3 text-base font-semibold text-zinc-800">
-              <div>
+              <div className=" flex flex-col sm:flex-row gap-2">
               <p>Order Id :</p>
               <p className=" text-zinc-700">{order._id}</p>
               </div>
               <div>
-              <button onClick={generateInvoice} className=" px-5 py-1.5 bg-slate-300 rounded-full ">Download Invoice</button> {/* Button to trigger generation and download */}
+                {
+                  order.payment && (<button onClick={generateInvoice} className=" px-5 py-1.5 bg-slate-300 hover:bg-zinc-400 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full ">Download Invoice</button>)/* Button to trigger generation and download */
+                }
+              
               </div>
             </div>
             {order.items &&

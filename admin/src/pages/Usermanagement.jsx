@@ -2,93 +2,66 @@ import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
-
+import axios from 'axios'
+import { AdminContext } from "../Context/AdminContext";
+import { useEffect } from "react";
+import { useContext } from "react";
 const UserManagement = () => {
+
+  const {backend} = useContext(AdminContext)
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Bharat",
-      email: "bharat@example.com",
-      phone: "9876543210",
-      otpVerified: true,
-      flagged: false,
-      joined: "May 11, 2020",
-      status: true,
-    },
-    {
-      id: 2,
-      name: "Theodore Kurio",
-      email: "theodore@example.com",
-      phone: "8765432109",
-      otpVerified: true,
-      flagged: false,
-      joined: "May 10, 2020",
-      status: true,
-    },
-    {
-      id: 3,
-      name: "Theodore Kurio",
-      email: "theodore@example.com",
-      phone: "8765432109",
-      otpVerified: true,
-      flagged: false,
-      joined: "May 10, 2020",
-      status: true,
-    },
-    {
-      id: 40,
-      name: "Theodore Kurio",
-      email: "test@example.com",
-      phone: "12099920723",
-      otpVerified: true,
-      flagged: false,
-      joined: "May 10, 2020",
-      status: true,
-    },
-    {
-      id: 5,
-      name: "Theodore Kurio",
-      email: "theodore@example.com",
-      phone: "8765432109",
-      otpVerified: true,
-      flagged: false,
-      joined: "May 10, 2020",
-      status: true,
-    },
-    {
-      id: 6,
-      name: "o",
-      email: "theodore@example.com",
-      phone: "8765432109",
-      otpVerified: true,
-      flagged: false,
-      joined: "May 10, 2020",
-      status: true,
-    },
-    // Add more users as needed
-  ]);
+  const [users, setUsers] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
+
+  // get User Data
+  const getAllUsers = async() => {
+    try {
+      const {data} = await axios.post(`${backend}/api/user/getAllUser`);
+      if(data.success){
+        setUsers(data.users)
+      }
+      console.log(data.users)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  useEffect(()=>{
+    getAllUsers()
+  },[])
+
   // Handlers
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
-  const handleEdit = (user) => {
-    setSelectedUser({ ...user });
-    setIsEditModalOpen(true);
-  };
+  // const handleEdit = (user) => {
+  //   setSelectedUser({ ...user });
+  //   setIsEditModalOpen(true);
+  // };
 
   const handleDelete = (user) => {
     setSelectedUser(user);
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setUsers(users.filter((u) => u.id !== selectedUser.id));
+  const confirmDelete = async() => {
+    try {
+      const userId = selectedUser._id
+      const {data} = await axios.post(`${backend}/api/user/delete-user`,{userId});
+      console.log(data)
+      if(data.success){
+        console.log(data.message)
+        setUsers(users.filter((u) => u._id !== userId ));
+      }
+
+    } catch (err) {
+      console.log(err)
+    }
     setIsDeleteModalOpen(false);
   };
 
@@ -105,32 +78,30 @@ const UserManagement = () => {
     setSelectedUser((prev) => ({ ...prev, [field]: value }));
   };
 
-  const filteredUsers = users.filter(
+  console.log(users)
+
+  const filteredUsers = users && users.filter(
     (user) =>
-      user.id.toString().includes(searchTerm) ||
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.includes(searchTerm)
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginatedUsers = filteredUsers.slice(
+  const paginatedUsers = filteredUsers && filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-  // CSV Export
+  // // CSV Export
   const exportToCSV = () => {
-    const header = ["ID", "Name", "Email", "Phone", "OTP Verified", "Flagged", "Joined On"];
+    const header = ["ID", "Name", "Email", "Phone", "gender"];
     const rows = filteredUsers.map((user) => [
       user.id,
       user.name,
       user.email,
-      user.phone,
-      user.otpVerified ? "YES" : "NO",
-      user.flagged ? "YES" : "NO",
-      user.joined,
+      user.phone ? user.phone : "Not available",
+      user.gender,
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -157,8 +128,8 @@ const UserManagement = () => {
             <FaSearch className="absolute top-2.5 left-3 text-gray-400" />
             <input
               type="text"
-              className="w-full pl-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-              placeholder="Search by ID / Name / Email / Phone"
+              className="w-full pl-10 py-2 border rounded-lg focus:outline-none"
+              placeholder="Search by Name / Email"
               value={searchTerm}
               onChange={handleSearch}
             />
@@ -175,7 +146,7 @@ const UserManagement = () => {
             <option value={50}>50</option>
             <option value={100}>100</option>
           </select>
-          {/* Export to CSV Button */}
+         
           <button
             onClick={exportToCSV}
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -189,35 +160,25 @@ const UserManagement = () => {
         <table className="w-full text-left bg-white border border-gray-200 rounded-lg overflow-hidden">
           <thead className="bg-orange-500 text-white">
             <tr>
-              <th className="py-2 px-4">ID</th>
+              <th className="py-2 px-4">No</th>
               <th className="py-2 px-4">Name</th>
               <th className="py-2 px-4">Email</th>
               <th className="py-2 px-4">Phone</th>
-              <th className="py-2 px-4">OTP Verified</th>
-              <th className="py-2 px-4">Flagged</th>
-              <th className="py-2 px-4">Joined On</th>
+              <th className="py-2 px-4">Gender</th>
               <th className="py-2 px-4">Action</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-orange-100">
-                <td className="py-2 px-4">{user.id}</td>
+            { paginatedUsers && paginatedUsers.map((user,index) => (
+              <tr key={index} className="hover:bg-orange-100">
+                <td className="py-2 px-4">{index+1}</td>
                 <td className="py-2 px-4">{user.name}</td>
                 <td className="py-2 px-4">{user.email}</td>
-                <td className="py-2 px-4">{user.phone}</td>
-                <td className="py-2 px-4">{user.otpVerified ? "YES" : "NO"}</td>
-                <td className="py-2 px-4">{user.flagged ? "YES" : "NO"}</td>
-                <td className="py-2 px-4">{user.joined}</td>
+                <td className="py-2 px-4">{user.phone ? user.phone : "Not Available"}</td>
+                <td className="py-2 px-4">{user.gender ? user.gender : "Not Available"}</td>
                 <td className="py-2 px-4 flex space-x-2">
                   <button
-                    onClick={() => handleEdit(user)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 flex items-center"
-                  >
-                    <FiEdit className="mr-1" /> Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user)}
+                    onClick={()=> handleDelete(user)}
                     className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 flex items-center"
                   >
                     <MdDelete className="mr-1" /> Delete
