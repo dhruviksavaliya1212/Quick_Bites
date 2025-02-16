@@ -228,6 +228,17 @@ const getOrders2 = async (req, res) => {
   }
 };
 
+// get All orders Data
+const getAllOrders = async (req, res) => {
+  try {
+    const orderData = await orderModel.find({});
+    res.json({ success: true, orderData });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+};
+
 export {
   cashOnDelivery,
   stripePayment,
@@ -236,4 +247,5 @@ export {
   verifyRazorpay,
   getOrders,
   getOrders2,
+  getAllOrders
 };

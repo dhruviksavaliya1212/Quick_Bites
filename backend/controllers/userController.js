@@ -137,11 +137,7 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const { userId, name, phone, address, gender, dob } = req.body;
-    const imageFile = req.file;
-
-    console.log(userId, name, phone, address, gender, dob);
-
-    console.log(imageFile);
+    const image = req.file;
 
     if (!name || !phone || !address || !gender || !dob) {
       return res.json({ success: false, message: "Data missing" });
@@ -155,9 +151,9 @@ const updateProfile = async (req, res) => {
       dob,
     });
 
-    if (imageFile) {
+    if (image) {
       // upload image to cloudinary
-      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+      const imageUpload = await cloudinary.uploader.upload(image.path, {
         resource_type: "image",
       });
 
@@ -167,8 +163,36 @@ const updateProfile = async (req, res) => {
     }
     res.json({ success: true, message: "Profile Updated" });
   } catch (err) {
-    res.json({ success: false, message: err });
+    res.json({ success: false, message: "Something went wrong" });
+    console.log(err)
   }
 };
 
-export { register, login, getProfile, updateProfile, googleLogin };
+const getAllUsers = async(req,res) => {
+  try {
+    
+    const users = await userModel.find({}).select("-password");;
+
+    res.json({success:true, users, message:"User Fetched"})
+
+  } catch (err) {
+    res.json({ success: false, message: "Something went wrong" });
+    console.log(err)
+  }
+}
+
+const deleteUser = async(req,res) => {
+  try {
+    const {userId} = req.body;
+
+    await userModel.findByIdAndDelete(userId)
+
+    res.json({success:true, message:"User Deleted"})
+
+  } catch (err) {
+    res.json({ success: false, message: "Something went wrong" });
+    console.log(err)
+  }
+}
+
+export { register, login, getProfile, updateProfile, googleLogin, getAllUsers, deleteUser };

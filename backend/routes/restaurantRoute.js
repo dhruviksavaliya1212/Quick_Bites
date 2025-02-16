@@ -1,6 +1,6 @@
 import express from 'express'
 import upload from '../middlewares/multer.js';
-import { acceptOrder, addRestaurant, changeAvailability, changeOrderStatus, checkResto, completeOrder, getFoods, getFoodsFrontend, getOrders, getRestoData, rejectOrder, removeFood, updateProfile } from '../controllers/restaurantController.js';
+import { acceptOrder, addRestaurant, changeAvailability, changeOrderStatus, checkResto, completeOrder, deleteResto, getFoods, getFoodsFrontend, getOrders, getRestoData, rejectOrder, removeFood, updateProfile, updateProfileAdmin } from '../controllers/restaurantController.js';
 import authSeller from '../middlewares/authSeller.js';
 
 const restaurantRouter = express.Router();
@@ -18,5 +18,7 @@ restaurantRouter.post('/update-profile', authSeller, updateProfile);
 restaurantRouter.post('/change-availability', authSeller, changeAvailability);
 restaurantRouter.post('/change-status', authSeller, changeOrderStatus);
 restaurantRouter.post('/get-resto-data', getRestoData);
+restaurantRouter.post('/update-data-admin', updateProfileAdmin);
+restaurantRouter.post('/delete-resto', deleteResto);
 
 export default restaurantRouter;

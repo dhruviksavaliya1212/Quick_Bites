@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Approutes from "./routes/Approutes";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {ToastContainer} from 'react-toastify'
 
 function App() {
   const [count, setCount] = useState(0);
@@ -9,9 +9,8 @@ function App() {
   return (
     <>
       <div>
-        <Router>
+        <ToastContainer/>
           <Approutes />
-        </Router>
       </div>
     </>
   );

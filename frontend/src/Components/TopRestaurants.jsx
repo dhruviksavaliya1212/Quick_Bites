@@ -1,26 +1,44 @@
 import React from "react";
-import { topRestuarants } from "../assets/assets";
+import { useContext } from "react";
+import { AppContext } from "../Context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const TopRestaurants = () => {
+  const { restoData } = useContext(AppContext);
+
+  const navigate = useNavigate()
+  
   return (
     <div>
-      <div className="w-full mt-20 p-1 flex flex-col justify-center items-center pb-32">
-        <p className="  text-center text-3xl font-semibold mb-10">Top Restaurants</p>
-        <div className=" w-full  flex gap-5 justify-center items-center flex-wrap ">
-          {topRestuarants.map((item, index) => (
-            <div key={index} className="max-w-[300px] px-5 py-4 border bg-zinc-200 rounded-md flex flex-col items-center shadow-inner shadow-zinc-700 hover:scale-105 transition-all duration-700 cursor-pointer group">
-              <img src={item.img} alt="" className=" w-64 h-48 bg-center object-cover rounded-md group-hover:scale-105 transition-all duration-700"/>
-              <div className=" mt-3">
-                <p className=" text-xl font-bold text-zinc-900 ">{item.name}</p>
-                <div className=" flex gap-1 items-center my-1">
-                <svg
+      <div className=" pt-24 p-1 flex flex-col justify-center items-center pb-32">
+      <p className=" text-center text-3xl font-semibold mb-10">
+          Top Restaurants
+        </p>
+        <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {restoData &&
+            restoData.slice(0,5).map((item, index) => (
+              <div
+                key={index}
+                onClick={()=> navigate(`/all-resto/${item._id}`)}
+                className="max-w-[300px] px-5 py-4 border bg-zinc-200 rounded-md flex flex-col items-start shadow-inner shadow-zinc-700 hover:scale-105 transition-all duration-700 cursor-pointer group"
+              >
+                <img
+                  src={item.image}
+                  alt=""
+                  className=" w-64 h-48 bg-center object-cover rounded-md group-hover:scale-105 transition-all duration-700"
+                />
+                <div className=" mt-3">
+                  <p className=" text-xl font-bold text-zinc-900 ">
+                    {item.name}
+                  </p>
+                  <div className=" flex gap-1 items-center my-1">
+                    <svg
                       width="20"
                       height="20"
                       viewBox="0 0 14 14"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                       role="img"
-                      
                     >
                       <rect width="14" height="14" fill="white"></rect>
                       <path
@@ -28,14 +46,14 @@ const TopRestaurants = () => {
                         fill="#1BA672"
                       ></path>
                     </svg>
-                <p className=" text-lg font-medium">{item.rating}</p>
-                <p>|</p>
-                <p className=" text-lg font-medium">{item.deliveryTime}</p>
+                    <p className=" text-lg font-medium">{item.rating}</p>
+                    <p>|</p>
+                    <p className=" text-lg font-medium">{item.deliveryTime}</p>
+                  </div>
+                  <p className={`h-28 overflow-y-scroll ${item.desc.length > 30 && "text-ellipsis"} `}>{item.desc}</p>
                 </div>
-                <p>{item.desc}</p>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>
