@@ -29,11 +29,13 @@ connectCloudinary();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended:true}))
-// app.use(cors({
-//   origin:process.env.FRONTEND,
-//   credentials:true,
-// }));
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:5173', // Replace with your frontend origin
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);

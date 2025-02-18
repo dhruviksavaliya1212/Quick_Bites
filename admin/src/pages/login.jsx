@@ -16,16 +16,58 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  // Form fields state
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
+  
+  // UI state
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1: credentials, 2: verification
+  const [step, setStep] = useState(1);
   const [countdown, setCountdown] = useState(0);
   const [otpId, setOtpId] = useState(null);
+  
+  // Form validation state
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+    verificationCode: "",
+  });
+  
+  // Refs and hooks
   const el = useRef(null);
   const navigate = useNavigate();
+
+  // Validation patterns
+  const patterns = {
+    username: /^[a-zA-Z0-9_]{4,20}$/,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    // Updated password pattern to require special character
+    password: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&.])[A-Za-z\d@$!%*#?&.]{8,}$/,
+    verificationCode: /^\d{6}$/
+  };
+
+  // Updated validation messages
+  const validationMessages = {
+    username: {
+      required: "Username is required",
+      pattern: "Username must be 4-20 characters and can contain letters, numbers, and underscores",
+    },
+    email: {
+      required: "Email is required",
+      pattern: "Please enter a valid email address",
+    },
+    password: {
+      required: "Password is required",
+      pattern: "Password must be at least 8 characters and contain at least one letter, one number, and one special character (@$!%*#?&.)",
+    },
+    verificationCode: {
+      required: "Verification code is required",
+      pattern: "Verification code must be 6 digits",
+    },
+  };
 
   useEffect(() => {
     const typed = new Typed(el.current, {
@@ -49,10 +91,53 @@ const Login = () => {
     }
   }, [countdown]);
 
+  // Validation helper function
+  const validateField = (name, value) => {
+    if (!value) {
+      return validationMessages[name].required;
+    }
+    if (patterns[name] && !patterns[name].test(value)) {
+      return validationMessages[name].pattern;
+    }
+    return "";
+  };
+
+  // Input change handler with validation
+  const handleInputChange = (e, setter) => {
+    const { name, value } = e.target;
+    setter(value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: validateField(name, value)
+    }));
+  };
+
+  // Form validation
+  const validateForm = () => {
+    const newErrors = {
+      username: validateField("username", username),
+      email: validateField("email", email),
+      password: validateField("password", password),
+    };
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error);
+  };
+
+  const validateVerificationCode = () => {
+    const error = validateField("verificationCode", verificationCode);
+    setErrors(prev => ({ ...prev, verificationCode: error }));
+    return !error;
+  };
+
   const handleCredentialsSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate sending verification code
 
     try {
       const response = await axios.post(
@@ -65,23 +150,34 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        // store the otp and otpid in state
         setOtpId(response.data.otpId);
         setStep(2);
-        setCountdown(300); //start countdown for 300 seconds
-        alert("verification code sent to:", email);
+        setCountdown(300);
+        setErrors({}); // Clear any existing errors
       } else {
-        alert(response.data.message || "login failed");
+        setErrors(prev => ({
+          ...prev,
+          form: response.data.message || "Login failed"
+        }));
       }
     } catch (error) {
-      console.error("failed to login", error);
-      alert("An error occured during login!");
+      console.error("Failed to login", error);
+      setErrors(prev => ({
+        ...prev,
+        form: error.response?.data?.message || "An error occurred during login"
+      }));
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateVerificationCode()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -92,39 +188,58 @@ const Login = () => {
           otpId,
         }
       );
-      console.log("Full Response:", response.data);
-      if (response.status === 200 && response.data.token) {
-        // store the jwt token into the localstorage
-        console.log(response.data);
-        localStorage.setItem("token", response.data.token);
 
-        // Delay before navigating
+      if (response.status === 200 && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        setErrors({}); // Clear any existing errors
         setTimeout(() => {
-          navigate("/Ordermanagement");
+          navigate("/");
         }, 100);
-        // or whatever route you want
       } else {
-        alert(response.data.message || "failed to verify otp & login!");
+        setErrors(prev => ({
+          ...prev,
+          verificationCode: response.data.message || "Invalid verification code"
+        }));
       }
     } catch (error) {
-      console.log("failed to verify otp", error);
-      alert("failed to verify otp");
+      console.error("Failed to verify OTP", error);
+      setErrors(prev => ({
+        ...prev,
+        verificationCode: error.response?.data?.message || "Failed to verify code"
+      }));
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleResendCode = async () => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    setCountdown(30);
-    console.log("Resending verification code to:", email);
+    try {
+      // Add your resend code API call here
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setCountdown(30);
+      setErrors({}); // Clear any existing errors
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        form: "Failed to resend verification code"
+      }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBackToLogin = () => {
     setStep(1);
     setVerificationCode("");
+    setErrors({}); // Clear all errors when going back
+  };
+
+  // Error message component
+  const ErrorMessage = ({ error }) => {
+    return error ? (
+      <p className="text-red-500 text-sm mt-1 ml-1">{error}</p>
+    ) : null;
   };
 
   return (
@@ -167,6 +282,13 @@ const Login = () => {
               </motion.div>
             </div>
 
+            {/* Display form-level errors */}
+            {errors.form && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                {errors.form}
+              </div>
+            )}
+
             <AnimatePresence mode="wait">
               {step === 1 ? (
                 <motion.form
@@ -191,13 +313,17 @@ const Login = () => {
                         <User className="w-5 h-5 absolute left-4 top-1/2 transform text-orange-500 -translate-y-1/2 group-hover:text-orange-500 transition-colors duration-200" />
                         <input
                           type="text"
+                          name="username"
                           value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          className="w-full pl-12 pr-4 py-4 bg-white/80  border-2 border-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm"
+                          onChange={(e) => handleInputChange(e, setUsername)}
+                          className={`w-full pl-12 pr-4 py-4 bg-white/80 border-2 ${
+                            errors.username ? 'border-red-300' : 'border-orange-100'
+                          } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm`}
                           placeholder="admin_username"
                           required
                         />
                       </div>
+                      <ErrorMessage error={errors.username} />
                     </div>
 
                     <div>
@@ -208,13 +334,17 @@ const Login = () => {
                         <Mail className="w-5 h-5 absolute left-4 top-1/2 transform text-orange-500 -translate-y-1/2 group-hover:text-orange-500 transition-colors duration-200" />
                         <input
                           type="email"
+                          name="email"
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full pl-12 pr-4 py-4 bg-white/80  border-2 border-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm"
+                          onChange={(e) => handleInputChange(e, setEmail)}
+                          className={`w-full pl-12 pr-4 py-4 bg-white/80 border-2 ${
+                            errors.email ? 'border-red-300' : 'border-orange-100'
+                          } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm`}
                           placeholder="admin@restaurant.com"
                           required
                         />
                       </div>
+                      <ErrorMessage error={errors.email} />
                     </div>
 
                     <div>
@@ -225,13 +355,17 @@ const Login = () => {
                         <Lock className="w-5 h-5 absolute left-4 top-1/2 transform text-orange-500 -translate-y-1/2 group-hover:text-orange-500 transition-colors duration-200" />
                         <input
                           type="password"
+                          name="password"
                           value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="w-full pl-12 pr-4 py-4 bg-white/80 border-2 border-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm"
+                          onChange={(e) => handleInputChange(e, setPassword)}
+                          className={`w-full pl-12 pr-4 py-4 bg-white/80 border-2 ${
+                            errors.password ? 'border-red-300' : 'border-orange-100'
+                          } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm`}
                           placeholder="••••••••"
                           required
                         />
                       </div>
+                      <ErrorMessage error={errors.password} />
                     </div>
                   </motion.div>
 
@@ -244,7 +378,7 @@ const Login = () => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-xl hover:from-orange-600 hover:to-orange-700 focus:ring-4 focus:ring-orange-200 transition-all duration-300 relative overflow-hidden group font-semibold text-lg shadow-lg shadow-orange-500/30"
+                      className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-xl hover:from-orange-600 hover:to-orange-700 focus:ring-4 focus:ring-orange-200 transition-all duration-300 relative overflow-hidden group font-semibold text-lg shadow-lg shadow-orange-500/30 disabled:opacity-70"
                     >
                       <span className="absolute inset-0 w-0 bg-white opacity-20 transition-all duration-300 ease-out group-hover:w-full"></span>
                       <div className="flex items-center justify-center gap-2">
@@ -298,18 +432,24 @@ const Login = () => {
                         <ShieldCheck className="w-5 h-5 absolute left-4 top-1/2 transform text-orange-500 -translate-y-1/2 group-hover:text-orange-500 transition-colors duration-200" />
                         <input
                           type="text"
+                          name="verificationCode"
                           value={verificationCode}
-                          onChange={(e) =>
-                            setVerificationCode(
-                              e.target.value.replace(/\D/g, "").slice(0, 6)
-                            )
-                          }
-                          className="w-full pl-12 pr-4 py-4 bg-white/80 border-2 border-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm text-center text-2xl tracking-wide"
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                            handleInputChange(
+                              { target: { name: 'verificationCode', value } },
+                              setVerificationCode
+                            );
+                          }}
+                          className={`w-full pl-12 pr-4 py-4 bg-white/80 border-2 ${
+                            errors.verificationCode ? 'border-red-300' : 'border-orange-100'
+                          } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 outline-none group-hover:border-orange-500 shadow-sm text-center text-2xl tracking-wide`}
                           placeholder="000000"
                           maxLength={6}
                           required
                         />
                       </div>
+                      <ErrorMessage error={errors.verificationCode} />
                     </div>
                   </div>
 

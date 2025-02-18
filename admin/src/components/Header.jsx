@@ -4,6 +4,8 @@ import { CgProfile } from "react-icons/cg";
 import { MdNotificationsNone } from "react-icons/md";
 import { FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import logout from "../utills/hoc/logOut";
+
 
 const quickSearchRoutes = [
   { label: "Dashboard", path: "/" },
@@ -165,7 +167,7 @@ const Header = ({ toggleSidebar }) => {
                 <li onClick={()=> navigate("/chatsupport")} className="hover:bg-orange-100 px-4 py-2 cursor-pointer">
                 chatsupport
                 </li>
-                <li onClick={()=> navigate("/login")} className="hover:bg-orange-100 px-4 py-2 cursor-pointer rounded-b">
+                <li onClick={()=> logout(navigate)} className="hover:bg-orange-100 px-4 py-2 cursor-pointer rounded-b">
                   Logout
                 </li>
               </ul>

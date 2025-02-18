@@ -42,7 +42,6 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-
 // login & send OTP
 
 const loginAdmin = async (req, res) => {
@@ -77,7 +76,6 @@ const loginAdmin = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password!" });
     }
 
- 
     // const otpid = await OTP.findOne({})
     // Check if an OTP already exists (prevent flooding)
     const existingOTP = await OTP.findOne({ admin: findAdmin._id });
@@ -92,10 +90,13 @@ const loginAdmin = async (req, res) => {
 
     // Hash OTP before storing (Security Improvement)
     const hashedOTP = await bcrypt.hash(otp, 10);
-  const createdOTP = await new OTP({ admin: findAdmin._id, otp: hashedOTP }).save();
+    const createdOTP = await new OTP({
+      admin: findAdmin._id,
+      otp: hashedOTP,
+    }).save();
 
-  const otpId = createdOTP._id 
-  // console.log(otpId)
+    const otpId = createdOTP._id;
+    // console.log(otpId)
 
     // Send OTP via email
     await sendMail(
@@ -174,7 +175,6 @@ const loginAdmin = async (req, res) => {
     );
 
     res.json({ message: "OTP sent", otpId });
-
   } catch (error) {
     console.error("Error in loginAdmin:", error);
     res
@@ -185,40 +185,91 @@ const loginAdmin = async (req, res) => {
 
 // verify OTP & Login
 
-const verifyOTP = async (req, res) => {
-  const { otpId, verificationCode } = req.body;
+  const verifyOTP = async (req, res) => {
+    const { otpId, verificationCode } = req.body;
 
-  try {
-    if (!otpId || !verificationCode) {
-      return res.status(400).json({ message: "OTP ID and verification code are required!" });
+    try {
+      if (!otpId || !verificationCode) {
+        return res
+          .status(400)
+          .json({ message: "OTP ID and verification code are required!" });
+      }
+
+      const otpRecord = await OTP.findOne({ _id: otpId });
+
+      if (!otpRecord) {
+        console.error(`OTP record not found for ID: ${otpId}`);
+        return res.status(401).json({ message: "Invalid OTP!" });
+      }
+
+      console.log("Found OTP record:", otpRecord);
+
+      const isMatch = await bcrypt.compare(verificationCode, otpRecord.otp);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid OTP!" });
+      }
+
+      const token = jwt.sign(
+        { adminId: otpRecord.admin },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1d",
+        }
+      );
+
+      res.cookie("token", token, {
+        httpOnly: true, // Change to false for debugging
+        secure: false,   // Use true in production
+        sameSite: "None", // Use "Strict" or "Lax" in production
+        maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
+      });
+      res.setHeader("Authorization", `Bearer ${token}`);
+
+
+      // await OTP.deleteOne({ _id: otpRecord._id });
+
+      res.status(200).json({ message: "Login Successful", token });
+    } catch (error) {
+      console.error("Error in verifying the OTP:", error);
+      res.status(500).json({ message: "Failed to verify the OTP & Login!" });
     }
+  };
 
-    const otpRecord = await OTP.findOne({ _id: otpId });
-
-    if (!otpRecord) {
-      console.error(`OTP record not found for ID: ${otpId}`);
-      return res.status(401).json({ message: "Invalid OTP!" });
+  const logoutAdmin = async (req, res) => {
+    try {
+      const tokenFromCookie = req.cookies.token;
+      const authHeader = req.headers['authorization'];
+      const tokenFromHeader = authHeader && authHeader.split(" ")[1];
+  
+      console.log("Token from cookies:", tokenFromCookie);
+      console.log("Token from headers:", tokenFromHeader);
+  
+      const token = tokenFromCookie || tokenFromHeader;
+  
+      if (!token) {
+        return res
+          .status(401)
+          .json({ message: "Unauthorized! Token is missing." });
+      }
+  
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const adminId = decoded.adminId;
+  
+      // Remove OTP related to the adminId
+      await OTP.deleteOne({ admin: adminId });
+  
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+      });
+  
+      res.setHeader('Authorization', "");
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Failed to log out" });
     }
+  };
+  
 
-    console.log("Found OTP record:", otpRecord);
-
-    const isMatch = await bcrypt.compare(verificationCode, otpRecord.otp);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid OTP!" });
-    }
-
-    const token = jwt.sign({ adminId: otpRecord.admin }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    await OTP.deleteOne({ _id: otpRecord._id });
-
-    res.status(200).json({ message: "Login Successful", token });
-  } catch (error) {
-    console.error("Error in verifying the OTP:", error);
-    res.status(500).json({ message: "Failed to verify the OTP & Login!" });
-  }
-};
-
-
-export { registerAdmin, loginAdmin, verifyOTP };
+export { registerAdmin, loginAdmin, verifyOTP, logoutAdmin };

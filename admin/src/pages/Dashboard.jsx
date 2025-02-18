@@ -50,6 +50,7 @@ const Dashboard = () => {
     try {
       
       const {data} = await axios.get(`${backend}/api/admin/dash-data`)
+      console.log(data);
 
       if(data.success){-
         setDashData(data.dashData)
