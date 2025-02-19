@@ -84,7 +84,7 @@ const loginAdmin = async (req, res) => {
         message: "OTP already sent! Please wait before requesting a new one.",
       });
     }
-
+    
     // Generate Secure OTP
     const otp = generateOTP();
 
@@ -216,8 +216,7 @@ const loginAdmin = async (req, res) => {
           expiresIn: "1d",
         }
       );
-
-     
+    
       res.setHeader("Authorization", `Bearer ${token}`);
         // await OTP.deleteOne({ _id: otpRecord._id });
 

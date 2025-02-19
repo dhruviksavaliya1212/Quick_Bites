@@ -21,7 +21,7 @@ const RestaurantManagement = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
+  // const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false); // For approve confirmation
   const [isRejectConfirmationModalOpen, setIsRejectConfirmationModalOpen] = useState(false); // For reject confirmation
   const [newRestaurantData, setNewRestaurantData] = useState({
