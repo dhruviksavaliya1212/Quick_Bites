@@ -1,32 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdVerified } from "react-icons/md";
 import { saveAs } from "file-saver";
-import { MdVerified } from "react-icons/md";
 import axios from "axios";
-import { useEffect } from "react";
 import { useContext } from "react";
 import { AdminContext } from "../Context/AdminContext";
 import withAuth from "../utills/hoc/withAuth";
+import { toast } from 'react-toastify'; // Ensure you have this installed
 
 const RestaurantManagement = () => {
-
-  const {backend} = useContext(AdminContext)
+  const { backend } = useContext(AdminContext);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [restaurants, setRestaurants] = useState(false);
-
-  const [pendingRestaurants, setPendingRestaurants] = useState(false);
-
-  const [rejectedRestaurants, setRejectedRestaurants] = useState(false);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(false);
+  const [restaurants, setRestaurants] = useState([]);
+  const [pendingRestaurants, setPendingRestaurants] = useState([]);
+  const [rejectedRestaurants, setRejectedRestaurants] = useState([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false); // For approve confirmation
+  const [isRejectConfirmationModalOpen, setIsRejectConfirmationModalOpen] = useState(false); // For reject confirmation
   const [newRestaurantData, setNewRestaurantData] = useState({
     name: "",
     address: "",
@@ -34,15 +31,20 @@ const RestaurantManagement = () => {
     email: "",
   });
 
-  // Get all resto data
+  // Get all restaurant data
   const getRestoData = async () => {
-    const {data} = await axios.post(`${backend}/api/restaurant/get-resto-data`);
-    console.log(data)
-    if(data.success){
-      setPendingRestaurants(data.restoData.filter((resto,_)=> resto.isrequested))
-      setRestaurants(data.restoData.filter((resto,_) => resto.isrequested === false))
-    } else {
-      toast.error(data.message)
+    try {
+      const { data } = await axios.post(`${backend}/api/restaurant/get-resto-data`);
+      console.log(data);
+      if (data.success) {
+        setPendingRestaurants(data.restoData.filter((resto) => resto.isrequested));
+        setRestaurants(data.restoData.filter((resto) => !resto.isrequested));
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching restaurant data:", error);
+      toast.error("Failed to fetch restaurant data");
     }
   };
 
@@ -50,63 +52,72 @@ const RestaurantManagement = () => {
     try {
       const { data } = await axios.post(
         `${backend}/api/restaurant/update-data-admin`,
-        newRestaurantData);
-        console.log(data)
+        newRestaurantData
+      );
+      console.log(data);
       if (data.success) {
-        // toast.success(data.message);
-        getRestoData()
+        toast.success("Restaurant updated successfully!");
+        getRestoData();
       } else {
-        // toast.error(data.message);
+        toast.error(data.message);
       }
     } catch (err) {
-      console.log(err);
-      // toast.error("Something went wrong");
+      console.error(err);
+      toast.error("Something went wrong");
     }
     setIsEditModalOpen(false);
   };
 
-  const confirmDelete = async() => {
+  const confirmDelete = async () => {
     try {
-      const restoId = selectedRestaurant._id
+      const restoId = selectedRestaurant._id;
       const { data } = await axios.post(
         `${backend}/api/restaurant/delete-resto`,
-        {restoId});
-        console.log(data)
-        if (data.success) {
-        console.log(data.message)
+        { restoId }
+      );
+      console.log(data);
+      if (data.success) {
+        console.log(data.message);
         setRestaurants(restaurants.filter((r) => r._id !== restoId));
+        toast.success("Restaurant deleted successfully");
       }
     } catch (err) {
-      console.log(err)
+      console.error(err);
+      toast.error("Failed to delete restaurant");
     }
     setIsDeleteModalOpen(false);
-  }
+  };
 
-  useEffect(()=>{
-    getRestoData()
-  },[])
+  const confirmApprove = () => {
+    setRestaurants([...restaurants, { ...selectedRestaurant, status: "Active", verified: false }]);
+    setPendingRestaurants(pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id));
+    setIsApproveModalOpen(false);
+    toast.success(`${selectedRestaurant.name} has been approved`);
+  };
 
-  // Handlers for Pending Table
+  const confirmReject = () => {
+    setRejectedRestaurants([...rejectedRestaurants, { ...selectedRestaurant, rejectionReason }]);
+    setPendingRestaurants(pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id));
+    setIsRejectConfirmationModalOpen(false); // Close confirmation modal
+    setRejectionReason("");
+    toast.success(`${selectedRestaurant.name} has been rejected`);
+  };
+
+  // Handlers
   const handleApprove = (restaurant) => {
-    setRestaurants([
-      ...restaurants,
-      { ...restaurant, status: "Active", verified: false },
-    ]);
-    setPendingRestaurants(
-      pendingRestaurants.filter((r) => r.id !== restaurant.id)
-    );
+    setSelectedRestaurant(restaurant);
+    setIsApproveModalOpen(true); // Open approve confirmation modal
   };
 
   const handleReject = (restaurant) => {
     setSelectedRestaurant(restaurant);
-    setIsRejectModalOpen(true); // Open rejection modal
+    setIsRejectConfirmationModalOpen(true); // Open reject confirmation modal
   };
 
-  // Handlers for Approved Table
   const handleEdit = (restaurant) => {
     setSelectedRestaurant(restaurant);
+    setNewRestaurantData({ ...restaurant }); // Pre-fill the edit form
     setIsEditModalOpen(true);
-    setNewRestaurantData({ ...restaurant }); // Pre-fill the edit form with restaurant data
   };
 
   const handleDelete = (restaurant) => {
@@ -114,30 +125,14 @@ const RestaurantManagement = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleVerify = (restaurant) => {
-    const updatedRestaurants = restaurants.map((r) =>
-      r.id === restaurant.id ? { ...r, verified: !r.verified } : r
-    );
-    setRestaurants(updatedRestaurants);
-  };
-
-  // Confirm Rejection Handler
-  const confirmReject = () => {
-    setRejectedRestaurants([
-      ...rejectedRestaurants,
-      { ...selectedRestaurant, rejectionReason },
-    ]);
-    setPendingRestaurants(
-      pendingRestaurants.filter((r) => r.id !== selectedRestaurant.id)
-    );
-    setIsRejectModalOpen(false);
-    setRejectionReason(""); // Clear the rejection reason after submission
-  };
+  useEffect(() => {
+    getRestoData();
+  }, []);
 
   // Export Restaurants to CSV
   const handleExport = () => {
     const csvData = restaurants.map((restaurant) => ({
-      ID: restaurant.id,
+      ID: restaurant._id,
       Name: restaurant.name,
       Address: restaurant.address,
       Phone: restaurant.phone,
@@ -158,26 +153,21 @@ const RestaurantManagement = () => {
     saveAs(blob, "restaurants_data.csv");
   };
 
-  // Handle View Analytics
-  const handleViewAnalytics = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-    setIsAnalyticsModalOpen(true);
-  };
-
-  const filteredRestaurants = restaurants && restaurants.filter((restaurant) =>
+  // Filtering
+  const filteredRestaurants = restaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredPendingRestaurants = pendingRestaurants && pendingRestaurants.filter((restaurant) =>
+  const filteredPendingRestaurants = pendingRestaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredRejectedRestaurants = rejectedRestaurants && rejectedRestaurants.filter((restaurant) =>
+  const filteredRejectedRestaurants = rejectedRestaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="p-3 min-h-screen bg-gry-50">
+    <div className="p-3 min-h-screen bg-gray-50">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
           Restaurant Management
@@ -208,9 +198,9 @@ const RestaurantManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {pendingRestaurants && pendingRestaurants.map((restaurant,index) => (
+            {filteredPendingRestaurants.map((restaurant, index) => (
               <tr key={index} className="hover:bg-orange-50">
-                <td className="py-2 px-4">{index+1}</td>
+                <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{restaurant.name}</td>
                 <td className="py-2 px-4">{restaurant.address}</td>
                 <td className="py-2 px-4">{restaurant.phone}</td>
@@ -250,9 +240,9 @@ const RestaurantManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredRejectedRestaurants && filteredRejectedRestaurants.map((restaurant) => (
-              <tr key={restaurant.id} className="hover:bg-red-50">
-                <td className="py-2 px-4">{restaurant.id}</td>
+            {filteredRejectedRestaurants.map((restaurant) => (
+              <tr key={restaurant._id} className="hover:bg-red-50">
+                <td className="py-2 px-4">{restaurant._id}</td>
                 <td className="py-2 px-4">{restaurant.name}</td>
                 <td className="py-2 px-4">{restaurant.address}</td>
                 <td className="py-2 px-4">{restaurant.phone}</td>
@@ -286,20 +276,13 @@ const RestaurantManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {restaurants && restaurants.map((restaurant,index) => (
+            {filteredRestaurants.map((restaurant, index) => (
               <tr key={index} className="hover:bg-green-50">
-                <td className="py-2 px-4">{index+1}</td>
-                
-
-                {/* Name - Horizontally scrollable */}
-                <td
-                  className="py-2 px-4"
-                  style={{ width: "200px", maxWidth: "200px" }}
-                >
+                <td className="py-2 px-4">{index + 1}</td>
+                <td className="py-2 px-4" style={{ width: "200px", maxWidth: "200px" }}>
                   <div className="overflow-x-auto whitespace-nowrap">
                     {restaurant.name}
                   </div>
-                  
                 </td>
                 <td className="py-2 px-4">
                   <div className="overflow-x-auto whitespace-nowrap">
@@ -311,25 +294,19 @@ const RestaurantManagement = () => {
                     {restaurant.desc}
                   </div>
                 </td>
-
-                {/* Address - Horizontally scrollable */}
                 <td className="py-2 px-4">
                   <div className="flex flex-wrap w-[40rem]">
                     {restaurant.address}
                   </div>
                 </td>
-
                 <td className="py-2 px-4">{restaurant.phone}</td>
                 <td className="py-2 px-4">{restaurant.email}</td>
                 <td className="py-2 px-4">{restaurant.timing}</td>
                 <td className="py-2 px-4">{restaurant.deliverytime}</td>
                 <td className="py-2 px-4">{restaurant.isOpen ? "Open" : "Close"}</td>
-
-                {/* Verified - Fancy sticker */}
                 <td className="py-2 px-4">
                   <MdVerified className="text-green-500 text-xl mx-auto" />
                 </td>
-
                 <td className="py-2 px-4 flex space-x-2 items-center justify-center">
                   <button
                     onClick={() => handleEdit(restaurant)}
@@ -349,6 +326,87 @@ const RestaurantManagement = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Approve Confirmation Modal */}
+      {isApproveModalOpen && selectedRestaurant && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold text-green-600 mb-4">
+              Confirm Approve Restaurant
+            </h2>
+            <div className="mb-4">
+              <p><strong>Name:</strong> {selectedRestaurant.name}</p>
+              <p><strong>Address:</strong> {selectedRestaurant.address}</p>
+              <p><strong>Phone:</strong> {selectedRestaurant.phone}</p>
+              <p><strong>Email:</strong> {selectedRestaurant.email}</p>
+              <p><strong>Owner Name:</strong> {selectedRestaurant.ownername}</p>
+              <p><strong>Description:</strong> {selectedRestaurant.desc}</p>
+              <p><strong>Timing:</strong> {selectedRestaurant.timing}</p>
+              <p><strong>Delivery Time:</strong> {selectedRestaurant.deliverytime}</p>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsApproveModalOpen(false)}
+                className="bg-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmApprove}
+                className="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Confirmation Modal */}
+      {isRejectConfirmationModalOpen && selectedRestaurant && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              Confirm Reject Restaurant
+            </h2>
+            <div className="mb-4">
+              <p><strong>Name:</strong> {selectedRestaurant.name}</p>
+              <p><strong>Address:</strong> {selectedRestaurant.address}</p>
+              <p><strong>Phone:</strong> {selectedRestaurant.phone}</p>
+              <p><strong>Email:</strong> {selectedRestaurant.email}</p>
+              <p><strong>Owner Name:</strong> {selectedRestaurant.ownername}</p>
+              <p><strong>Description:</strong> {selectedRestaurant.desc}</p>
+              <p><strong>Timing:</strong> {selectedRestaurant.timing}</p>
+              <p><strong>Delivery Time:</strong> {selectedRestaurant.deliverytime}</p>
+            </div>
+            <div className="mb-4">
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                className="w-full p-3 border rounded-lg"
+                placeholder="Reason for rejection"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setIsRejectConfirmationModalOpen(false);
+                  setRejectionReason("");
+                }}
+                className="bg-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmReject}
+                className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {isEditModalOpen && (
@@ -424,7 +482,7 @@ const RestaurantManagement = () => {
       )}
 
       {/* Delete Modal */}
-      {isDeleteModalOpen && (
+      {isDeleteModalOpen && selectedRestaurant && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
             <h2 className="text-2xl font-bold text-red-600 mb-4">
@@ -449,7 +507,7 @@ const RestaurantManagement = () => {
         </div>
       )}
 
-      {/* Rejection Modal */}
+      {/* Rejection Modal (optional, can be removed if confirmation modal handles all) */}
       {isRejectModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
@@ -483,4 +541,4 @@ const RestaurantManagement = () => {
   );
 };
 
-export default withAuth(RestaurantManagement) ;
+export default withAuth(RestaurantManagement);

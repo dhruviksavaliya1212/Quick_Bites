@@ -35,67 +35,67 @@ const MenuManagement = () => {
   const [editMode, setEditMode] = useState(false);
 
   // Add new item
-  const handleAddItem = () => {
-    if (newItem.name && newItem.description && newItem.price && newItem.category) {
-      setMenuItems((prevItems) => [
-        ...prevItems,
-        {
-          ...newItem,
-          id: menuItems.length + 1,
-          ingredients: newItem.ingredients.split(","),
-        },
-      ]);
-      resetNewItem();
-    } else {
-      alert("Please fill all fields before adding an item.");
-    }
-  };
+  // const handleAddItem = () => {
+  //   if (newItem.name && newItem.description && newItem.price && newItem.category) {
+  //     setMenuItems((prevItems) => [
+  //       ...prevItems,
+  //       {
+  //         ...newItem,
+  //         id: menuItems.length + 1,
+  //         ingredients: newItem.ingredients.split(","),
+  //       },
+  //     ]);
+  //     resetNewItem();
+  //   } else {
+  //     alert("Please fill all fields before adding an item.");
+  //   }
+  // };
 
   // Edit item
-  const handleEditItem = (id) => {
-    const itemToEdit = menuItems.find((item) => item.id === id);
-    setNewItem({ ...itemToEdit, ingredients: itemToEdit.ingredients.join(",") });
-    setEditMode(true);
-  };
+  // const handleEditItem = (id) => {
+  //   const itemToEdit = menuItems.find((item) => item.id === id);
+  //   setNewItem({ ...itemToEdit, ingredients: itemToEdit.ingredients.join(",") });
+  //   setEditMode(true);
+  // };
 
   // Save edits
-  const handleSaveEdit = () => {
-    setMenuItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === newItem.id
-          ? { ...newItem, ingredients: newItem.ingredients.split(",") }
-          : item
-      )
-    );
-    resetNewItem();
-    setEditMode(false);
-  };
+  // const handleSaveEdit = () => {
+  //   setMenuItems((prevItems) =>
+  //     prevItems.map((item) =>
+  //       item.id === newItem.id
+  //         ? { ...newItem, ingredients: newItem.ingredients.split(",") }
+  //         : item
+  //     )
+  //   );
+  //   resetNewItem();
+  //   setEditMode(false);
+  // };
 
   // Delete item
-  const handleDeleteItem = (id) => {
-    setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
+  // const handleDeleteItem = (id) => {
+  //   setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  // };
 
-  // Reset new item state
-  const resetNewItem = () => {
-    setNewItem({
-      id: null,
-      name: "",
-      description: "",
-      price: "",
-      ingredients: "",
-      status: "Available",
-      category: "",
-      image: null,
-    });
-  };
+  // // Reset new item state
+  // const resetNewItem = () => {
+  //   setNewItem({
+  //     id: null,
+  //     name: "",
+  //     description: "",
+  //     price: "",
+  //     ingredients: "",
+  //     status: "Available",
+  //     category: "",
+  //     image: null,
+  //   });
+  // };
 
   return (
     <div className="min-h-screen lg:p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Menu Management</h1>
 
       {/* Add/Edit Item Form */}
-      <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+      {/* <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
         <h2 className="text-lg font-bold text-[#F97316] mb-4">{editMode ? "Edit Item" : "Edit Item"}</h2>
         <div className="grid grid-cols-2 gap-4">
           {[
@@ -156,7 +156,7 @@ const MenuManagement = () => {
             {editMode ? "Save Changes" : "Edit Item"}
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Menu Items Table */}
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -173,7 +173,7 @@ const MenuManagement = () => {
                   "Price (₹)",
                   "Ingredients",
                   "Status",
-                  "Actions",
+                  "",
                 ].map((header) => (
                   <th key={header} className="p-3">
                     {header}
@@ -210,7 +210,7 @@ const MenuManagement = () => {
                       {item.status}
                     </span>
                   </td>
-                  <td className="p-3">
+                  {/* <td className="p-3">
                     <button
                       onClick={() => handleEditItem(item.id)}
                       className="text-blue-500 hover:underline mr-2"
@@ -223,7 +223,7 @@ const MenuManagement = () => {
                     >
                       Delete
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

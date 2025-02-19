@@ -217,16 +217,9 @@ const loginAdmin = async (req, res) => {
         }
       );
 
-      res.cookie("token", token, {
-        httpOnly: true, // Change to false for debugging
-        secure: false,   // Use true in production
-        sameSite: "None", // Use "Strict" or "Lax" in production
-        maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
-      });
+     
       res.setHeader("Authorization", `Bearer ${token}`);
-
-
-      // await OTP.deleteOne({ _id: otpRecord._id });
+        // await OTP.deleteOne({ _id: otpRecord._id });
 
       res.status(200).json({ message: "Login Successful", token });
     } catch (error) {
@@ -237,14 +230,13 @@ const loginAdmin = async (req, res) => {
 
   const logoutAdmin = async (req, res) => {
     try {
-      const tokenFromCookie = req.cookies.token;
       const authHeader = req.headers['authorization'];
       const tokenFromHeader = authHeader && authHeader.split(" ")[1];
   
-      console.log("Token from cookies:", tokenFromCookie);
+
       console.log("Token from headers:", tokenFromHeader);
   
-      const token = tokenFromCookie || tokenFromHeader;
+      const token =  tokenFromHeader;
   
       if (!token) {
         return res
@@ -259,8 +251,10 @@ const loginAdmin = async (req, res) => {
       await OTP.deleteOne({ admin: adminId });
   
       res.clearCookie("token", {
-        httpOnly: true,
-        secure: true,
+        httpOnly: false, // Match the original setting
+        secure: false,   // Match the original setting
+        sameSite: "Lax", // Match the original setting
+        path: "/",       // Ensure path matches
       });
   
       res.setHeader('Authorization', "");
