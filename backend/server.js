@@ -31,11 +31,13 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}))
 // CORS configuration
 const corsOptions = {
-  origin: '*', // Allows requests from any origin
-  credentials: true, // Allows cookies and authorization headers
+  origin: 'http://localhost:5173', // Specify frontend origin
+  credentials: true, // Allow cookies and authorization headers
 };
 
 app.use(cors(corsOptions));
+
+
 
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);
