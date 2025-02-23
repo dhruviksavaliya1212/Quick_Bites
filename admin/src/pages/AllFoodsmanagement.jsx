@@ -1,4 +1,5 @@
 import React from 'react'
+import withAuth from '../utills/hoc/withAuth'
 
 const AllFoodsmanagement = () => {
   return (
@@ -8,5 +9,5 @@ const AllFoodsmanagement = () => {
   )
 }
 
-export default AllFoodsmanagement
+export default withAuth(AllFoodsmanagement) 
 

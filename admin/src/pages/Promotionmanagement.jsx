@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import withAuth from "../utills/hoc/withAuth";
 
 const PromotionManagement = () => {
   const [promotions, setPromotions] = useState([
@@ -259,4 +260,4 @@ const PromotionManagement = () => {
   );
 };
 
-export default PromotionManagement;
+export default withAuth(PromotionManagement) ;

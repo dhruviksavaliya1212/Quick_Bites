@@ -38,9 +38,9 @@ const addRestaurant = async (req, res) => {
     const imageFile = req.file;
 
     const seller = await sellerModel.findById(sellerId);
-
+    console.log(seller)
     const ownername = seller.name;
-
+    
     // missing details
     if (
       (!name,
@@ -99,7 +99,7 @@ const addRestaurant = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({ success: false, message: "Something went wrong" });
+    res.json({ success: false, message: "Something went wrong!" });
   }
 };
 

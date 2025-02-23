@@ -17,6 +17,7 @@ import { AdminContext } from "../Context/AdminContext";
 import { useEffect } from "react";
 import axios from 'axios'
 import { toast } from 'react-toastify';
+import withAuth from "../utills/hoc/withAuth";
 
 // Sample data for reviews
 const reviews = [
@@ -49,6 +50,7 @@ const Dashboard = () => {
     try {
       
       const {data} = await axios.get(`${backend}/api/admin/dash-data`)
+      console.log(data);
 
       if(data.success){-
         setDashData(data.dashData)
@@ -278,4 +280,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard) ;

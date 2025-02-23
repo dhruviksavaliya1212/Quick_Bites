@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import withAuth from "../utills/hoc/withAuth";
 
 const Ordermanagement = () => {
   const initialOrders = [
@@ -302,4 +303,4 @@ const Ordermanagement = () => {
   );
 };
 
-export default Ordermanagement;
+export default withAuth(Ordermanagement) ;

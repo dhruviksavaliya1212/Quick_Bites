@@ -6,6 +6,7 @@ import axios from 'axios'
 import { AdminContext } from "../Context/AdminContext";
 import { useEffect } from "react";
 import { useContext } from "react";
+import withAuth from "../utills/hoc/withAuth";
 const UserManagement = () => {
 
   const {backend} = useContext(AdminContext)
@@ -291,4 +292,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default withAuth(UserManagement);

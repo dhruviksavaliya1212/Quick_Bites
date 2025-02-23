@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaDownload, FaFilter } from 'react-icons/fa';
 import { Bar, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import withAuth from '../utills/hoc/withAuth';
 
 const Reportsmanagement = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -205,4 +206,4 @@ const Reportsmanagement = () => {
   );
 };
 
-export default Reportsmanagement;
+export default withAuth(Reportsmanagement) ;
