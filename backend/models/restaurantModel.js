@@ -55,6 +55,14 @@ const restaurantSchema = new mongoose.Schema({
   isrequested:{
     type:Boolean,
     default:true
+  },
+  isrejected:{
+    type:Boolean,
+    default:false
+  },
+  rejectionmsg:{
+    type:String,
+    default:''
   }
 })
 

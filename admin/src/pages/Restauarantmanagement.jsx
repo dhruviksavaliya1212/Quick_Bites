@@ -38,8 +38,9 @@ const RestaurantManagement = () => {
     const {data} = await axios.post(`${backend}/api/restaurant/get-resto-data`);
     console.log(data)
     if(data.success){
-      setPendingRestaurants(data.restoData.filter((resto,_)=> resto.isrequested))
+      setPendingRestaurants(data.restoData.filter((resto,_)=> resto.isrequested && resto.isrejected === false))
       setRestaurants(data.restoData.filter((resto,_) => resto.isrequested === false))
+      setRejectedRestaurants(data.restoData.filter((resto,_) => resto.isrejected))
     } else {
       toast.error(data.message)
     }
@@ -81,20 +82,63 @@ const RestaurantManagement = () => {
     setIsDeleteModalOpen(false);
   }
 
+  // Accept Resto request
+  const acceptResto = async(restoId) => {
+    try {
+      // const restoId = selectedRestaurant._id
+      const { data } = await axios.post(
+        `${backend}/api/admin/accept-resto`,
+        {restoId});
+        console.log(data)
+        if(data.success){
+              setPendingRestaurants(
+      pendingRestaurants.filter((r) => r._id !== restoId)
+    );
+        }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+    // Confirm Rejection Handler
+    const confirmReject = async() => {
+
+      try {
+        const restoId = selectedRestaurant._id
+        const {data} = await axios.post(`${backend}/api/admin/reject-resto`, {restoId, rejectionReason})
+
+        console.log(data)
+      if(data.success){
+        setRejectedRestaurants([
+          ...rejectedRestaurants,
+          {...selectedRestaurant, rejectionReason },
+        ]);
+        setPendingRestaurants(
+          pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id)
+        );
+      }
+
+      } catch (err) {
+        console.log(err)
+      }
+      setIsRejectModalOpen(false);
+      setRejectionReason(""); // Clear the rejection reason after submission
+    };
+
   useEffect(()=>{
     getRestoData()
   },[])
 
   // Handlers for Pending Table
-  const handleApprove = (restaurant) => {
-    setRestaurants([
-      ...restaurants,
-      { ...restaurant, status: "Active", verified: false },
-    ]);
-    setPendingRestaurants(
-      pendingRestaurants.filter((r) => r.id !== restaurant.id)
-    );
-  };
+  // const handleApprove = (restaurant) => {
+  //   setRestaurants([
+  //     ...restaurants,
+  //     { ...restaurant, status: "Active", verified: false },
+  //   ]);
+  //   setPendingRestaurants(
+  //     pendingRestaurants.filter((r) => r.id !== restaurant.id)
+  //   );
+  // };
 
   const handleReject = (restaurant) => {
     setSelectedRestaurant(restaurant);
@@ -113,25 +157,14 @@ const RestaurantManagement = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleVerify = (restaurant) => {
-    const updatedRestaurants = restaurants.map((r) =>
-      r.id === restaurant.id ? { ...r, verified: !r.verified } : r
-    );
-    setRestaurants(updatedRestaurants);
-  };
+  // const handleVerify = (restaurant) => {
+  //   const updatedRestaurants = restaurants.map((r) =>
+  //     r.id === restaurant.id ? { ...r, verified: !r.verified } : r
+  //   );
+  //   setRestaurants(updatedRestaurants);
+  // };
 
-  // Confirm Rejection Handler
-  const confirmReject = () => {
-    setRejectedRestaurants([
-      ...rejectedRestaurants,
-      { ...selectedRestaurant, rejectionReason },
-    ]);
-    setPendingRestaurants(
-      pendingRestaurants.filter((r) => r.id !== selectedRestaurant.id)
-    );
-    setIsRejectModalOpen(false);
-    setRejectionReason(""); // Clear the rejection reason after submission
-  };
+
 
   // Export Restaurants to CSV
   const handleExport = () => {
@@ -158,18 +191,18 @@ const RestaurantManagement = () => {
   };
 
   // Handle View Analytics
-  const handleViewAnalytics = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-    setIsAnalyticsModalOpen(true);
-  };
+  // const handleViewAnalytics = (restaurant) => {
+  //   setSelectedRestaurant(restaurant);
+  //   setIsAnalyticsModalOpen(true);
+  // };
 
-  const filteredRestaurants = restaurants && restaurants.filter((restaurant) =>
-    restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredRestaurants = restaurants && restaurants.filter((restaurant) =>
+  //   restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const filteredPendingRestaurants = pendingRestaurants && pendingRestaurants.filter((restaurant) =>
-    restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredPendingRestaurants = pendingRestaurants && pendingRestaurants.filter((restaurant) =>
+  //   restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const filteredRejectedRestaurants = rejectedRestaurants && rejectedRestaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -215,7 +248,7 @@ const RestaurantManagement = () => {
                 <td className="py-2 px-4">{restaurant.phone}</td>
                 <td className="py-2 px-4 flex space-x-2">
                   <button
-                    onClick={() => handleApprove(restaurant)}
+                    onClick={() => acceptResto(restaurant._id)}
                     className="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition duration-200"
                   >
                     Approve
@@ -249,13 +282,13 @@ const RestaurantManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredRejectedRestaurants && filteredRejectedRestaurants.map((restaurant) => (
-              <tr key={restaurant.id} className="hover:bg-red-50">
-                <td className="py-2 px-4">{restaurant.id}</td>
+            {filteredRejectedRestaurants && filteredRejectedRestaurants.map((restaurant,index) => (
+              <tr key={index} className="hover:bg-red-50">
+                <td className="py-2 px-4">{index+1}</td>
                 <td className="py-2 px-4">{restaurant.name}</td>
                 <td className="py-2 px-4">{restaurant.address}</td>
                 <td className="py-2 px-4">{restaurant.phone}</td>
-                <td className="py-2 px-4">{restaurant.rejectionReason}</td>
+                <td className="py-2 px-4">{restaurant.rejectionmsg}</td>
               </tr>
             ))}
           </tbody>

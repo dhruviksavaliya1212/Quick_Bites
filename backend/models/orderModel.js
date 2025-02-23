@@ -56,6 +56,14 @@ const orderSchema = new mongoose.Schema({
   isAccepted:{
     type:Boolean,
     default:false
+  },
+  feedback:{
+    type:String,
+    default:''
+  },
+  response:{
+    type:String,
+    default:''
   }
 })
 

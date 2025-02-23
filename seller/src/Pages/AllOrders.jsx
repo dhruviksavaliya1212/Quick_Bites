@@ -9,10 +9,10 @@ const AllOrders = () => {
 
   return (
     orders && (
-      <div className=" m-5 h-screen">
+      <div className=" m-5 h-fit">
         <p className=" text-lg font-semibold text-zinc-800">All Orders</p>
-        <div className=" p-5 bg-zinc-100 min-h-screen overflow-y-scroll">
-          {orders.map((item, index) => (
+        <div className=" p-5 bg-zinc-100 h-screen overflow-y-scroll">
+          {orders.reverse().map((item, index) => (
             <div
               onClick={() => navigate(`/desc/${item._id}`)}
               className=" flex border-b border-b-gray-400 items-center px-1 py-3 gap-3 hover:bg-orange-100 "

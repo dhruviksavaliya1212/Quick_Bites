@@ -32,6 +32,28 @@ const OrderDesc = () => {
     }
   }
 
+  const [responseMsg, setResponseMsg] = useState('')
+
+  const sendResponse = async () => {
+    try {
+      if (responseMsg === "") {
+        return toast.info("Please Enter Response");
+      }
+
+      const { data } = await axios.post(
+        `${backend}/api/order/send-response`,
+        { id, responseMsg }
+      );
+      if (data.success) {
+        setResponseMsg("");
+        toast.success(data.message);
+        getOrders()
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+
   return (
     <div className="flex flex-col mb-20 pt-5 px-5 min-h-screen ">
       {orderData && (
@@ -283,6 +305,42 @@ const OrderDesc = () => {
                 </div>
               )}
             </div>
+            {orderData.feedback !== "" && (
+              <div className=" mt-5 ">
+                <p className=" text-xl font-semibold text-zinc-800">Customer Feedback</p>
+                  <p className="text-md font-semibold text-zinc-700 mt-3">
+                   {orderData.feedback}
+                  </p>
+              </div>
+            )}
+             {orderData.status === "Delivered" && (
+              <div>
+                <p className="mt-10 text-xl font-semibold text-zinc-800">
+                  {orderData.response === '' ?  "Give Response" : "Your Response"}
+                </p>
+                {orderData.response === "" ? (
+                  <>
+                    <textarea
+                      onChange={(e) => setResponseMsg(e.target.value)}
+                      value={responseMsg}
+                      rows="3"
+                      placeholder="Enter Response Here"
+                      className="w-full bg-transparent border-2 border-zinc-700 px-5 py-1.5 rounded-md mt-5 shadow-md shadow-zinc-500 outline-none placeholder:text-zinc-600"
+                    />
+                    <button
+                      onClick={sendResponse}
+                      className="px-5 py-1.5 bg-orange-500 text-zinc-100 hover:bg-orange-600 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full"
+                    >
+                      Send Response
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-md font-semibold text-zinc-700 mt-3">
+                    {orderData.response}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="">
               <p className="mt-10 text-xl font-semibold text-zinc-800">

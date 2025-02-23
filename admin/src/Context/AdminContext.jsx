@@ -9,15 +9,21 @@ const AdminContextProvider = (props) => {
 
   const backend = "http://localhost:3000";
   const [orderData, setOrderData] = useState(false)
+  const [feedbackData, setfeedbackData] = useState(false)
 
   const getOrders = async () => {
-    const { data } = await axios.post(
-      `${backend}/api/order/get-all-orders`,
-    );
-
-    console.log(data)
-    if (data.success) {
-      setOrderData(data.orderData);
+    try {
+      const { data } = await axios.post(
+        `${backend}/api/order/get-all-orders`,
+      );
+  
+      console.log(data)
+      if (data.success) {
+        setOrderData(data.orderData);
+        setfeedbackData(data.orderData.filter((order,_) => order.feedback !== ''))
+      }
+    } catch (err) {
+      console.log(err)
     }
   };
 
@@ -27,7 +33,8 @@ const AdminContextProvider = (props) => {
 
   const values = {
     backend,
-    orderData
+    orderData,
+    feedbackData
   }
 
   return(

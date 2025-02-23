@@ -67,7 +67,7 @@ const Dashboard = () => {
             <p className="font-semibold text-gray-800">Latest Orders</p>
           </div>
           <div className="pt-4 border border-t-0 h-96 overflow-y-scroll">
-            {orders.latestOrders.reverse().map((item, index) => (
+            {orders.latestOrders.map((item, index) => (
               <div
                 onClick={() => navigate(`/desc/${item._id}`)}
                 className=" flex flex-col sm:flex-row border-b border-b-gray-400 items-center px-6 py-3 gap-3 hover:bg-orange-100 "
