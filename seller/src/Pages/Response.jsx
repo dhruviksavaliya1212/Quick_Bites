@@ -15,7 +15,7 @@ const Response = () => {
   <div className="overflow-x-auto bg-white p-4 rounded-md h-screen overflow-y-scroll">
     <table className="min-w-full text-sm text-left border-collapse border border-gray-300">
       <thead>
-        <tr className="border-b">
+        <tr className="border-b bg-slate-200">
           <th className="p-2">Order Id</th>
           <th className="p-2">Food</th>
           <th className="p-2">Qty</th>

@@ -313,7 +313,7 @@ const OrderDesc = () => {
                   </p>
               </div>
             )}
-             {orderData.status === "Delivered" && (
+             {orderData.feedback !== "" && (
               <div>
                 <p className="mt-10 text-xl font-semibold text-zinc-800">
                   {orderData.response === '' ?  "Give Response" : "Your Response"}

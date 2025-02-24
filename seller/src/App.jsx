@@ -15,6 +15,7 @@ import AddFood from "./Pages/AddFood";
 import Profile from "./Pages/Profile";
 import Requested from "./Pages/Requested";
 import Response from "./Pages/Response";
+import AddDeliveryAgent from "./Pages/AddDeliveryAgent";
 
 const App = () => {
   const { stoken, isAvailable, restoData } = useContext(SellerContext);
@@ -43,6 +44,7 @@ const App = () => {
                   <Route path="/add-food/" element={<AddFood />} />
                   <Route path="/profile/" element={<Profile />} />
                   <Route path="/response/" element={<Response />} />
+                  <Route path="/add-delivery-agent/" element={<AddDeliveryAgent />} />
                 </>
               )}
             </Routes>

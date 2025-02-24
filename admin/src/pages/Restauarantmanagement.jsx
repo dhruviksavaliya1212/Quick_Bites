@@ -81,6 +81,7 @@ const RestaurantManagement = () => {
       if (data.success) {
         console.log(data.message);
         setRestaurants(restaurants.filter((r) => r._id !== restoId));
+        getRestoData()
         toast.success("Restaurant deleted successfully");
       }
     } catch (err) {
@@ -98,8 +99,8 @@ const RestaurantManagement = () => {
         {restoId});
         console.log(data)
         if(data.success){
-              setPendingRestaurants(
-      pendingRestaurants.filter((r) => r._id !== restoId)
+          getRestoData()
+          setPendingRestaurants( pendingRestaurants.filter((r) => r._id !== restoId)
     );
         }
     } catch (err) {
@@ -116,6 +117,7 @@ const RestaurantManagement = () => {
 
         console.log(data)
       if(data.success){
+        getRestoData()
         setRejectedRestaurants([
           ...rejectedRestaurants,
           {...selectedRestaurant, rejectionReason },
@@ -167,10 +169,10 @@ const RestaurantManagement = () => {
   //   setIsApproveModalOpen(true); // Open approve confirmation modal
   // };
 
-  // const handleReject = (restaurant) => {
-  //   setSelectedRestaurant(restaurant);
-  //   setIsRejectConfirmationModalOpen(true); // Open reject confirmation modal
-  // };
+  const handleReject = (restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setIsRejectConfirmationModalOpen(true); // Open reject confirmation modal
+  };
 
   const handleEdit = (restaurant) => {
     setSelectedRestaurant(restaurant);

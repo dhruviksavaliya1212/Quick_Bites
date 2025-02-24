@@ -103,7 +103,9 @@ const AppContextProvider = (props) => {
     const {data} = await axios.post(`${backend}/api/restaurant/get-resto-data`);
     console.log(data)
     if(data.success){
-      setRestoData(data.restoData)
+      const notRequestedResto = data.restoData.filter((resto,_) => resto.isrequested === false);
+      console.log(notRequestedResto)
+      setRestoData(notRequestedResto)
     } else {
       toast.error(data.message)
     }

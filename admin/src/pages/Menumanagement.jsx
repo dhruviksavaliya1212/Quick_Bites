@@ -1,25 +1,20 @@
 import React, { useState } from "react";
 import pizza from "../assets/pizza-pizza-filled-with-tomatoes-salami-olives.jpg";
 import withAuth from "../utills/hoc/withAuth";
+import { useContext } from "react";
+import { AdminContext } from "../Context/AdminContext";
+import { useEffect } from "react";
+import axios from 'axios'
 
 const MenuManagement = () => {
+
+  const {backend} = useContext(AdminContext)
   const [categories, setCategories] = useState([
     { id: 1, name: "Pizza" },
     { id: 2, name: "Burgers" },
   ]);
 
-  const [menuItems, setMenuItems] = useState([
-    {
-      id: 1,
-      name: "Cheese Pizza",
-      description: "Classic cheese pizza with mozzarella.",
-      price: 200,
-      ingredients: ["Cheese", "Tomato Sauce", "Dough"],
-      status: "Available",
-      category: "Pizza",
-      image: pizza,
-    },
-  ]);
+  const [menuItems, setMenuItems] = useState(false);
 
   const [newItem, setNewItem] = useState({
     id: null,
@@ -90,8 +85,24 @@ const MenuManagement = () => {
   //   });
   // };
 
+  const getAllFoods = async() => {
+    try {
+      const {data} = await axios.post(`${backend}/api/food/all-foods`)
+      console.log(data);
+      if(data.success){
+        setMenuItems(data.foods)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  useEffect(()=>{
+    getAllFoods()
+  },[])
+
   return (
-    <div className="min-h-screen lg:p-4">
+    <div className="min-h-screen lg:p-1">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Menu Management</h1>
 
       {/* Add/Edit Item Form */}
@@ -168,12 +179,13 @@ const MenuManagement = () => {
                 {[
                   "Image",
                   "Name",
+                  "Restaurant Name",
                   "Description",
                   "Category",
-                  "Price (₹)",
-                  "Ingredients",
-                  "Status",
-                  "",
+                  "New Price (₹)",
+                  "Old Price (₹)",
+                  "Rating",
+                  "Veg",
                 ].map((header) => (
                   <th key={header} className="p-3">
                     {header}
@@ -182,7 +194,7 @@ const MenuManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {menuItems.map((item) => (
+              {menuItems && menuItems.map((item) => (
                 <tr
                   key={item.id}
                   className="border-b border-gray-300 hover:bg-[#FFF8E1]"
@@ -195,21 +207,13 @@ const MenuManagement = () => {
                     />
                   </td>
                   <td className="p-3">{item.name}</td>
-                  <td className="p-3">{item.description}</td>
+                  <td className="p-3">{item.restoname}</td>
+                  <td className="p-3 w-[20rem]">{item.desc}</td>
                   <td className="p-3">{item.category}</td>
-                  <td className="p-3">₹{item.price}</td>
-                  <td className="p-3">{item.ingredients.join(", ")}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        item.status === "Available"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
+                  <td className="p-3">₹{item.newprice}</td>
+                  <td className="p-3">₹{item.oldprice}</td>
+                  <td className="p-3">{item.rating}</td>
+                  <td className="p-3">{item.veg}</td>
                   {/* <td className="p-3">
                     <button
                       onClick={() => handleEditItem(item.id)}

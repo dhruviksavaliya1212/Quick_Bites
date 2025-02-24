@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import foodModel from "../models/FoodModel.js";
 import { v2 as cloudinary } from "cloudinary";
+import restaurantModel from "../models/restaurantModel.js";
 
 const addFood = async (req, res) => {
   try {
@@ -26,10 +27,13 @@ const addFood = async (req, res) => {
 
     const imageUrl = uploadImage.secure_url;
 
+    const restoData = await restaurantModel.find({sellerId:sellerId})
+
     // Add data in database
     const foodData = {
       sellerId,
       name,
+      restoname:restoData[0].name,
       oldprice,
       newprice,
       veg,
