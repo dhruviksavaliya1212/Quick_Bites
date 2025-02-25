@@ -42,7 +42,7 @@ ChartJS.register(
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const {backend, orderData} = useContext(AdminContext)
+  const {backend, orderData, feedbackData} = useContext(AdminContext)
 
   const [dashData, setDashData] = useState(false)
   
@@ -213,27 +213,31 @@ const Dashboard = () => {
 
     {/* Review and Feedback Section */}
 <div className="bg-white p-4 mt-8 rounded-md">
-  <h2 className="text-lg font-bold mb-4">Customer Reviews & Feedback</h2>
+  <h2 className="text-lg font-bold mb-4">Customer Feedback & Seller Response</h2>
   <div className="overflow-x-auto">
     <table className="min-w-full text-sm text-left border-collapse border border-gray-300">
       <thead>
         <tr className="border-b">
-          <th className="p-2">Product</th>
-          <th className="p-2">Rating</th>
-          <th className="p-2">Review</th>
-          <th className="p-2">Customer</th>
+          <th className="p-2">Order Id</th>
+          <th className="p-2">Food</th>
+          <th className="p-2">Qty</th>
+          <th className="p-2">Feedback</th>
           <th className="p-2">Response</th>
-          <th className="p-2">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {reviewsData.map((review) => (
-          <tr key={review.id} className="border-b hover:bg-orange-300">
-            <td className="p-2">{review.product}</td>
-            <td className="p-2">{review.rating}</td>
-            <td className="p-2">{review.review}</td>
-            <td className="p-2">{review.customer}</td>
-            <td className="p-2">
+        {feedbackData && feedbackData.map((review,index) => (
+          <tr key={index} className="border-b hover:bg-orange-300">
+            <td className="p-2">{review._id}</td>
+                <td className="p-2">{review.items.map((order,index)=>(
+                  <p key={index}>{order.name}</p>
+                ))}</td>
+                <td className="p-2">{review.items.map((order,index)=>(
+                  <p key={index}>{order.quantity}</p>
+                ))}</td>
+            <td className="p-2">{review.feedback}</td>
+            <td className="p-2">{review.response === '' ? "No Response From Seller" : review.response}</td>
+            {/* <td className="p-2">
               {review.response ? (
                 <p>{review.response}</p>
               ) : selectedReviewId === review.id ? (
@@ -263,7 +267,7 @@ const Dashboard = () => {
                   Respond
                 </button>
               )}
-            </td>
+            </td> */}
           </tr>
         ))}
       </tbody>

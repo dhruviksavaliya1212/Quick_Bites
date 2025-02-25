@@ -13,6 +13,8 @@ import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import sellerRouter from './routes/sellerRoute.js';
 import {AdminAuthRouter} from './routes/adminAuthRoutes.js'
+import adminRouter from './routes/adminRoute.js';
+import { DeliveryAgentModelRouter } from './routes/deliveryAgentRoute.js';
 // import { app, server } from './config/socket.js';
 
 
@@ -40,6 +42,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 
+app.use(cors());
 
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);
@@ -49,6 +52,8 @@ app.use("/api/address", addressRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/seller", sellerRouter);
 app.use("/api/auth/admin",AdminAuthRouter);
+app.use("/api/admin",adminRouter);
+app.use("/api/delivery-agent",DeliveryAgentModelRouter);
 
 // testing api
 app.get('/',(req,res)=>{

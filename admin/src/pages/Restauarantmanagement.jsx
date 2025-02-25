@@ -33,16 +33,18 @@ const RestaurantManagement = () => {
 
   // Get all restaurant data
   const getRestoData = async () => {
-    try {
-      const { data } = await axios.post(`${backend}/api/restaurant/get-resto-data`);
-      console.log(data);
-      if (data.success) {
-        setPendingRestaurants(data.restoData.filter((resto) => resto.isrequested));
-        setRestaurants(data.restoData.filter((resto) => !resto.isrequested));
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
+    try{
+    const {data} = await axios.post(`${backend}/api/restaurant/get-resto-data`);
+    console.log(data)
+    if(data.success){
+      setPendingRestaurants(data.restoData.filter((resto,_)=> resto.isrequested && resto.isrejected === false))
+      setRestaurants(data.restoData.filter((resto,_) => resto.isrequested === false))
+      setRejectedRestaurants(data.restoData.filter((resto,_) => resto.isrejected))
+    } else {
+      toast.error(data.message)
+    }
+  }
+   catch (error) {
       console.error("Error fetching restaurant data:", error);
       toast.error("Failed to fetch restaurant data");
     }
@@ -79,6 +81,7 @@ const RestaurantManagement = () => {
       if (data.success) {
         console.log(data.message);
         setRestaurants(restaurants.filter((r) => r._id !== restoId));
+        getRestoData()
         toast.success("Restaurant deleted successfully");
       }
     } catch (err) {
@@ -87,27 +90,84 @@ const RestaurantManagement = () => {
     }
     setIsDeleteModalOpen(false);
   };
+  // Accept Resto request
+  const acceptResto = async(restoId) => {
+    try {
+      // const restoId = selectedRestaurant._id
+      const { data } = await axios.post(
+        `${backend}/api/admin/accept-resto`,
+        {restoId});
+        console.log(data)
+        if(data.success){
+          getRestoData()
+          setPendingRestaurants( pendingRestaurants.filter((r) => r._id !== restoId)
+    );
+        }
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
-  const confirmApprove = () => {
-    setRestaurants([...restaurants, { ...selectedRestaurant, status: "Active", verified: false }]);
-    setPendingRestaurants(pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id));
-    setIsApproveModalOpen(false);
-    toast.success(`${selectedRestaurant.name} has been approved`);
-  };
+    // Confirm Rejection Handler
+    const confirmReject = async() => {
 
-  const confirmReject = () => {
-    setRejectedRestaurants([...rejectedRestaurants, { ...selectedRestaurant, rejectionReason }]);
-    setPendingRestaurants(pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id));
-    setIsRejectConfirmationModalOpen(false); // Close confirmation modal
-    setRejectionReason("");
-    toast.success(`${selectedRestaurant.name} has been rejected`);
-  };
+      try {
+        const restoId = selectedRestaurant._id
+        const {data} = await axios.post(`${backend}/api/admin/reject-resto`, {restoId, rejectionReason})
+
+        console.log(data)
+      if(data.success){
+        getRestoData()
+        setRejectedRestaurants([
+          ...rejectedRestaurants,
+          {...selectedRestaurant, rejectionReason },
+        ]);
+        setPendingRestaurants(
+          pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id)
+        );
+      }
+
+      } catch (err) {
+        console.log(err)
+      }
+      setIsRejectModalOpen(false);
+      setRejectionReason(""); // Clear the rejection reason after submission
+    };
+
+  useEffect(()=>{
+    getRestoData()
+  },[])
+
+  // Handlers for Pending Table
+  // const handleApprove = (restaurant) => {
+  //   setRestaurants([
+  //     ...restaurants,
+  //     { ...restaurant, status: "Active", verified: false },
+  //   ]);
+  //   setPendingRestaurants(
+  //     pendingRestaurants.filter((r) => r.id !== restaurant.id)
+  //   );
+  // };
+  // const confirmApprove = () => {
+  //   setRestaurants([...restaurants, { ...selectedRestaurant, status: "Active", verified: false }]);
+  //   setPendingRestaurants(pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id));
+  //   setIsApproveModalOpen(false);
+  //   toast.success(`${selectedRestaurant.name} has been approved`);
+  // };
+
+  // const confirmReject = () => {
+  //   setRejectedRestaurants([...rejectedRestaurants, { ...selectedRestaurant, rejectionReason }]);
+  //   setPendingRestaurants(pendingRestaurants.filter((r) => r._id !== selectedRestaurant._id));
+  //   setIsRejectConfirmationModalOpen(false); // Close confirmation modal
+  //   setRejectionReason("");
+  //   toast.success(`${selectedRestaurant.name} has been rejected`);
+  // };
 
   // Handlers
-  const handleApprove = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-    setIsApproveModalOpen(true); // Open approve confirmation modal
-  };
+  // const handleApprove = (restaurant) => {
+  //   setSelectedRestaurant(restaurant);
+  //   setIsApproveModalOpen(true); // Open approve confirmation modal
+  // };
 
   const handleReject = (restaurant) => {
     setSelectedRestaurant(restaurant);
@@ -125,6 +185,12 @@ const RestaurantManagement = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // const handleVerify = (restaurant) => {
+  //   const updatedRestaurants = restaurants.map((r) =>
+  //     r.id === restaurant.id ? { ...r, verified: !r.verified } : r
+  //   );
+  //   setRestaurants(updatedRestaurants);
+  // };
   useEffect(() => {
     getRestoData();
   }, []);
@@ -153,6 +219,19 @@ const RestaurantManagement = () => {
     saveAs(blob, "restaurants_data.csv");
   };
 
+  // Handle View Analytics
+  // const handleViewAnalytics = (restaurant) => {
+  //   setSelectedRestaurant(restaurant);
+  //   setIsAnalyticsModalOpen(true);
+  // };
+
+  // const filteredRestaurants = restaurants && restaurants.filter((restaurant) =>
+  //   restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+
+  // const filteredPendingRestaurants = pendingRestaurants && pendingRestaurants.filter((restaurant) =>
+  //   restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
   // Filtering
   const filteredRestaurants = restaurants.filter((restaurant) =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -206,7 +285,7 @@ const RestaurantManagement = () => {
                 <td className="py-2 px-4">{restaurant.phone}</td>
                 <td className="py-2 px-4 flex space-x-2">
                   <button
-                    onClick={() => handleApprove(restaurant)}
+                    onClick={() => acceptResto(restaurant._id)}
                     className="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition duration-200"
                   >
                     Approve
@@ -246,7 +325,7 @@ const RestaurantManagement = () => {
                 <td className="py-2 px-4">{restaurant.name}</td>
                 <td className="py-2 px-4">{restaurant.address}</td>
                 <td className="py-2 px-4">{restaurant.phone}</td>
-                <td className="py-2 px-4">{restaurant.rejectionReason}</td>
+                <td className="py-2 px-4">{restaurant.rejectionmsg}</td>
               </tr>
             ))}
           </tbody>

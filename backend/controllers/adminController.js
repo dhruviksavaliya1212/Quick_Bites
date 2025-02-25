@@ -1,4 +1,6 @@
-import express from "express";
+import orderModel from "../models/orderModel.js";
+import restaurantModel from "../models/restaurantModel.js";
+import userModel from "../models/userMOdel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Admin } from "../models/adminModel.js";
@@ -7,6 +9,70 @@ import { generateOTP } from "../utills/generateOTP.js";
 import { sendMail } from "../utills/sendEmail.js";
 import sellerModel from "../models/sellerModel.js";
 import userModel from "../models/userMOdel.js";
+
+
+const getDashData = async(req,res) => {
+  try {
+
+    const orderData = await orderModel.find({});
+    
+    const filterData = orderData.filter((order,_) =>  order.payment);
+    const getAmount = filterData.map((order)=> order.amount);
+    let revenue = 0;
+    getAmount.forEach((amount) => revenue+=amount)
+
+    const users = await userModel.find({})
+
+    const pendingOrders = orderData.filter((order,_) => order.status !== "Delivered")
+    const deliveredOrders = orderData.filter((order,_) => order.status === "Delivered")
+
+    const resto = await restaurantModel.find({})
+
+    const dashData = {
+      totalOrders : orderData.length,
+      revenue,
+      totalUsers : users.length,
+      pendingOrders : pendingOrders.length,
+      deliveredOrders : deliveredOrders.length,
+      totalResto : resto.length,
+    }
+
+    res.json({success: true,dashData, message: "Data Fetched"})
+    
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+}
+
+const approvResto = async(req,res) => {
+  try {
+    const {restoId} = req.body;
+
+    await restaurantModel.findByIdAndUpdate(restoId, {isrequested:false});
+
+    res.json({success:true, message:"Accepted"});
+
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+}
+
+const rejectResto = async(req,res) => {
+  try {
+    const {restoId, rejectionReason} = req.body;
+
+    console.log(restoId, rejectionReason)
+
+    await restaurantModel.findByIdAndUpdate(restoId, {isrejected:true, isOpen:true,rejectionmsg:rejectionReason});
+
+    res.json({success:true, message:"Rejected"})
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+}
 
 // register a admin
 
@@ -445,9 +511,6 @@ const verifyOTPAndForgetPasswordAdmin = async (req, res) => {
         console.error("Logout error:", error);
         res.status(500).json({ message: "Failed to log out" });
     }
-};
+  };
 
-
-  
-
-export { registerAdmin, loginAdmin, verifyOTPAndLogin, logoutAdmin,verifyOTPAndForgetPasswordAdmin,forgotPassword };
+export {getDashData, approvResto, rejectResto, registerAdmin, loginAdmin, verifyOTPAndLogin,verifyOTPAndForgetPasswordAdmin, logoutAdmin}

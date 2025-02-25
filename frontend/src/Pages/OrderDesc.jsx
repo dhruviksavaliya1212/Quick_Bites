@@ -1,19 +1,17 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
 import axios from "axios";
 import vegetarian from "../assets/vegetarian.webp";
 import { assets } from "../assets/assets";
-import easyinvoice from 'easyinvoice';
-// import { MapContainer, TileLayer, Marker } from "leaflet";
-// import "leaflet/dist/leaflet.css";
-// import L from "leaflet";
-// import io from "socket.io-client";
+import easyinvoice from "easyinvoice";
+import { toast } from "react-toastify";
 
 const OrderDesc = () => {
   const { id } = useParams();
 
   const [order, setOrder] = useState([]);
+  const [feedbackMsg, setFeedbackMsg] = useState("");
 
   const { backend, token, currency } = useContext(AppContext);
 
@@ -29,86 +27,101 @@ const OrderDesc = () => {
     }
   };
 
-  const generateInvoice = () => {
+  const sendFeedback = async () => {
+    try {
+      if (feedbackMsg === "") {
+        return toast.info("Please Enter Feeback");
+      }
 
-    
+      const { data } = await axios.post(
+        `${backend}/api/order/send-feedback`,
+        { id, feedbackMsg },
+        { headers: { token } }
+      );
+      if (data.success) {
+        setFeedbackMsg("");
+        toast.success(data.message);
+        getOrder()
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+
+  const generateInvoice = () => {
     const productsFromOrder = order.items.map((item) => ({
       quantity: item.quantity, // Corrected typo: item.quantity
       description: item.name,
       price: item.newprice,
-      taxRate: 5 // Important: Use item's tax rate or 0
-  }));
+      taxRate: 5, // Important: Use item's tax rate or 0
+    }));
 
-  const platformFee = {
+    const platformFee = {
       quantity: 1,
       description: "Platform Fee",
       taxRate: 0, // Or the applicable tax rate
-      price: 7
-  };
+      price: 7,
+    };
 
-  const deliveryFee = {
+    const deliveryFee = {
       quantity: 1,
       description: "Delivery Fee",
       taxRate: 0, // Or the applicable tax rate
-      price: 39
-  };
+      price: 39,
+    };
 
-  const products = [...productsFromOrder, platformFee, deliveryFee] 
+    const products = [...productsFromOrder, platformFee, deliveryFee];
 
     var data = {
       apiKey: "free", // Please register to receive a production apiKey: https://app.budgetinvoice.com/register
-      mode: "development", // Production or development, defaults to production   
+      mode: "development", // Production or development, defaults to production
       images: {
-          // The logo on top of your invoice
-          logo: "https://public.budgetinvoice.com/img/watermark-draft.jpg",
-          // The invoice background
-          background: "https://papersdb.com/img/formats/15.png"
+        // The logo on top of your invoice
+        logo: "https://public.budgetinvoice.com/img/watermark-draft.jpg",
+        // The invoice background
+        background: "https://papersdb.com/img/formats/15.png",
       },
-        // Your own data
-        sender: {
-            company: order.restoName,
-            address: order.restoAddress,
-            // zip: "1234 AB",
-        },
-        // Your recipient
-        client: {
-            company: order.address.firstName + order.address.lastName ,
-            address: order.address.flatno + order.address.societyName ,
-            zip: order.address.zipcode,
-            city: order.address.city,
-            state: order.address.state,
-        },
-        information: {
-            // Invoice number
-            number: "2021.0001",
-            // Invoice data
-            // date: new Date(order.date).toLocaleDateString(),
-            date: new Date().toLocaleDateString(),
-            //
-        },
-        // The products you would like to see on your invoice
-        products: products,
-        bottomNotice: "GST 5%, platform fee and delivery fees are applied on total",
-        // Settings to customize your invoice
-        settings: {
-            currency: "INR", // See documentation 'Locales and Currency' for more info. Leave empty for no currency.  
-        //     marginTop: 25, // Defaults to '25'
-
-        //     format: "A4", // Defaults to A4, options: A3, A4, A5, Legal, Letter, Tabloid
-        //     orientation: "landscape" // portrait or landscape, defaults to portrait
-        // 
-        },
+      // Your own data
+      sender: {
+        company: order.restoName,
+        address: order.restoAddress,
+        // zip: "1234 AB",
+      },
+      // Your recipient
+      client: {
+        company: order.address.firstName + order.address.lastName,
+        address: order.address.flatno + order.address.societyName,
+        zip: order.address.zipcode,
+        city: order.address.city,
+        state: order.address.state,
+      },
+      information: {
+        // Invoice number
+        number: "2021.0001",
+        // Invoice data
+        // date: new Date(order.date).toLocaleDateString(),
+        date: new Date().toLocaleDateString(),
+        //
+      },
+      // The products you would like to see on your invoice
+      products: products,
+      bottomNotice:
+        "GST 5%, platform fee and delivery fees are applied on total",
+      // Settings to customize your invoice
+      settings: {
+        currency: "INR", // See documentation 'Locales and Currency' for more info. Leave empty for no currency.
+      },
     };
 
     easyinvoice.createInvoice(data, function (result) {
       // Create a hidden link element
-      
-        console.log("PDF Data:", result.pdf); // Check this!
-        // ... rest of your code
-        const link = document.createElement('a');
-        link.href = `data:application/pdf;base64,${result.pdf}`;
-        link.download = 'invoice.pdf'; // Set the filename
-        link.style.display = 'none'; // Hide the link
+
+      console.log("PDF Data:", result.pdf); // Check this!
+      // ... rest of your code
+      const link = document.createElement("a");
+      link.href = `data:application/pdf;base64,${result.pdf}`;
+      link.download = "invoice.pdf"; // Set the filename
+      link.style.display = "none"; // Hide the link
 
       // Add the link to the DOM and trigger the download
       document.body.appendChild(link);
@@ -125,56 +138,6 @@ const OrderDesc = () => {
     }
   }, [token]);
 
-  // useEffect(() => {
-  //   const socket = io(import.meta.env.VITE_BACKEND);
-
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.watchPosition((position) => {
-  //       const { latitude, longitude } = position.coords;
-  //       socket.emit("send-location", { latitude, longitude });
-  //     }),
-  //       (error) => {
-  //         console.log(error);
-  //       },
-  //       {
-  //         enableHighAccuracy: true,
-  //         timeout: 5000,
-  //         maximumAge: 0,
-  //       };
-  //   }
-
-  //   const markers = {}
-
-  //   if (mapRef.current) {
-  //     const map = L.map(mapRef.current).setView([0,0], 10);
-  //     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  //       attribution: "OpenStreetMap",
-  //     }).addTo(map);
-  //     socket.on("receive-location", (data) => {
-  //       const { id, latitude, longitude } = data;
-  //       map.setView([latitude, longitude], 10);
-  //       if(markers[id]){
-  //         markers[id].setLatLang([latitude, longitude])
-  //       } else{
-  //         markers[id] = L.marker([latitude, longitude]).addTo(map)
-  //       }
-  //     });
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   if (mapRef.current) {
-  //     const map = L.map(mapRef.current).setView([51.505, -0.09], 13);
-  //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-  //     // Add a marker to the map
-  //     const marker = L.marker([51.505, -0.09]).addTo(map);
-  //     marker.bindPopup('Hello world!').openPopup();
-  //   }
-  // }, []);
-
-
-
   return (
     <div className="flex flex-col mb-20 pt-24 min-h-screen w-full xl:w-[90%]">
       {order && (
@@ -182,14 +145,20 @@ const OrderDesc = () => {
           <div className="  mt-5 w-full lg:w-[90%] xl:w-[80%]">
             <div className=" flex flex-col gap-3 text-base font-semibold text-zinc-800">
               <div className=" flex flex-col sm:flex-row gap-2">
-              <p>Order Id :</p>
-              <p className=" text-zinc-700">{order._id}</p>
+                <p>Order Id :</p>
+                <p className=" text-zinc-700">{order._id}</p>
               </div>
               <div>
                 {
-                  order.payment && (<button onClick={generateInvoice} className=" px-5 py-1.5 bg-slate-300 hover:bg-zinc-400 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full ">Download Invoice</button>)/* Button to trigger generation and download */
+                  order.payment && (
+                    <button
+                      onClick={generateInvoice}
+                      className=" px-5 py-1.5 bg-slate-300 hover:bg-zinc-400 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full "
+                    >
+                      Download Invoice
+                    </button>
+                  ) /* Button to trigger generation and download */
                 }
-              
               </div>
             </div>
             {order.items &&
@@ -359,12 +328,44 @@ const OrderDesc = () => {
                   </div>
                 </div>
               )}
-              {/* <div
-                ref={mapRef}
-                className="map"
-                style={{ height: "400px", width: "100%" }}
-              ></div> */}
             </div>
+            {order.status === "Delivered" && (
+              <div>
+                <p className="mt-10 text-xl font-semibold text-zinc-800">
+                  {order.feedback === '' ?  "Give Feedback" : "Your Feedback"}
+                </p>
+                {order.feedback === "" ? (
+                  <>
+                    <textarea
+                      onChange={(e) => setFeedbackMsg(e.target.value)}
+                      value={feedbackMsg}
+                      rows="3"
+                      placeholder="Enter Feedback Here"
+                      className="w-full bg-transparent border-2 border-zinc-700 px-5 py-1.5 rounded-md mt-5 shadow-md shadow-zinc-500 outline-none placeholder:text-zinc-600"
+                    />
+                    <button
+                      onClick={sendFeedback}
+                      className="px-5 py-1.5 bg-orange-500 text-zinc-100 hover:bg-orange-600 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full"
+                    >
+                      Send Feedback
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-md font-semibold text-zinc-700 mt-3">
+                    {order.feedback}
+                  </p>
+                )}
+              </div>
+            )}
+            {order.response !== "" && (
+              <div className=" mt-5 ">
+                <p className=" text-xl font-semibold text-zinc-800">Seller Response</p>
+                  <p className="text-md font-semibold text-zinc-700 mt-3">
+                   {order.response}
+                  </p>
+              </div>
+            )}
+
             <div className="">
               <p className="mt-10 text-xl font-semibold text-zinc-800">
                 Delivery Status
@@ -402,8 +403,7 @@ const OrderDesc = () => {
                         <p>Order Cancelled</p>
                       </div>
                     </>
-                  ) :
-                   order.status === "Out for Delivery" ? (
+                  ) : order.status === "Out for Delivery" ? (
                     <>
                       <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
                       <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
@@ -424,37 +424,43 @@ const OrderDesc = () => {
                         <p>Out for Delivery</p>
                       </div>
                     </>
-                  ) : order.status === "Delivered" && (
-                    <>
-                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
-                        <p>🟠</p>
-                        <img src={assets.checkmark} alt="" className="w-10" />
-                        <p>Order Accepted</p>
-                      </div>
-                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
-                        <p>🟠</p>
-                        <img src={assets.processing} alt="" className="w-10" />
-                        <p>Order Processing</p>
-                      </div>
-                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
-                        <p>🟠</p>
-                        <img src={assets.delivery} alt="" className="w-10" />
-                        <p>Order Out for Delivery</p>
-                      </div>
-                      <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
-                      <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
-                        <p>🟠</p>
-                        <img
-                          src={assets.fooddelivery}
-                          alt=""
-                          className="w-10"
-                        />
-                        <p>Order Delivered</p>
-                      </div>
-                    </>
+                  ) : (
+                    order.status === "Delivered" && (
+                      <>
+                        <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                        <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                          <p>🟠</p>
+                          <img src={assets.checkmark} alt="" className="w-10" />
+                          <p>Order Accepted</p>
+                        </div>
+                        <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                        <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                          <p>🟠</p>
+                          <img
+                            src={assets.processing}
+                            alt=""
+                            className="w-10"
+                          />
+                          <p>Order Processing</p>
+                        </div>
+                        <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                        <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                          <p>🟠</p>
+                          <img src={assets.delivery} alt="" className="w-10" />
+                          <p>Order Out for Delivery</p>
+                        </div>
+                        <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
+                        <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
+                          <p>🟠</p>
+                          <img
+                            src={assets.fooddelivery}
+                            alt=""
+                            className="w-10"
+                          />
+                          <p>Order Delivered</p>
+                        </div>
+                      </>
+                    )
                   )}
                 </div>
               </div>

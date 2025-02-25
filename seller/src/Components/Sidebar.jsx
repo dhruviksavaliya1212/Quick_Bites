@@ -37,6 +37,19 @@ const Sidebar = () => {
             <p className=" hidden md:block">All orders</p>
           </NavLink>
           <NavLink
+            to={"/response"}
+            className={({ isActive }) =>
+              `flex item-center gap-3 px-3 md:px-9 py-3.5 my-1 md:min-w-72 cursor-pointer hover:bg-orange-400 hover:text-zinc-100 transition-all duration-400 ${
+                isActive
+                  ? "bg-orange-400 text-zinc-100 text-lg border-r-4 border-r-orange-200"
+                  : ""
+              }`
+            }
+          >
+            {/* <img src={assets.appointment_icon} alt="" className=' w-5' /> */}
+            <p className=" hidden md:block">All Feedback</p>
+          </NavLink>
+          <NavLink
             to={"/add-food"}
             className={({ isActive }) =>
               `flex item-center gap-3 px-3 md:px-9 py-3.5 my-1 md:min-w-72 cursor-pointer hover:bg-orange-400 hover:text-zinc-100 transition-all duration-400 ${
@@ -61,6 +74,19 @@ const Sidebar = () => {
           >
             {/* <img src={assets.people_icon} alt="" className=' w-5' /> */}
             <p className=" hidden md:block">All Foods</p>
+          </NavLink>
+          <NavLink
+            to={"/add-delivery-agent"}
+            className={({ isActive }) =>
+              `flex item-center gap-3 px-3 md:px-9 py-3.5 my-1 md:min-w-72 cursor-pointer hover:bg-orange-400 hover:text-zinc-100 transition-all duration-400 ${
+                isActive
+                  ? "bg-orange-400 text-zinc-100 text-lg border-r-4 border-r-orange-200"
+                  : ""
+              }`
+            }
+          >
+            {/* <img src={assets.people_icon} alt="" className=' w-5' /> */}
+            <p className=" hidden md:block">Add Delivery Agent</p>
           </NavLink>
           <NavLink
             to={"/profile"}

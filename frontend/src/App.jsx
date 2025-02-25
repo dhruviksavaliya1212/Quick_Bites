@@ -18,6 +18,7 @@ import AllResto from "./Pages/AllResto";
 import RestoDesc from "./Pages/RestoDesc";
 import Support from "./Pages/Support";
 import MyProfile from "./Pages/MyProfile";
+import Contact from "./Pages/Contact";
 // import About from "./Components/About";
 
 const App = () => {
@@ -39,6 +40,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/support" element={<Support />} />
         <Route path="/profile" element={<MyProfile />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer />
     </div>

@@ -12,7 +12,9 @@ const SellerContextProvider = (props) => {
   const [stoken, setStoken] = useState("");
   const [isAvailable, setIsAvailable] = useState(false);
   const [restoData, setRestoData] = useState(false);
-  const [orders, setOrders] = useState(false);
+  const [orders, setOrders] = useState(false);  
+  const [feedbackData, setfeedbackData] = useState(false)
+
 
   const restaurantIsAvailable = async (token) => {
     const { data } = await axios.post(
@@ -39,6 +41,7 @@ const SellerContextProvider = (props) => {
     );
 
     if (data.success) {
+        setfeedbackData(data.orderData.filter((order,_) => order.feedback !== ''))
       setOrders(data.orderData);
     }
   };
@@ -109,7 +112,8 @@ const SellerContextProvider = (props) => {
     completeOrder,
     restoData,
     setRestoData,
-    getOrders
+    getOrders,
+    feedbackData
   };
 
   return (
