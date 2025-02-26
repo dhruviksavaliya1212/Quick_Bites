@@ -33,7 +33,8 @@ const AddDeliveryAgent = () => {
       const { data } = await axios.post(
         `${backend}/api/delivery-agent/add-agent`,
         agentData,
-        { headers: { token: stoken } }
+        { headers: { Authorization: `Bearer ${stoken}` } } 
+
       );
 
       console.log(data);

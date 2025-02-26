@@ -33,16 +33,15 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}))
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:5173','http://localhost:5174','http://localhost:5175','http://localhost:5176'], // Specify frontend origin
+  origin: ['http://localhost:5173','http://localhost:5174','http://localhost:5175','http://localhost:5176'], // Specify frontend origins
   credentials: true, // Allow cookies and authorization headers
   exposedHeaders: ["Authorization"],//frontend can access this header
-  allowedHeaders: ["Content-Type", "Authorization"], // Allow only these headers
+  // allowedHeaders: ["Content-Type", "Authorization"], // Allow only these headers
 };
 
 app.use(cors(corsOptions));
 
 
-app.use(cors());
 
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);

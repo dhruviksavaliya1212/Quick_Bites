@@ -20,7 +20,7 @@ const SellerContextProvider = (props) => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/check-restaurant`,
       {},
-      { headers: { token } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
     console.log(data);
@@ -37,9 +37,10 @@ const SellerContextProvider = (props) => {
     const { data } = await axios.post(
       `${backend}/api/order/get-orders2`,
       {},
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
+    console.log(data);
     if (data.success) {
         setfeedbackData(data.orderData.filter((order,_) => order.feedback !== ''))
       setOrders(data.orderData);
@@ -50,7 +51,8 @@ const SellerContextProvider = (props) => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/accept-order`,
       { orderId },
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
+
     );
 
     if (data.success) {
@@ -65,7 +67,7 @@ const SellerContextProvider = (props) => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/reject-order`,
       { orderId },
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
     if (data.success) {
@@ -80,7 +82,7 @@ const SellerContextProvider = (props) => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/complete-order`,
       { orderId },
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
     if (data.success) {
       toast.success(data.message);
@@ -91,13 +93,19 @@ const SellerContextProvider = (props) => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("seller-token")) {
-      const token = localStorage.getItem("seller-token");
-      setStoken(token);
-      restaurantIsAvailable(token);
-      getOrders(token);
+    const token = localStorage.getItem("seller-token");
+    if (token) {
+      setStoken(token); // Only update state, don't call APIs here
     }
-  }, [stoken]);
+  }, []);  // Run only once on mount
+  
+  useEffect(() => {
+    if (stoken) { // Ensure token is set before calling APIs
+      restaurantIsAvailable();
+      getOrders();
+    }
+  }, [stoken]); // Runs only when `stoken` updates
+  
 
   const values = {
     stoken,

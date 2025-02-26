@@ -55,7 +55,7 @@ const Login = () => {
   const onOTPSubmit = async(e) => {
     e.preventDefault();
     setLoading(true); // Start loading
-    const url = `${backend}/api/seller/verify-otp`; // Match backend endpoint
+    const url = `${backend}/api/seller/verify-otp-login`; // Match backend endpoint
     try {
       const {data} = await axios.post(url, { otpId, verificationcode: otp }); // Match backend expectation
       if(data.success){

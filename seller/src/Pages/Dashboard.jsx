@@ -15,7 +15,7 @@ const Dashboard = () => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/get-orders`,
       {},
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
     console.log(data);

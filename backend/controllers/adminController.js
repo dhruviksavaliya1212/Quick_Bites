@@ -8,7 +8,6 @@ import { OTP } from "../models/OTPmodel.js";
 import { generateOTP } from "../utills/generateOTP.js";
 import { sendMail } from "../utills/sendEmail.js";
 import sellerModel from "../models/sellerModel.js";
-import userModel from "../models/userMOdel.js";
 
 
 const getDashData = async(req,res) => {
@@ -513,4 +512,4 @@ const verifyOTPAndForgetPasswordAdmin = async (req, res) => {
     }
   };
 
-export {getDashData, approvResto, rejectResto, registerAdmin, loginAdmin, verifyOTPAndLogin,verifyOTPAndForgetPasswordAdmin, logoutAdmin}
+export {getDashData,forgotPassword, approvResto, rejectResto, registerAdmin, loginAdmin, verifyOTPAndLogin,verifyOTPAndForgetPasswordAdmin, logoutAdmin}

@@ -23,7 +23,7 @@ const Profile = () => {
       const { data } = await axios.post(
         `${backend}/api/restaurant/update-profile`,
         updatedData,
-        { headers: { token: stoken } }
+        { headers: { Authorization: `Bearer ${stoken}` } } 
       );
       if (data.success) {
         toast.success(data.message);
@@ -41,7 +41,7 @@ const Profile = () => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/change-availability`,
       { restoId },
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
     if (data.success) {

@@ -51,8 +51,15 @@ const AddRestaurant = () => {
       const { data } = await axios.post(
         `${backend}/api/restaurant/add-restaurant`,
         formData,
-        { headers: { token: stoken } }
+        {
+          headers: {
+            Authorization: `Bearer ${stoken}`, // Use Bearer token format
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true, // Ensure cookies are sent if needed
+        }
       );
+      
 
       console.log(data);
 

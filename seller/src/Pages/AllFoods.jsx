@@ -16,7 +16,7 @@ const AllFoods = () => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/get-foods`,
       {},
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
     console.log(data);
@@ -31,7 +31,7 @@ const AllFoods = () => {
     const { data } = await axios.post(
       `${backend}/api/restaurant/remove-food`,
       { itemId },
-      { headers: { token: stoken } }
+      { headers: { Authorization: `Bearer ${stoken}` } } 
     );
 
     if (data.success) {

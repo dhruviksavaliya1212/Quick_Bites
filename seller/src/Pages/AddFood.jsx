@@ -49,7 +49,7 @@ const AddFood = () => {
       const { data } = await axios.post(
         `${backend}/api/food/add-food`,
         formData,
-        { headers: { token: stoken } }
+        { headers: { Authorization: `Bearer ${stoken}` } } 
       );
 
       console.log(data);
