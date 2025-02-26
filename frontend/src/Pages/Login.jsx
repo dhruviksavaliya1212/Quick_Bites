@@ -51,7 +51,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true); // Start loading for OTP verification
     try {
-      const { data } = await axios.post(`${backend}/api/user/verify-otp`, {
+      const { data } = await axios.post(`${backend}/api/user/verify-otp-login`, {
         otpId,
         verificationcode: otp,
       });

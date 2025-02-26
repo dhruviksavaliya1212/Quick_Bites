@@ -7,7 +7,7 @@ sellerRouter.post('/register', register);
 sellerRouter.post('/login', login);
 sellerRouter.post('/verify-otp-login', verifyOTPAndLogin);
 sellerRouter.post('/forget-password', forgetPassword);
-sellerRouter.post('/verify-otp-forgot-password', verifyOTPAndForgetPasswordSeller);
+sellerRouter.post('/verify-otp-forget-password', verifyOTPAndForgetPasswordSeller);
 
 
 export default sellerRouter;

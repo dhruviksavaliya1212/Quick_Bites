@@ -25,7 +25,7 @@ const Contact = () => {
         >Send Message</button>
         </form>
         <div className="mt-6 text-center text-gray-600">
-          <p>Email: quickbites@fooddelivery.com</p>
+          <p>Email: quickbites.help@gmail.com</p>
           <p>Phone: +91 9876543210</p>
         </div>
       </div>
