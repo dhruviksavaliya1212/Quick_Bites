@@ -15,7 +15,7 @@ const AppContextProvider = (props) => {
   const [restoData, setRestoData] = useState([]);
   const [userData, setUserData] = useState(false);
 
-  const backend = "http://localhost:3000" || 'https://quick-bites-backend.vercel.app';
+  const backend = 'https://quick-bites-backend.vercel.app';
   const currency = "₹"
   
   // handle google login
