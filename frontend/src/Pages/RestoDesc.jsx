@@ -20,7 +20,7 @@ const RestoDesc = () => {
   const getFoods = async () => {
 
     const { data } = await axios.post(
-      `${backend}/api/restaurant//get-foods-frontend`,
+      `${backend}/api/restaurant/get-foods-frontend`,
       {sellerId}
     );
     console.log(data);

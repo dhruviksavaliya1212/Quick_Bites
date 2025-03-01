@@ -44,6 +44,16 @@ const getAgentData = async(req,res) => {
     res.json({success:false, message:"Something went wrong"})
   }
 }
+const getSpecificAgentData = async(req,res) => {
+  const {sellerId} = req.body
+  try {
+    const agentData = await deliveryAgentModel.find({sellerId:sellerId});
+    res.json({success:true, agentData, message:"Done"})
+  } catch (err) {
+    console.log(err)
+    res.json({success:false, message:"Something went wrong"})
+  }
+}
 
 const deleteAgent = async(req,res) => {
   try {
@@ -58,4 +68,4 @@ const deleteAgent = async(req,res) => {
 }
 
 
-export {addDeliveryAgent,getAgentData,deleteAgent}
+export {addDeliveryAgent,getAgentData,deleteAgent,getSpecificAgentData}

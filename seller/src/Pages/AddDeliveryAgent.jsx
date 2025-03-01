@@ -60,7 +60,7 @@ const AddDeliveryAgent = () => {
   const getAgents = async () =>  {
     try {
       const { data } = await axios.post(
-        `${backend}/api/delivery-agent/get-agents`
+        `${backend}/api/delivery-agent/get-specific-agents`,{},{ headers: { Authorization: `Bearer ${stoken}` } } 
     );
     if(data.success){
       setAgents(data.agentData)
