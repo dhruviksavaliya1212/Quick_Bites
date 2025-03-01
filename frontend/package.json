@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "vercel-build": "pnpm install --no-frozen-lockfile && pnpm build",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
