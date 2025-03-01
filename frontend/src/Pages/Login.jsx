@@ -44,6 +44,7 @@ const Login = () => {
 
     try {
       const { data } = await axios.post(url, payload);
+      console.log(data)
       if (data.success) {
         if (state === "Forget Password") {
           setOtpId(data.otpId);
@@ -67,7 +68,8 @@ const Login = () => {
         toast.error(data.message);
       }
     } catch (err) {
-      toast.error("Something went wrong");
+      console.log(err)
+      toast.error(err.response.data.message);
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +134,7 @@ const Login = () => {
           </p>
           <p className="mt-4">
             {state === "Sign Up"
-              ? "Please sign up to book an appointment"
+              ? "Please sign up to place an order"
               : state === "Forget Password"
               ? "Enter your email to reset your password"
               : "Please login to book an appointment"}

@@ -48,7 +48,7 @@ const approvResto = async(req,res) => {
   try {
     const {restoId} = req.body;
 
-    await restaurantModel.findByIdAndUpdate(restoId, {isrequested:false});
+    await restaurantModel.findByIdAndUpdate(restoId, {isrequested:false, isOpen:true});
 
     res.json({success:true, message:"Accepted"});
 
@@ -64,7 +64,7 @@ const rejectResto = async(req,res) => {
 
     console.log(restoId, rejectionReason)
 
-    await restaurantModel.findByIdAndUpdate(restoId, {isrejected:true, isOpen:true,rejectionmsg:rejectionReason});
+    await restaurantModel.findByIdAndUpdate(restoId, {isrejected:true, isOpen:false,rejectionmsg:rejectionReason});
 
     res.json({success:true, message:"Rejected"})
   } catch (err) {

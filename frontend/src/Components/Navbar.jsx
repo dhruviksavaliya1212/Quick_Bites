@@ -94,7 +94,7 @@ const Navbar = () => {
           ) : (
             <div className=" relative flex items-center gap-4 group">
               <div className=" flex flex-col justify-center items-center">
-              <img src={userData.image} alt=""  className=" w-10 mt-2"/>
+              <img src={userData.image} alt=""  className=" w-10 mt-2 rounded-full"/>
               <img src="data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDY0IDY0IiB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxwYXRoIHN0eWxlPSJmaWxsOiMxMzQ1NjMiIGQ9Im0tMjE4LjctMzA4LjYgMi0yIDExLjcgMTEuOCAxMS43LTExLjggMiAyLTEzLjcgMTMuNy0xMy43LTEzLjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIzNyAzMzUpIi8+PC9zdmc+" alt=""  className=" w-10 -mt-3"/>
               </div>
               <div className=" hidden group-hover:block absolute z-10 top-0 right-0 pt-14 text-base font-medium">
