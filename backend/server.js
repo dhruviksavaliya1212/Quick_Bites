@@ -36,12 +36,10 @@ const corsOptions = {
   origin: ['http://localhost:5173','https://quick-bites-frontend-six.vercel.app','https://quick-bites-seller.vercel.app','http://localhost:5174','http://localhost:5175','http://localhost:5176'], // Specify frontend origins
   credentials: true, // Allow cookies and authorization headers
   exposedHeaders: ["Authorization"],//frontend can access this header
-  // allowedHeaders: ["Content-Type", "Authorization"], // Allow only these headers
+
 };
 
 app.use(cors(corsOptions));
-
-
 
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);
