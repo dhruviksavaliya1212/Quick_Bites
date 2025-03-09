@@ -44,6 +44,7 @@ const getAgentData = async(req,res) => {
     res.json({success:false, message:"Something went wrong"})
   }
 }
+
 const getSpecificAgentData = async(req,res) => {
   const {sellerId} = req.body
   try {

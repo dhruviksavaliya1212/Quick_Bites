@@ -142,7 +142,7 @@ const Dashboard = () => {
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Revenue</h2>
-          <p className="text-2xl font-bold text-orange-500">₹{dashData.revenue}</p>
+          <p className="text-2xl font-bold text-orange-500 overflow-x-hidden ">₹{dashData.revenue}</p>
         </div>
         <div className="p-4 bg-white shadow rounded-lg">
           <h2 className="text-gray-600">Active Users</h2>

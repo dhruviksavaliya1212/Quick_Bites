@@ -5,6 +5,7 @@ import { SellerContext } from '../Context/SellerContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useEffect } from 'react';
+import { jwtDecode } from "jwt-decode";
 
 const AddDeliveryAgent = () => {
   const [agents, setAgents] = useState(false);
@@ -17,7 +18,14 @@ const AddDeliveryAgent = () => {
   const [contactNo, setcontactNo] = useState('');
   const [email, setemail] = useState('');
   const [gender, setgender] = useState('Male');
-
+  const token = localStorage.getItem("seller-token");
+ 
+    const decoded = jwtDecode(token);
+    const sellerId = decoded.id; // or decoded.sellerId depending on your backend token structure
+    console.log("Decoded token:", decoded);
+    console.log("Seller ID:", sellerId);
+ 
+  // console.log(agents)
   const onSubmitHandler = async () => {
     try {
 
@@ -60,7 +68,7 @@ const AddDeliveryAgent = () => {
   const getAgents = async () =>  {
     try {
       const { data } = await axios.post(
-        `${backend}/api/delivery-agent/get-specific-agents`,{},{ headers: { Authorization: `Bearer ${stoken}` } } 
+        `${backend}/api/delivery-agent/get-specific-agents`,{sellerId},{ headers: { Authorization: `Bearer ${stoken}` } } 
     );
     if(data.success){
       setAgents(data.agentData)
