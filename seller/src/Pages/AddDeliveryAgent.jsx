@@ -34,15 +34,15 @@ const AddDeliveryAgent = () => {
         lastName,
         contactNo,
         email,
-        gender
+        gender,
+        sellerId
       }
 
       console.log(agentData)
       const { data } = await axios.post(
-        `${backend}/api/delivery-agent/add-agent`,
+        `http://localhost:3000/api/delivery-agent/invite-agent`,
         agentData,
         { headers: { Authorization: `Bearer ${stoken}` } } 
-
       );
 
       console.log(data);

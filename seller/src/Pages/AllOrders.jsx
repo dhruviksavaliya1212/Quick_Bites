@@ -14,11 +14,12 @@ const AllOrders = () => {
         <div className=" p-5 bg-zinc-100 h-screen overflow-y-scroll">
           {orders.reverse().map((item, index) => (
             <div
+            key={index}
               onClick={() => navigate(`/desc/${item._id}`)}
               className=" flex border-b border-b-gray-400 items-center px-1 py-3 gap-3 hover:bg-orange-100 "
             >
               <div
-                key={index}
+               
                 className=" lg:grid flex flex-col sm:flex-row md:flex-col justify-between grid-cols-2 gap-5 w-full cursor-pointer "
               >
                 <div className="flex flex-col gap-2">
@@ -29,7 +30,7 @@ const AllOrders = () => {
                     {/* <p>{item.address.firstName}</p>
                       <p>{item.address.lastName}</p> */}
                     {item.items.map((item, index) => (
-                      <div className=" flex gap-1 text-zinc-700 text-sm">
+                      <div key={index} className=" flex gap-1 text-zinc-700 text-sm">
                         <p>{item.name}</p>
                         <p>-</p>
                         <p>{item.quantity}</p>

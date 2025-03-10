@@ -115,7 +115,7 @@ const inviteDeliveryAgent  = async(req,res) => {
 
 res.json({ success: true, message: "Invitation sent successfully" });
 
-  } catch (err) {
+  } catch (error) {
     console.error(error)
     const statuscode = error.statusCode || 500;
     const errorMessage = error.message || 'Something went wrong';
@@ -213,7 +213,7 @@ const getAgentData = async(req,res) => {
     const agentData = await deliveryAgentModel.find({});
     res.json({success:true, agentData, message:"Done"})
   } catch (err) {
-    console.log(err)
+    console.log(err)  
     res.json({success:false, message:"Something went wrong"})
   }
 }

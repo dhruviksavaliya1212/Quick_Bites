@@ -37,8 +37,7 @@ const SellerContextProvider = (props) => {
     const { data } = await axios.post(
       `${backend}/api/order/get-orders2`,
       {},
-      { headers: { Authorization: `Bearer ${stoken}` } } 
-    );
+      { headers: { Authorization: `Bearer ${stoken}` } });
 
     console.log(data);
     if (data.success) {
