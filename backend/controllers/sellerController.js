@@ -314,8 +314,6 @@ const forgetPassword = async (req, res) => {
   }
 }
 
-
-
 // verify otp and reset password
 
 const verifyOTPAndForgetPasswordSeller = async (req, res) => {

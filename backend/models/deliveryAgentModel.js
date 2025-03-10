@@ -44,6 +44,10 @@ const deliveryAgentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  isorderAccepted: {
+    type:Boolean,
+    default:false,
+  },
   isAvailable: {
     type: Boolean,
     default: true,
@@ -68,6 +72,10 @@ const deliveryAgentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  deliveryHistory:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "order",
+  }],
   completedDeliveries: {
     type: Number,
     default: 0,

@@ -377,8 +377,6 @@ const forgetPassword = async (req, res) => {
   }
 }
 
-
-
 // verify otp and reset password
 
 const verifyOTPAndForgetPasswordUser = async (req, res) => {
@@ -436,8 +434,6 @@ const verifyOTPAndForgetPasswordUser = async (req, res) => {
     
   }
 }
-
-
 
 // verify otp and issues the token  
 const verifyOtpAndLogin =  async (req,res) => { 

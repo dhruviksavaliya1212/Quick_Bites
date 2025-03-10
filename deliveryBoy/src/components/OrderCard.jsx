@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaMapMarkerAlt, FaPhoneAlt, FaRupeeSign, FaDirections, FaExclamationTriangle } from 'react-icons/fa';
-
+import { FaEnvelope } from 'react-icons/fa';
 function OrderCard({ order, onUpdateStatus }) {
   const [status, setStatus] = useState(order.status);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -31,7 +31,7 @@ function OrderCard({ order, onUpdateStatus }) {
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
         <div>
-          <h3 className="text-lg font-bold">Order #{order.id}</h3>
+          <h3 className="text-lg font-bold">{order.id}</h3>
           <p className="text-gray-600">{order.restaurant}</p>
         </div>
         <div className="flex items-center bg-orange-50 px-3 py-1 rounded-full">
@@ -65,6 +65,25 @@ function OrderCard({ order, onUpdateStatus }) {
           >
             <FaPhoneAlt />
             <span>Call</span>
+          </button>
+
+        
+        </div>
+
+        <div className="flex items-center gap-2">
+         
+          <div className="flex items-center gap-2 flex-1">
+            <FaEnvelope className="text-primary flex-shrink-0" />
+            <p className="text-sm">{order.email}</p>
+          </div>
+        
+
+          <button 
+            onClick={handleCall}
+            className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+          >
+            <FaPhoneAlt />
+            <span>send otp</span>
           </button>
         </div>
       </div>

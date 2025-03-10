@@ -44,6 +44,7 @@ const SellerContextProvider = (props) => {
         setfeedbackData(data.orderData.filter((order,_) => order.feedback !== ''))
       setOrders(data.orderData);
     }
+    
   };
 
   const acceptOrder = async (orderId) => {

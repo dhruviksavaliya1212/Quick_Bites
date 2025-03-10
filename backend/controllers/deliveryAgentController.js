@@ -4,6 +4,8 @@ import crypto from "crypto";
 import { sendMail } from "../utills/sendEmail.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import orderModel from "../models/orderModel.js";
+
 
 const inviteDeliveryAgent  = async(req,res) => {
   try {
@@ -113,7 +115,7 @@ const inviteDeliveryAgent  = async(req,res) => {
 </html>
 `)
 
-res.json({ success: true, message: "Invitation sent successfully" });
+res.json({ success: true, sellerId,message: "Invitation sent successfully" });
 
   } catch (error) {
     console.error(error)
@@ -122,6 +124,7 @@ res.json({ success: true, message: "Invitation sent successfully" });
     res.status(statuscode).json({success:false, message:errorMessage})
   }
 }
+
 
 const completeDeliveryAgentRegistration = async (req,res) => {
 
@@ -174,13 +177,14 @@ const loginDeliveryAgent  = async(req,res) => {
   try {
 
     const {email,password} = req.body;
-
     if(!email || !password)
     {
       return res.status(400).json({success:false, message:"Missing Fields"})
     }
 
     const agent = await deliveryAgentModel.findOne({email:email}); 
+    const sellerId = await agent.sellerId;
+
     if(!agent)
     {
       return res.status(404).json({success:false, message:"agent not found!"})
@@ -197,7 +201,7 @@ const loginDeliveryAgent  = async(req,res) => {
       return res.status(400).json({success:false, message:"Invalid Credentials"})
     }
 
-    const token = jwt.sign({email:agent.email, id:agent._id}, process.env.JWT_SECRET, {expiresIn:"1h"})
+    const token = jwt.sign({email:agent.email,agentId:agent._id,sellerId:sellerId}, process.env.JWT_SECRET, {expiresIn:"1h"})
     res.json({success:true, token, message:"Logged In Successfully!"})
 
   } catch (error) {
@@ -217,6 +221,18 @@ const getAgentData = async(req,res) => {
     res.json({success:false, message:"Something went wrong"})
   }
 }
+
+// get restaurants all orders
+const getOrders = async (req, res) => {
+  try {
+    const { sellerId } = req.body;
+    const orderData = await orderModel.find({ sellerId }).populate('userId','email');
+    res.json({ success: true, orderData });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+};
 
 const getSpecificAgentData = async(req,res) => {
   const {sellerId} = req.body
@@ -242,4 +258,4 @@ const deleteAgent = async(req,res) => {
 }
 
 
-export {inviteDeliveryAgent,getAgentData,deleteAgent,getSpecificAgentData,completeDeliveryAgentRegistration,loginDeliveryAgent}
+export {inviteDeliveryAgent,getAgentData,deleteAgent,getSpecificAgentData,completeDeliveryAgentRegistration,loginDeliveryAgent,getOrders}
