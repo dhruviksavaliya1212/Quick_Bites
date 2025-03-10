@@ -2,7 +2,7 @@ import { useState } from 'react';
 import OrderCard from '../components/OrderCard';
 import StatCard from '../components/StatCard';
 import { FaMotorcycle, FaCheckCircle, FaClock } from 'react-icons/fa';
-
+import withAuth from '../../utills/withAuth';
 function ActiveOrders() {
   const [orders] = useState([
     {
@@ -68,4 +68,4 @@ function ActiveOrders() {
   );
 }
 
-export default ActiveOrders;
+export default withAuth(ActiveOrders);

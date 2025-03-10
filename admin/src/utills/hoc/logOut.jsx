@@ -22,8 +22,7 @@ const logout = async (navigate) => {
         withCredentials: true, // Ensure cookies are sent with the request
       }
     );
-    
-    console.log("Logout response:", response);
+        console.log("Logout response:", response);
     localStorage.removeItem("token");
     // Redirect the user to the login page
     navigate("/login", { replace: true });

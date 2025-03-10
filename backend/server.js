@@ -33,10 +33,11 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}))
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:5173','https://quick-bites-frontend-six.vercel.app','https://quick-bites-seller.vercel.app','http://localhost:5174','http://localhost:5175','http://localhost:5176'], // Specify frontend origins
+  origin: ['http://localhost:5173','https://delivery-quickbites.vercel.app','https://quick-bites-frontend-six.vercel.app','https://quick-bites-seller.vercel.app','http://localhost:5174','http://localhost:5175','http://localhost:5176'],
+  // origin: "http://localhost:3000",
+  // Specify frontend origins
   credentials: true, // Allow cookies and authorization headers
   exposedHeaders: ["Authorization"],//frontend can access this header
-
 };
 
 app.use(cors(corsOptions));

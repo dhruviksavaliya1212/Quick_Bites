@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import withAuth from '../../utills/withAuth';
 
 function DeliveryHistory() {
   const [deliveries] = useState([
@@ -51,4 +52,4 @@ function DeliveryHistory() {
   );
 }
 
-export default DeliveryHistory;
+export default withAuth(DeliveryHistory);

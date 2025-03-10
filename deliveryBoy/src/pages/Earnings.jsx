@@ -1,5 +1,6 @@
 import { FaRupeeSign, FaMotorcycle, FaStar, FaCalendarAlt, FaCalendarWeek, FaCalendarCheck } from 'react-icons/fa';
 import StatCard from '../components/StatCard';
+import withAuth from '../../utills/withAuth';
 
 function Earnings() {
   const earnings = {
@@ -73,4 +74,4 @@ function Earnings() {
   );
 }
 
-export default Earnings;
+export default withAuth(Earnings);

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaUser, FaMotorcycle, FaIdCard } from 'react-icons/fa';
+import withAuth from '../../utills/withAuth';
 
 function Profile() {
   const [profile] = useState({
@@ -70,4 +71,4 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default withAuth(Profile);

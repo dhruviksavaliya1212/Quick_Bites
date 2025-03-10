@@ -127,9 +127,9 @@ const completeDeliveryAgentRegistration = async (req,res) => {
 
   try {
 
-    const {secretCode,password,licenceNumber,vehicleNumber} = req.body;
+    const {secretCode,password,licenseNumber,vehicleNumber} = req.body;
     
-    if(!secretCode || !password || !licenceNumber || !vehicleNumber){
+    if(!secretCode || !password || !licenseNumber || !vehicleNumber){
       return res.status(400).json({success:false, message:"Missing Fields"})
     }
 
@@ -149,7 +149,7 @@ const completeDeliveryAgentRegistration = async (req,res) => {
 
     const hashPassword = await bcrypt.hash(password, 10);
     agent.password = hashPassword;
-    agent.licenseNumber = licenceNumber.toUpperCase();  
+    agent.licenseNumber = licenseNumber.toUpperCase();  
     agent.vehicleNumber = vehicleNumber.toUpperCase();
     agent.isRegistered = true;
     agent.codeexpiresAt = "";
