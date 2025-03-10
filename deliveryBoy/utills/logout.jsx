@@ -5,3 +5,4 @@ const logout = () => {
   
   export default logout;
   
+  // logout
