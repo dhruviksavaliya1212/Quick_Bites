@@ -23,7 +23,7 @@ function ActiveOrders() {
       const sellerId = decoded.sellerId;
   
       const { data } = await axios.post(
-        "http://localhost:3000/api/delivery-agent/get-orders",
+        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-orders",
         { sellerId }
       );
           console.log(data);

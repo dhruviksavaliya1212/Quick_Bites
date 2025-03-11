@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const orderSchema = new mongoose.Schema({
   userId: {
@@ -58,11 +59,11 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  isAccepted: {
-    type: Boolean,
-    // default:false
+  completedAt:{
+    type: Date,
+    default:null
   },
-  feedback: {
+   feedback: {
     type: String,
     default: "",
   },

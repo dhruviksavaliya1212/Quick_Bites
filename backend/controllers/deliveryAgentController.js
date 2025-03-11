@@ -7,7 +7,11 @@ import jwt from "jsonwebtoken";
 import orderModel from "../models/orderModel.js";
 // import { sendMail } from "../utills/sendEmail.js";
 import { generateOTP } from "../utills/generateOTP.js";
-import {OTP} from "../models/OTPmodel.js"
+import { OTP } from "../models/OTPmodel.js";
+import mongoose from "mongoose";
+import { v2 as cloudinary } from "cloudinary";
+import connectCloudinary from "../config/cloudinary.js";
+import fs from "fs"
 
 const inviteDeliveryAgent = async (req, res) => {
   try {
@@ -266,11 +270,20 @@ const respondeToOrder = async (req, res) => {
 
   try {
     const order = await orderModel.findById(orderId);
+    const _id = deliverAgentId;
+    const agent = await deliveryAgentModel.findById(_id);
 
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found",
+      });
+    }
+
+    if (order.isCompleted) {
+      return res.status(400).json({
+        success: false,
+        message: "order already completed/delivered!",
       });
     }
 
@@ -283,6 +296,7 @@ const respondeToOrder = async (req, res) => {
       }
       order.status = "accepted";
       order.deliveryAgentId = deliverAgentId;
+      agent.pendingDeliveries += 1;
     } else if (action === "reject") {
       if (order.status === "rejected") {
         return res.status(400).json({
@@ -290,6 +304,12 @@ const respondeToOrder = async (req, res) => {
           message: "Order already rejected",
         });
       }
+
+      // Only decrement if the rejecting agent was the one assigned
+      if (String(order.deliveryAgentId) === String(deliverAgentId)) {
+        agent.pendingDeliveries = Math.max(agent.pendingDeliveries - 1, 0);
+      }
+
       order.status = "rejected";
       order.deliveryAgentId = null; // make it available for others
     } else {
@@ -300,6 +320,7 @@ const respondeToOrder = async (req, res) => {
     }
 
     await order.save();
+    await agent.save();
 
     return res.status(200).json({
       success: true,
@@ -317,9 +338,14 @@ const respondeToOrder = async (req, res) => {
 const sendOrderCompleteOtp = async (req, res) => {
   const { orderId, email } = req.body;
 
-  try {
+  if (!orderId || !email) {
+    return res
+      .status(400)
+      .json({ success: false, message: "orderid and email is required!" });
+  }
 
-    const _id = orderId
+  try {
+    const _id = orderId;
     const order = await orderModel.findById({ _id });
 
     const deliveryAgent = order?.deliveryAgentId;
@@ -329,10 +355,10 @@ const sendOrderCompleteOtp = async (req, res) => {
         message: "No delivery agent assigned to this order!",
       });
     }
-    console.log('order',order);
-    
-    console.log('delivery',deliveryAgent);
-    
+    console.log("order", order);
+
+    console.log("delivery", deliveryAgent);
+
     if (!order) {
       return res
         .status(404)
@@ -340,18 +366,16 @@ const sendOrderCompleteOtp = async (req, res) => {
     }
 
     if (order.status !== "accepted" || order.isCompleted) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "invalid or already completed order!",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "invalid or already completed order!",
+      });
     }
 
     const otp = generateOTP();
     const otpSave = await OTP.create({
       otp: otp,
-      deliveryBoy : deliveryAgent,
+      deliveryBoy: deliveryAgent,
     });
     const otpId = otpSave._id;
 
@@ -398,9 +422,12 @@ const sendOrderCompleteOtp = async (req, res) => {
 </html>
 `
     );
-    return res
-      .status(200)
-      .json({ success: true,otpId,orderId, message: "deliervy otp has been sent!" });
+    return res.status(200).json({
+      success: true,
+      otpId,
+      orderId,
+      message: "deliervy otp has been sent!",
+    });
   } catch (error) {
     console.error(error);
   }
@@ -410,33 +437,234 @@ const completeOrderAndVerifyOtp = async (req, res) => {
   const { orderId, otp } = req.body;
 
   try {
-
-    const order = await orderModel.findById({_id:orderId});
-    if(!order)
-    {
-      return res.status(400).json({success:false,message:"invalid order to complete!"});
+    if (!orderId || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "orderid and otp is required!" });
     }
 
-    const checkOTP = await OTP.findOne({otp});
-    if(!checkOTP)
-    {
-      return res.status(400).json({success:false,message:"invalid or expired otp!"})
+    const order = await orderModel.findById({ _id: orderId });
+    if (!order) {
+      return res
+        .status(400)
+        .json({ success: false, message: "invalid order to complete!" });
+    }
+
+    const checkOTP = await OTP.findOne({ otp });
+    if (!checkOTP) {
+      return res
+        .status(400)
+        .json({ success: false, message: "invalid or expired otp!" });
     }
 
     // complete order
 
     order.isCompleted = true;
-    await order.save()
+    order.completedAt = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour12: true,
+    });
 
-    return res.status(200).json({success:true,message:"otp verified and order completed!"})
+    await order.save();
 
+    // deletes the otp after verifiying
+    await OTP.deleteOne({ otp: otp });
+
+    // Add ₹40 to agent's totalEarnings
+    const agent = await deliveryAgentModel.findByIdAndUpdate(
+      order.deliveryAgentId,
+      {
+        $inc: { earnings: 40, completedDeliveries: 1 },
+      },
+      { new: true }
+    );
+
+    const totalDeliveries = agent.completedDeliveries + agent.pendingDeliveries;
+    agent.totalDeliveries = totalDeliveries;
+    agent.pendingDeliveries = Math.max(agent.pendingDeliveries - 1, 0);
+    await agent.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "otp verified and order completed!" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "failed to verify otp and complete order!",
+    });
+  }
+};
+
+const getDeliveryAgentHistory = async (req, res) => {
+  const { deliveryAgentId } = req.params;
+  console.log("deliervyagent", deliveryAgentId);
+
+  try {
+    const _id = deliveryAgentId;
+    const agent = await deliveryAgentModel.findById(_id);
+    if (!agent) {
+      return res
+        .status(404)
+        .json({ success: false, message: "DeliveryAgent Not Found!" });
+    }
+
+    const deliveryHistory = await orderModel.find({ deliveryAgentId });
+
+    if (!deliveryHistory.length > 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "DeliveryHistry Not Found!" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "DeliveryHistry Found!",
+      deliveryHistory,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "server error to get the deliveryHistory",
+    });
+  }
+};
+
+const getGroupedEarnings = async (req, res) => {
+  const { deliveryAgentId } = req.params;
+  const { type = "day" } = req.query;
+
+  const allowedTypes = ["day", "month", "week"];
+  if (!allowedTypes.includes(type)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid grouping type" });
+  }
+
+  try {
+    const groupFormate =
+      type === "day"
+        ? {
+            year: { $year: "$completedAt" },
+            month: { $month: "$completedAt" },
+            day: { $dayOfMonth: "$completedAt" },
+          }
+        : type === "week"
+        ? {
+            year: { $year: "$completedAt" },
+            week: { $isoWeek: "$completedAt" },
+          }
+        : {
+            year: { $year: "$completedAt" },
+            month: { $month: "$completedAt" },
+          };
+
+    const earnings = await orderModel.aggregate([
+      {
+        $match: {
+          deliveryAgentId: new mongoose.Types.ObjectId(deliveryAgentId),
+          isCompleted: true,
+        },
+      },
+      {
+        $group: {
+          _id: groupFormate,
+          totalEarnings: { $sum: 40 },
+          totalOrders: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.year": -1,
+          "_id.month": -1,
+          "_id.day": -1,
+          "_id.week": -1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: "earnings fetched as per the type!",
+      earnings,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "failed to compute the earnings!" });
+  }
+};
+
+const updateDeliveryAgentProfile = async (req, res) => {
+  const {
+    deliveryAgentId,
+    firstName,
+    lastName,
+    profilePhoto,
+    contactNo,
+    email,
+    licenseNumber,
+    vehicleNumber,
+  } = req.body;
+
+  const _id = deliveryAgentId;
+
+  try {
+    if (!deliveryAgentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Delivery Agent ID is required.",
+      });
+    }
+
+    let profilePhotoUrl;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "delivery_agents",
+      });
+      profilePhotoUrl = result?.secure_url;
+
+      // Delete file from local uploads folder
+      fs.unlinkSync(req.file.path);
+    }
+
+    const updateData = {
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+      ...(contactNo && { contactNo }),
+      ...(email && { email }),
+      ...(licenseNumber && { licenseNumber }),
+      ...(vehicleNumber && { vehicleNumber }),
+      ...(profilePhotoUrl && { profilePhoto: profilePhotoUrl }),
+    };
+
+    const updateDeliveryAgent = await deliveryAgentModel.findByIdAndUpdate(
+      { _id },
+      updateData,
+      { new: true }
+    );
+
+    if (!updateDeliveryAgent) {
+      return res.status(404).json({
+        success: false,
+        message: "Delivery agent not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      data: updateDeliveryAgent,
+    });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
       .json({
         success: false,
-        message: "failed to verify otp and complete order!",
+        message: "failed to upadte the deliveryAgent profile!",
       });
   }
 };
@@ -474,5 +702,8 @@ export {
   getOrders,
   respondeToOrder,
   sendOrderCompleteOtp,
-  completeOrderAndVerifyOtp
+  completeOrderAndVerifyOtp,
+  getDeliveryAgentHistory,
+  getGroupedEarnings,
+  updateDeliveryAgentProfile
 };

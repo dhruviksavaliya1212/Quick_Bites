@@ -13,6 +13,10 @@ const deliveryAgentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  profilePhoto:{
+    type:String,
+    default:null
+  },
   contactNo: {
     type: String,
     required: true,
@@ -38,10 +42,6 @@ const deliveryAgentSchema = new mongoose.Schema({
   },
   commission: {
     type: String,
-    default: 0,
-  },
-  revenue: {
-    type: Number,
     default: 0,
   },
   isorderAccepted: {
