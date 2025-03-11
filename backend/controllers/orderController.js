@@ -34,7 +34,7 @@ const cashOnDelivery = async (req, res) => {
       restoAddress : sellerData[0].address
     };
 
-    const newOrder = await new orderModel(order);
+    const newOrder =  new orderModel(order);
 
     await newOrder.save();
 

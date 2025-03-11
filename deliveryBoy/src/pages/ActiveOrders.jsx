@@ -8,29 +8,40 @@ import axios from "axios";
 
 function ActiveOrders() {
   const [orders, setOrders] = useState([]);
+  const [isLoading,setisLoading] = useState(false);
 
   useEffect(() => {
     handleActiveOrders();
   }, []);
 
   const handleActiveOrders = async () => {
-    const token = localStorage.getItem("deliveryAgent-token");
-    const decoded = jwtDecode(token);
-    const sellerId = decoded.sellerId;
-    console.log(sellerId);
-
-    const data = await axios.post(
-      "http://localhost:3000/api/delivery-agent/get-orders",
-      { sellerId }
-    );
-    if (data.data.success) {
-      console.log(data);
-      setOrders(data.data.orderData);
-    } else {
-      console.error("Error");
-      alert(data.data.message);
+    setisLoading(true); // ✅ Start loading
+  
+    try {
+      const token = localStorage.getItem("deliveryAgent-token");
+      const decoded = jwtDecode(token);
+      const sellerId = decoded.sellerId;
+  
+      const { data } = await axios.post(
+        "http://localhost:3000/api/delivery-agent/get-orders",
+        { sellerId }
+      );
+          console.log(data);
+      
+      if (data.success) {
+        setOrders(data.orderData);
+               
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      alert("Something went wrong fetching orders");
+    } finally {
+      setisLoading(false); // ✅ Stop loading
     }
   };
+  
 
   const stats = {
     totalOrders: orders.length,
@@ -61,13 +72,15 @@ function ActiveOrders() {
       </div>
 
       <div className="space-y-4">
-        {orders.map((order) => (
+       {isLoading ? (
+        <div className="flex justify-center items-center "><h1 className="font-bold text-2xl text-primary">Loading Orders...</h1></div>
+       ) :  (orders.map((order) => (
           <OrderCard
             key={order._id}
             order={{
               id: order.items.map(item => item.name),
               restaurant: order.restoName,
-              deliveryAddress: `${order.address.flatno}, ${order.address.societyName}`,
+              deliveryAddress: `${order.address?.flatno || ''}, ${order.address?.societyName || ''}, ${order.address?.city === "Please Select" ? "N/A" : order.address?.city}, ${order.address?.state || ''}, ${order.address?.zipcode || 'N/A'}`,
               customerPhone: order.address.phone,
               amount: order.amount,
               status: order.status,
@@ -75,7 +88,7 @@ function ActiveOrders() {
             }}
             onUpdateStatus={handleUpdateStatus}
           />
-        ))}
+        )))}
       </div>
     </div>
   );

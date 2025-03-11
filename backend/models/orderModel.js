@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  deliveryBoyId: {
+  deliveryAgentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "deliveryAgent",
   },
@@ -35,8 +35,9 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: "Placed",
-  },
+    enum: ['pending', 'accepted', 'rejected', 'delivered','placed'],
+    default: 'placed',
+  },  
   date: {
     type: Date,
     default: Date.now(),

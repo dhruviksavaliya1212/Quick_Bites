@@ -2,8 +2,8 @@ import { v2 as cloudinary } from "cloudinary";
 import restaurantModel from "../models/restaurantModel.js";
 import validator from "validator";
 import sellerModel from "../models/sellerModel.js";
-import orderModel from "../models/orderModel.js";
 import foodModel from "../models/FoodModel.js";
+import orderModel from "../models/orderModel.js"
 
 const checkResto = async (req, res) => {
   try {
