@@ -1,37 +1,83 @@
-import { useState } from 'react';
-import { FaMapMarkerAlt, FaPhoneAlt, FaRupeeSign, FaDirections, FaExclamationTriangle } from 'react-icons/fa';
-import { FaEnvelope } from 'react-icons/fa';
+import axios from "axios";
+import { useState } from "react";
+import {
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaRupeeSign,
+  FaDirections,
+  FaExclamationTriangle,
+  FaEnvelope,
+} from "react-icons/fa";
+
 function OrderCard({ order, onUpdateStatus }) {
   const [status, setStatus] = useState(order.status);
   const [showIssueModal, setShowIssueModal] = useState(false);
-  const [issueDescription, setIssueDescription] = useState('');
+  const [issueDescription, setIssueDescription] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpInput, setOtpInput] = useState("");
+  const [showOtpInput, setShowOtpInput] = useState(false);
 
-  const handleStatusUpdate = (newStatus) => {
-    setStatus(newStatus);
-    onUpdateStatus(order.id, newStatus);
+  const handleStatusUpdate = async (newStatus) => {
+    const success = await onUpdateStatus(order._id, newStatus);
+    if (success) {
+      setStatus(newStatus); // Only update UI if backend confirms
+    }
   };
+  
 
   const handleNavigate = () => {
     const encodedAddress = encodeURIComponent(order.deliveryAddress);
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, "_blank");
+  };
+
+  const handleCall = () => {
+    if (order.customerPhone) {
+      window.location.href = `tel:${order.customerPhone}`;
+    }
+  };
+
+  const handleEmail = async () => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/delivery-agent/send-delivery-otp", {
+        email: order.email,
+        orderId: order._id,
+      });
+
+      alert(res.data.message);
+      setOtpSent(true);
+      setShowOtpInput(true);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to send OTP.");
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/delivery-agent/verify-delivery-otp", {
+        orderId: order._id,
+        otp: otpInput,
+      });
+
+      alert(res.data.message);
+      setShowOtpInput(false);
+      setOtpInput("");
+    } catch (err) {
+      alert(err.response?.data?.message || "Incorrect OTP.");
+    }
   };
 
   const handleIssueSubmit = (e) => {
     e.preventDefault();
-    console.log('Issue reported:', { orderId: order.id, issue: issueDescription });
+    console.log("Issue reported:", { orderId: order._id, issue: issueDescription });
     setShowIssueModal(false);
-    setIssueDescription('');
-  };
-
-  const handleCall = () => {
-    window.location.href = `tel:${order.customerPhone}`;
+    setIssueDescription("");
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
         <div>
-          <h3 className="text-lg font-bold">{order.id}</h3>
+          <h3 className="text-lg font-bold">{order.itemName}</h3>
           <p className="text-gray-600">{order.restaurant}</p>
         </div>
         <div className="flex items-center bg-orange-50 px-3 py-1 rounded-full">
@@ -46,7 +92,7 @@ function OrderCard({ order, onUpdateStatus }) {
             <FaMapMarkerAlt className="text-primary flex-shrink-0" />
             <p className="text-sm">{order.deliveryAddress}</p>
           </div>
-          <button 
+          <button
             onClick={handleNavigate}
             className="w-full sm:w-auto bg-primary text-white px-4 py-2 rounded-full hover:bg-secondary transition-colors flex items-center justify-center gap-2"
           >
@@ -54,51 +100,51 @@ function OrderCard({ order, onUpdateStatus }) {
             <span>Navigate</span>
           </button>
         </div>
+
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 flex-1">
             <FaPhoneAlt className="text-primary flex-shrink-0" />
             <p className="text-sm">{order.customerPhone}</p>
           </div>
-          <button 
+          <button
             onClick={handleCall}
             className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
           >
             <FaPhoneAlt />
             <span>Call</span>
           </button>
-
-        
         </div>
 
         <div className="flex items-center gap-2">
-         
           <div className="flex items-center gap-2 flex-1">
             <FaEnvelope className="text-primary flex-shrink-0" />
             <p className="text-sm">{order.email}</p>
           </div>
-        
-
-          <button 
-            onClick={handleCall}
-            className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+          <button
+            onClick={handleEmail}
+            disabled={!(status === "pickedup" || status === "accepted")}
+            className={`w-full sm:w-auto px-4 py-2 rounded-full flex items-center justify-center gap-2 transition-colors ${
+              status === "pickedup" 
+                ? "bg-blue-500 hover:bg-blue-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
-            <FaPhoneAlt />
-            <span>send otp</span>
+            <span>Send OTP</span>
           </button>
         </div>
       </div>
 
       <div className="border-t pt-4">
-        {status === 'pending' ? (
+        {status === "placed" ? (
           <div className="flex flex-col sm:flex-row gap-2">
             <button
-              onClick={() => handleStatusUpdate('accepted')}
+              onClick={() => handleStatusUpdate("accept")}
               className="flex-1 bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600 transition-colors"
             >
               Accept Order
             </button>
             <button
-              onClick={() => handleStatusUpdate('rejected')}
+              onClick={() => handleStatusUpdate("reject")}
               className="flex-1 bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition-colors"
             >
               Reject Order
@@ -106,17 +152,16 @@ function OrderCard({ order, onUpdateStatus }) {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <select 
+            <select
               value={status}
               onChange={(e) => handleStatusUpdate(e.target.value)}
               className="w-full p-3 border rounded-full text-center"
-              disabled={status === 'rejected'}
+              disabled={status === "rejected" || status === "delivered"}
             >
               <option value="accepted">Accepted</option>
-              <option value="picked">Picked Up</option>
-              <option value="delivered">Delivered</option>
+              <option value="pickedup">Picked Up</option>
+              <option value="delivered" disabled>Delivered (via OTP)</option>
             </select>
-            
             <button
               onClick={() => setShowIssueModal(true)}
               className="flex items-center justify-center gap-2 text-red-500 hover:text-red-600 transition-colors p-2"
@@ -126,6 +171,25 @@ function OrderCard({ order, onUpdateStatus }) {
             </button>
           </div>
         )}
+
+{(status === "pickedup" || status === "accepted") && otpSent && showOtpInput && (
+  <div className="space-y-2 mt-2">
+    <input
+      type="text"
+      value={otpInput}
+      onChange={(e) => setOtpInput(e.target.value)}
+      placeholder="Enter OTP"
+      className="w-full p-2 border rounded"
+    />
+    <button
+      onClick={handleOtpSubmit}
+      className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors w-full"
+    >
+      Verify & Complete Delivery
+    </button>
+  </div>
+)}
+
       </div>
 
       {showIssueModal && (
@@ -141,17 +205,17 @@ function OrderCard({ order, onUpdateStatus }) {
                 placeholder="Describe the issue..."
                 required
               />
-              <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowIssueModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 order-2 sm:order-1"
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded-full hover:bg-secondary order-1 sm:order-2"
+                  className="px-4 py-2 bg-primary text-white rounded-full hover:bg-secondary"
                 >
                   Submit
                 </button>

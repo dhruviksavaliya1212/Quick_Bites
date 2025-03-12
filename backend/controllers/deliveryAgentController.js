@@ -270,8 +270,7 @@ const respondeToOrder = async (req, res) => {
 
   try {
     const order = await orderModel.findById(orderId);
-    const _id = deliverAgentId;
-    const agent = await deliveryAgentModel.findById(_id);
+    const agent = await deliveryAgentModel.findById(deliverAgentId);
 
     if (!order) {
       return res.status(404).json({
@@ -283,20 +282,22 @@ const respondeToOrder = async (req, res) => {
     if (order.isCompleted) {
       return res.status(400).json({
         success: false,
-        message: "order already completed/delivered!",
+        message: "Order already completed/delivered!",
       });
     }
 
     if (action === "accept") {
-      if (order.status === "accepted") {
+      if (order.status === "accepted" || order.status === "pickedUp") {
         return res.status(400).json({
           success: false,
-          message: "Order already accepted by another delivery agent",
+          message: "Order already assigned to a delivery agent",
         });
       }
+
       order.status = "accepted";
       order.deliveryAgentId = deliverAgentId;
       agent.pendingDeliveries += 1;
+
     } else if (action === "reject") {
       if (order.status === "rejected") {
         return res.status(400).json({
@@ -305,17 +306,34 @@ const respondeToOrder = async (req, res) => {
         });
       }
 
-      // Only decrement if the rejecting agent was the one assigned
       if (String(order.deliveryAgentId) === String(deliverAgentId)) {
         agent.pendingDeliveries = Math.max(agent.pendingDeliveries - 1, 0);
       }
 
       order.status = "rejected";
-      order.deliveryAgentId = null; // make it available for others
+      order.deliveryAgentId = null;
+
+    } else if (action === "pickedup") {
+      if (order.status !== "accepted") {
+        return res.status(400).json({
+          success: false,
+          message: "Order must be accepted before marking as picked up",
+        });
+      }
+
+      if (String(order.deliveryAgentId) !== String(deliverAgentId)) {
+        return res.status(403).json({
+          success: false,
+          message: "Only the assigned agent can mark this order as picked up",
+        });
+      }
+      order.status = "pickedup";
+      order.ispickedUp = true;
+
     } else {
       return res.status(400).json({
         success: false,
-        message: "Invalid action. Use 'accept' or 'reject'",
+        message: "Invalid action. Use 'accept', 'reject', or 'pickedup'",
       });
     }
 
@@ -334,6 +352,7 @@ const respondeToOrder = async (req, res) => {
     });
   }
 };
+
 
 const sendOrderCompleteOtp = async (req, res) => {
   const { orderId, email } = req.body;
@@ -365,7 +384,7 @@ const sendOrderCompleteOtp = async (req, res) => {
         .json({ success: false, message: "Order not Found!" });
     }
 
-    if (order.status !== "accepted" || order.isCompleted) {
+    if (order.isCompleted) {
       return res.status(400).json({
         success: false,
         message: "invalid or already completed order!",
@@ -460,6 +479,7 @@ const completeOrderAndVerifyOtp = async (req, res) => {
     // complete order
 
     order.isCompleted = true;
+    order.status = "delivered";
     order.completedAt = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
       hour12: true,

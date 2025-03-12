@@ -1,56 +1,117 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import OrderCard from "../components/OrderCard";
 import StatCard from "../components/StatCard";
 import { FaMotorcycle, FaCheckCircle, FaClock } from "react-icons/fa";
 import withAuth from "../../utills/withAuth";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { OrderContext } from "../../context/OrderContext";
 
 function ActiveOrders() {
   const [orders, setOrders] = useState([]);
-  const [isLoading,setisLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [agentData, setAgentData] = useState([]);
+  const { addAcceptedOrder } = useContext(OrderContext);
+
+  const token = localStorage.getItem("deliveryAgent-token");
+  const decoded = jwtDecode(token);
+  const deliveryAgentId = decoded.agentId;
 
   useEffect(() => {
-    handleActiveOrders();
+    fetchActiveOrders();
   }, []);
 
-  const handleActiveOrders = async () => {
-    setisLoading(true); // ✅ Start loading
-  
+  const fetchActiveOrders = async () => {
+    setIsLoading(true);
     try {
-      const token = localStorage.getItem("deliveryAgent-token");
-      const decoded = jwtDecode(token);
-      const sellerId = decoded.sellerId;
-  
       const { data } = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-orders",
-        { sellerId }
+        "http://localhost:3000/api/delivery-agent/get-orders",
+        { sellerId: decoded.sellerId }
       );
-          console.log(data);
-      
       if (data.success) {
-        setOrders(data.orderData);
-               
+        // Filter out "accepted" orders initially, keep all others (e.g., placed, rejected, delivered)
+        const activeOrders = data.orderData.filter(
+          (order) => order.status !== "accepted"
+        );
+        setOrders(activeOrders);
       } else {
         alert(data.message);
       }
     } catch (err) {
       console.error("Error fetching orders:", err);
-      alert("Something went wrong fetching orders");
+      alert("Failed to fetch orders.");
     } finally {
-      setisLoading(false); // ✅ Stop loading
+      setIsLoading(false);
     }
   };
-  
 
-  const stats = {
-    totalOrders: orders.length,
-    completed: orders.filter((order) => order.status === "delivered").length,
-    pending: orders.filter((order) => order.status === "pending").length,
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/delivery-agent/respondeto-order",
+        {
+          orderId,
+          action: newStatus,
+          deliverAgentId: deliveryAgentId,
+        }
+      );
+
+      if (res.status === 200) {
+        alert(res.data.message || "Order status updated successfully.");
+        if (newStatus === "accept") {
+          const acceptedOrder = orders.find((order) => order._id === orderId);
+          addAcceptedOrder({ ...acceptedOrder, status: "accepted" }); // Add to context
+          // Remove from active orders
+          setOrders((prevOrders) =>
+            prevOrders.filter((order) => order._id !== orderId)
+          );
+        } else {
+          // Update status locally for other actions (e.g., reject, delivered), keep on page
+          setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+              order._id === orderId ? { ...order, status: newStatus } : order
+            )
+          );
+        }
+        return true;
+      } else {
+        alert(res.data.message || "Failed to update order status.");
+        return false;
+      }
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong while updating order status.";
+      alert(errorMsg);
+      return false;
+    }
   };
 
-  const handleUpdateStatus = (orderId, newStatus) => {
-    console.log(`Order ${orderId} status updated to ${newStatus}`);
+  const getStatsData = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/delivery-agent/get-specific-agents",
+        { sellerId: decoded.sellerId }
+      );
+      if (res.data) {
+        setAgentData(res.data.agentData);
+      } else {
+        alert(res.data?.message || "Failed to fetch the stats-data.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getStatsData();
+  }, []);
+
+  const stats = {
+    totalOrders: agentData[0]?.totalDeliveries || 0,
+    completed: agentData[0]?.completedDeliveries || 0,
+    pending: agentData[0]?.pendingDeliveries || 0,
   };
 
   return (
@@ -72,23 +133,35 @@ function ActiveOrders() {
       </div>
 
       <div className="space-y-4">
-       {isLoading ? (
-        <div className="flex justify-center items-center "><h1 className="font-bold text-2xl text-primary">Loading Orders...</h1></div>
-       ) :  (orders.map((order) => (
-          <OrderCard
-            key={order._id}
-            order={{
-              id: order.items.map(item => item.name),
-              restaurant: order.restoName,
-              deliveryAddress: `${order.address?.flatno || ''}, ${order.address?.societyName || ''}, ${order.address?.city === "Please Select" ? "N/A" : order.address?.city}, ${order.address?.state || ''}, ${order.address?.zipcode || 'N/A'}`,
-              customerPhone: order.address.phone,
-              amount: order.amount,
-              status: order.status,
-              email: order.userId?.email || "N/A",
-            }}
-            onUpdateStatus={handleUpdateStatus}
-          />
-        )))}
+        {isLoading ? (
+          <div className="flex justify-center items-center">
+            <h1 className="font-bold text-2xl text-primary">
+              Loading Orders...
+            </h1>
+          </div>
+        ) : (
+          orders.map((order) => (
+            <OrderCard
+              key={order._id}
+              order={{
+                ...order,
+                itemName: order.items.map((item) => item.name).join(", "),
+                deliveryAddress: `${order.address?.flatno || ""}, ${
+                  order.address?.societyName || ""
+                }, ${
+                  order.address?.city !== "Please Select"
+                    ? order.address?.city
+                    : "N/A"
+                }, ${order.address?.state || ""}, ${
+                  order.address?.zipcode || "N/A"
+                }`,
+                customerPhone: order.address?.phone || "N/A",
+                email: order.userId?.email || "N/A",
+              }}
+              onUpdateStatus={handleUpdateStatus}
+            />
+          ))
+        )}
       </div>
     </div>
   );

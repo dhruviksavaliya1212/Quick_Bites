@@ -36,10 +36,14 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'rejected', 'delivered','placed'],
+    enum: ['pending', 'accepted', 'rejected', 'delivered','placed','pickedup'],
     default: 'placed',
   },  
-  date: {
+  ispickedUp:{
+    type : Boolean,
+    default : false
+  },
+    date: {
     type: Date,
     default: Date.now(),
   },
