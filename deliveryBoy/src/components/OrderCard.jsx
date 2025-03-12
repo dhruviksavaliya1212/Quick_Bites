@@ -38,7 +38,7 @@ function OrderCard({ order, onUpdateStatus }) {
 
   const handleEmail = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/api/delivery-agent/send-delivery-otp", {
+      const res = await axios.post("https://quick-bites-backend.vercel.app/api/delivery-agent/send-delivery-otp", {
         email: order.email,
         orderId: order._id,
       });
@@ -53,7 +53,7 @@ function OrderCard({ order, onUpdateStatus }) {
 
   const handleOtpSubmit = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/api/delivery-agent/verify-delivery-otp", {
+      const res = await axios.post("https://quick-bites-backend.vercel.app/api/delivery-agent/verify-delivery-otp", {
         orderId: order._id,
         otp: otpInput,
       });
@@ -66,12 +66,12 @@ function OrderCard({ order, onUpdateStatus }) {
     }
   };
 
-  const handleIssueSubmit = (e) => {
-    e.preventDefault();
-    console.log("Issue reported:", { orderId: order._id, issue: issueDescription });
-    setShowIssueModal(false);
-    setIssueDescription("");
-  };
+  // const handleIssueSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log("Issue reported:", { orderId: order._id, issue: issueDescription });
+  //   setShowIssueModal(false);
+  //   setIssueDescription("");
+  // };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4">
@@ -192,7 +192,7 @@ function OrderCard({ order, onUpdateStatus }) {
 
       </div>
 
-      {showIssueModal && (
+      {/* {showIssueModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-lg font-bold mb-4">Report Issue</h3>
@@ -223,7 +223,7 @@ function OrderCard({ order, onUpdateStatus }) {
             </form>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
