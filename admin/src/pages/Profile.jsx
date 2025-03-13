@@ -1,41 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import adminProfile from "../assets/adminProfile.jpg"
+import adminProfile from "../assets/adminProfile.jpg";
 import withAuth from '../utills/hoc/withAuth';
 import logout from '../utills/hoc/logOut';
+import { jwtDecode } from "jwt-decode";
 
 const Profile = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'Ridham Savaliya',
-    email: 'Ridham@example.com',
-    phone: '+91 1234567890',
-    role: 'Administrator',
-    dob: '2004-09-19',
-    address: '29 nana varchha, Surat, Gujarat, India',
-    gender: 'Male'
+    name: '',
+    email: '',
+    phone: '',
+    role: '',
+    dob: '',
+    address: '',
+    gender: ''
   });
-  const [profileImage, setProfileImage] = useState(adminProfile);
-
+  const [profileImage, setProfileImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(adminProfile);
   const navigate = useNavigate();
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
+  const token = localStorage.getItem("token");
+  const decode = jwtDecode(token);
+  const adminId = decode.adminId;
 
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        const res = await fetch(`https://quick-bites-backend.vercel.app/api/auth/admin/getadmin-profile?adminId=${adminId}`);
+        const data = await res.json();
+        if (res.ok) {
+          const admin = data.admin; // Extract from "admin" key
+          // Convert ISO date (e.g., "2002-10-29T00:00:00.000Z") to "YYYY-MM-DD"
+          const dob = admin.DOB ? new Date(admin.DOB).toISOString().split('T')[0] : '';
+          setProfile({
+            name: admin.userName || '',
+            email: admin.email || '',
+            phone: admin.phone || 'N/A', // Assuming phone might be added later
+            role: admin.role || 'Administrator', // Role isn’t in response, defaulting
+            dob: dob,
+            address: admin.address || '',
+            gender: admin.gender || ''
+          });
+          if (admin.profilePhoto) {
+            setPreviewImage(admin.profilePhoto); // Use Cloudinary URL directly
+          }
+        } else {
+          toast.error(data.message || "Failed to load profile.");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        toast.error("Error fetching profile.");
+      }
+    };
 
+    fetchAdminProfile();
+  }, [adminId]);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    toast.success('Profile updated successfully!');
-  };
+  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  const handleEditToggle = () => setIsEditing(!isEditing);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,16 +71,59 @@ const Profile = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setProfileImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    const formData = new FormData();
+    if (profile.name) formData.append('userName', profile.name);
+    if (profile.email) formData.append('email', profile.email);
+    if (profile.phone) formData.append('phone', profile.phone);
+    if (profile.dob) {
+      const [year, month, day] = profile.dob.split("-");
+      formData.append("DOB", `${day}/${month}/${year}`); // Send as DD/MM/YYYY
+    }
+    if (profile.address) formData.append('address', profile.address);
+    if (profile.gender) formData.append('gender', profile.gender);
+    if (profileImage instanceof File) formData.append('profilePhoto', profileImage);
+
+    try {
+      const response = await fetch(`https://quick-bites-backend.vercel.app/api/auth/admin/updateadmin-profile/${adminId}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        const admin = result.admin; // Extract from "admin" key
+        const dob = admin.DOB ? new Date(admin.DOB).toISOString().split('T')[0] : '';
+        setProfile({
+          name: admin.userName || '',
+          email: admin.email || '',
+          phone: admin.phone || '',
+          role: admin.role || 'Administrator',
+          dob: dob,
+          address: admin.address || '',
+          gender: admin.gender || ''
+        });
+        if (admin.profilePhoto) {
+          setPreviewImage(admin.profilePhoto); // Update with new Cloudinary URL
+        }
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        toast.error(result.message || 'Update failed');
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+      console.error("Update Error:", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen  flex items-center justify-center p-4">
       <ToastContainer />
       <div className="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-4xl">
         <div className="bg-gradient-to-r from-orange-500 to-red-500 h-40"></div>
@@ -62,11 +131,18 @@ const Profile = () => {
           <div className="flex items-center space-x-4">
             <label htmlFor="profileImage" className="cursor-pointer">
               <img
-                className="h-24 w-24 rounded-full border-4 border-white shadow-md"
-                src={profileImage}
+                className="h-24 w-24 rounded-full border-4 border-white shadow-md object-cover"
+                src={previewImage}
                 alt="Profile"
               />
-              {isEditing && <input type="file" id="profileImage" className="hidden" onChange={handleImageUpload} />}
+              {isEditing && (
+                <input
+                  type="file"
+                  id="profileImage"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              )}
             </label>
             <div>
               {isEditing ? (
@@ -85,62 +161,28 @@ const Profile = () => {
           </div>
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-4 bg-orange-50 rounded-lg shadow-sm">
-              <h3 className="text-sm text-gray-500">Email</h3>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={profile.email}
-                  onChange={handleInputChange}
-                  className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none"
-                />
-              ) : (
-                <p className="text-lg font-semibold text-gray-800">{profile.email}</p>
-              )}
-            </div>
-            <div className="p-4 bg-orange-50 rounded-lg shadow-sm">
-              <h3 className="text-sm text-gray-500">Phone</h3>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="phone"
-                  value={profile.phone}
-                  onChange={handleInputChange}
-                  className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none"
-                />
-              ) : (
-                <p className="text-lg font-semibold text-gray-800">{profile.phone}</p>
-              )}
-            </div>
-            <div className="p-4 bg-orange-50 rounded-lg shadow-sm">
-              <h3 className="text-sm text-gray-500">Date of Birth</h3>
-              {isEditing ? (
-                <input
-                  type="date"
-                  name="dob"
-                  value={profile.dob}
-                  onChange={handleInputChange}
-                  className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none"
-                />
-              ) : (
-                <p className="text-lg font-semibold text-gray-800">{profile.dob}</p>
-              )}
-            </div>
-            <div className="p-4 bg-orange-50 rounded-lg shadow-sm">
-              <h3 className="text-sm text-gray-500">Address</h3>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="address"
-                  value={profile.address}
-                  onChange={handleInputChange}
-                  className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none"
-                />
-              ) : (
-                <p className="text-lg font-semibold text-gray-800">{profile.address}</p>
-              )}
-            </div>
+            {[
+              { label: "Email", name: "email", type: "email" },
+              { label: "Phone", name: "phone", type: "text" },
+              { label: "Date of Birth", name: "dob", type: "date" },
+              { label: "Address", name: "address", type: "text" }
+            ].map(({ label, name, type }) => (
+              <div key={name} className="p-4 bg-orange-50 rounded-lg shadow-sm">
+                <h3 className="text-sm text-gray-500">{label}</h3>
+                {isEditing ? (
+                  <input
+                    type={type}
+                    name={name}
+                    value={profile[name]}
+                    onChange={handleInputChange}
+                    className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none w-full"
+                  />
+                ) : (
+                  <p className="text-lg font-semibold text-gray-800">{profile[name]}</p>
+                )}
+              </div>
+            ))}
+
             <div className="p-4 bg-orange-50 rounded-lg shadow-sm">
               <h3 className="text-sm text-gray-500">Gender</h3>
               {isEditing ? (
@@ -148,32 +190,44 @@ const Profile = () => {
                   name="gender"
                   value={profile.gender}
                   onChange={handleInputChange}
-                  className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none"
+                  className="text-lg font-semibold text-gray-800 border-b border-gray-300 focus:outline-none w-full"
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                 </select>
               ) : (
-                <p className="text-lg font-semibold text-gray-800">{profile.gender}</p>
+                <p className="text-lg font-semibold text-gray-800">{profile.gender || 'Not specified'}</p>
               )}
             </div>
           </div>
 
           <div className="mt-8 flex justify-end space-x-4">
-            <button onClick={toggleDropdown} className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow">
+            <button
+              onClick={toggleDropdown}
+              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow"
+            >
               Settings
             </button>
             {isEditing ? (
-              <button onClick={handleSaveProfile} className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow">
+              <button
+                onClick={handleSaveProfile}
+                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow"
+              >
                 Save
               </button>
             ) : (
-              <button onClick={handleEditToggle} className="px-6 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded-lg shadow">
+              <button
+                onClick={handleEditToggle}
+                className="px-6 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded-lg shadow"
+              >
                 Edit Profile
               </button>
             )}
-            <button onClick={() => logout(navigate)} className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow">
+            <button
+              onClick={() => logout(navigate)}
+              className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow"
+            >
               Logout
             </button>
           </div>
@@ -183,4 +237,4 @@ const Profile = () => {
   );
 };
 
-export default withAuth(Profile) ;
+export default withAuth(Profile);

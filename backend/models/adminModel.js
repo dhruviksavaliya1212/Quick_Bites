@@ -18,6 +18,20 @@ const AdminSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    gender: {
+      type: String,
+      required: true,
+    },
+    DOB: {
+      type: Date,
+      required: true,
+    },
+    address: {
+      type: String,
+    },
+    profilePhoto: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

@@ -8,7 +8,9 @@ import { OTP } from "../models/OTPmodel.js";
 import { generateOTP } from "../utills/generateOTP.js";
 import { sendMail } from "../utills/sendEmail.js";
 import sellerModel from "../models/sellerModel.js";
-
+import connectCloudinary from "../config/cloudinary.js";
+import {v2 as cloudinary} from "cloudinary"
+import fs from 'fs'
 
 const getDashData = async(req,res) => {
   try {
@@ -76,55 +78,140 @@ const rejectResto = async(req,res) => {
 // register a admin
 
 const registerAdmin = async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { userName, email, password, gender, address, profilePhoto, DOB } = req.body;
 
-
-
-  if (!userName || !email || !password) {
+  if (!userName || !email || !password || !DOB) {
     return res.status(400).json({ message: "Missing required fields!" });
   }
 
-  try {
+  let profilephoto = null;
 
+  if (req.file) {
+    try {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "admin_folder",
+      });
+      profilephoto = result.secure_url;
+      fs.unlinkSync(req.file.path);
+    } catch (error) {
+      console.error("Cloudinary Upload Error:", error);
+      return res.status(500).json({ message: "Profile photo upload failed!" });
+    }
+  }
+
+  try {
+    // Check if email exists in any of the models
     const isEmailTaken = await Promise.all([
       Admin.findOne({ email }),
       sellerModel.findOne({ email }),
-      userModel.findOne({ email })
+      userModel.findOne({ email }),
     ]);
-    
+
     if (isEmailTaken.some(result => result)) {
       return res.status(400).json({
         success: false,
         message: "This Email is already in use. Please use another email!",
       });
     }
-    
-    const existingEmail = await Admin.findOne({ email });
 
-    if (existingEmail) {
-      return res.status(409).json({ message: "Email already in use!" });
-    }
-
+    // Check if username is already taken
     const existingUser = await Admin.findOne({ userName });
     if (existingUser) {
-      return res.status(409).json({ message: "userName already in use!" });
+      return res.status(409).json({ message: "Username already in use!" });
     }
 
+    const [day, month, year] = DOB.split('/');
+    const parsedDOB = new Date(`${year}-${month}-${day}`);
+    if (isNaN(parsedDOB.getTime())) {
+      return res.status(400).json({ message: "Invalid DOB format! Use DD/MM/YYYY." });
+    }
+    
+    // Create new Admin
     const newAdmin = await Admin.create({
       userName,
       email,
       password,
+      DOB: parsedDOB,
+      address,
+      gender,
+      profilePhoto: profilephoto,
     });
 
-    res
-      .status(201)
-      .json({ message: "Admin Registered Successfully!", newAdmin });
+    res.status(201).json({ message: "Admin Registered Successfully!", newAdmin });
   } catch (error) {
     console.error("Failed at registration!", error);
     res.status(500).json({ message: "Internal server error!" });
   }
 };
 
+// get the admin-profile
+const getAdminProfile = async (req, res) => {
+  try {
+    const { adminId } = req.query;
+
+    if (!adminId) {
+      return res.status(400).json({ message: 'adminId is required in query params.' });
+    }
+
+    const admin = await Admin.findById(adminId).select('-password'); // exclude password
+
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found.' });
+    }
+
+    res.status(200).json({ admin });
+  } catch (error) {
+    console.error('Error fetching admin profile:', error);
+    res.status(500).json({ message: 'Server error. Could not fetch admin profile.' });
+  }
+};
+
+// update the admin
+const updateAdmin = async (req, res) => {
+  const { userName, email, password, gender, address, DOB } = req.body;
+  const adminId = req.params.adminId;
+
+  try {
+    const admin = await Admin.findById(adminId);
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    // Handle optional profile photo
+    if (req.file) {
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: "admin_folder",
+        });
+        admin.profilePhoto = result.secure_url;
+        fs.unlinkSync(req.file.path);
+      } catch (error) {
+        console.error("Cloudinary Upload Error:", error);
+        return res.status(500).json({ message: "Profile photo upload failed!" });
+      }
+    }
+
+    // Update only provided fields
+    if (userName) admin.userName = userName;
+    if (email) admin.email = email;
+    if (password) admin.password = password;
+    if (gender) admin.gender = gender;
+    if (address) admin.address = address;
+
+    if (DOB) {
+      const [day, month, year] = DOB.split('/');
+      const parsedDOB = new Date(`${year}-${month}-${day}`);
+      if (isNaN(parsedDOB.getTime())) {
+        return res.status(400).json({ message: "Invalid DOB format! Use DD/MM/YYYY." });
+      }
+      admin.DOB = parsedDOB;
+    }
+
+    await admin.save();
+    res.status(200).json({ message: "Admin updated successfully", admin });
+  } catch (error) {
+    console.error("Admin update failed:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 // login & send OTP
 
 const loginAdmin = async (req, res) => {
@@ -512,4 +599,14 @@ const verifyOTPAndForgetPasswordAdmin = async (req, res) => {
     }
   };
 
-export {getDashData,forgotPassword, approvResto, rejectResto, registerAdmin, loginAdmin, verifyOTPAndLogin,verifyOTPAndForgetPasswordAdmin, logoutAdmin}
+  const getAllOrders = async (req, res) => {
+    try {
+      const orderData = await orderModel.find();
+      res.json({ success: true, orderData });
+    } catch (err) {
+      console.log(err);
+      res.json({ success: false, message: "Something went wrong" });
+    }
+  };
+
+export {getDashData,getAllOrders,forgotPassword, approvResto, rejectResto, registerAdmin, loginAdmin, verifyOTPAndLogin,verifyOTPAndForgetPasswordAdmin, logoutAdmin,updateAdmin,getAdminProfile}
