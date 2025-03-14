@@ -16,7 +16,7 @@ const Response = () => {
   const fetchResponses = async () => {
     try {
       const res = await axios.post(
-        'http://localhost:3000/api/seller/getallresponses',
+        'https://quick-bites-backend.vercel.app/api/seller/getallresponses',
         { sellerId }
       );
 
