@@ -14,10 +14,28 @@ const AppContextProvider = (props) => {
   const [food_list, setFood_list] = useState([]);
   const [restoData, setRestoData] = useState([]);
   const [userData, setUserData] = useState(false);
+  const [promotions, setPromotions] = useState([]);
+  const [appliedPromo, setAppliedPromo] = useState(null); // Store applied promotion
+  const [discount, setDiscount] = useState(0); // S
 
   const backend = 'https://quick-bites-backend.vercel.app';
   const currency = "₹"
   
+
+
+  // Fetch promotions
+  const fetchPromotions = async () => {
+    try {
+      const adminId = "67d2bb8f8587944588e7cdb9"; // Replace with dynamic admin ID if needed
+      const { data } = await axios.get(
+        `${backend}/api/auth/admin/getallpromotions/${adminId}`
+      );
+      setPromotions(data.promotions);
+    } catch (err) {
+      toast.error("Failed to load promotions");
+    }
+  };
+
   // handle google login
   const handleLogin = async (code) => {
     const { data } = await axios.get(
@@ -131,6 +149,7 @@ const AppContextProvider = (props) => {
     async function loadData() {
       await fetchFoodList();
       await getRestoData();
+      await fetchPromotions();
       if(localStorage.getItem("user-token")){
         const token = localStorage.getItem("user-token");
         console.log(token);
@@ -167,7 +186,12 @@ const AppContextProvider = (props) => {
     token,
     userData,
     setUserData,
-    getUserProfileData
+    getUserProfileData,
+    promotions,
+    appliedPromo, // Expose applied promo
+    setAppliedPromo, // Method to set applied promo
+    discount, // Expose discount
+    setDiscount, // Method to set discount
   };
 
   return (

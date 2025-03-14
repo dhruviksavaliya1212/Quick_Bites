@@ -19,6 +19,7 @@ import RestoDesc from "./Pages/RestoDesc";
 import Support from "./Pages/Support";
 import MyProfile from "./Pages/MyProfile";
 import Contact from "./Pages/Contact";
+import OfferZones from "./Pages/OfferZones";
 // import About from "./Components/About";
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/verify" element={<Verify />} />
+        <Route path="/offer-zone" element={<OfferZones />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/order/:id" element={<OrderDesc />} />
         <Route path="/about" element={<About />} />

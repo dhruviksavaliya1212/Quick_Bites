@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "../Context/AppContext";
 import vegetarian from "../assets/vegetarian.webp";
 import plus from "../assets/plus.png";
 import remove from "../assets/remove.png";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const Cart = () => {
   const navigate = useNavigate();
-
   const {
     token,
     cart,
@@ -20,85 +20,119 @@ const Cart = () => {
     calculateDelivery,
     calculateGst,
     calculatePlatformFee,
+    backend,
+    setAppliedPromo, // Context setter
+    setDiscount, // Context setter
+    promotions, // Available promotions
+    discount, // Context discount value
+    appliedPromo, // Context applied promo value
   } = useContext(AppContext);
 
-  const checkUserLogin = ()  => {
-    if(!token){
-      navigate('/login')
-      return  toast.warn("Plase Login to Place an order")
-    } else if(getTotalCartAmount() === 0){
-      return  toast.info("Plase add item into cart to Place an order")
+  const [offerCode, setOfferCode] = useState("");
+
+  const checkUserLogin = () => {
+    if (!token) {
+      navigate("/login");
+      return toast.warn("Please Login to Place an order");
+    } else if (getTotalCartAmount() === 0) {
+      return toast.info("Please add item into cart to Place an order");
     }
-     navigate("/checkout")
-  }
+    navigate("/checkout");
+  };
+
+  const applyOfferCode = async () => {
+    try {
+      const { data } = await axios.post(
+        `${backend}/api/auth/admin/checkPromotion`, // Updated endpoint
+        { offerCode },
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        const promo = promotions.find((p) => p.offerCode === offerCode);
+        if (promo && promo.isActive) {
+          const discountAmount = (getTotalCartAmount() * promo.discount) / 100;
+          setDiscount(discountAmount); // Update context state only
+          setAppliedPromo(promo); // Update context state only
+          toast.success(`Offer code applied! ${promo.discount}% discount added.`);
+        } else {
+          setDiscount(0); // Reset context
+          setAppliedPromo(null); // Reset context
+          toast.error("Promotion is not active or invalid");
+        }
+      } else {
+        setDiscount(0); // Reset context
+        setAppliedPromo(null); // Reset context
+        toast.error(data.message);
+      }
+    } catch (error) {
+      setDiscount(0); // Reset context
+      setAppliedPromo(null); // Reset context
+      toast.error("Failed to validate offer code");
+    }
+  };
+
+  const finalAmount =
+    getTotalCartAmount() +
+    calculateDelivery() +
+    calculatePlatformFee() +
+    calculateGst() -
+    (discount || 0); // Use context discount, default to 0 if undefined
 
   return (
     <div className="flex items-center flex-col mb-20 py-10 min-h-screen w-full">
-      <div className="  mt-10 w-full lg:w-[90%] xl:w-[80%]">
+      <div className="mt-10 w-full lg:w-[90%] xl:w-[80%]">
         {food_list.map((item, index) => {
           if (cart[item._id] > 0) {
             return (
               <div key={index}>
-                <div className=" my-5 flex flex-col sm:flex-row items-center justify-start gap-5 lg:gap-10 ">
-                  <div className=" relative">
+                <div className="my-5 flex flex-col sm:flex-row items-center justify-start gap-5 lg:gap-10">
+                  <div className="relative">
                     <img
                       src={item.image}
                       alt=""
-                      className=" min-w-52 max-w-52 h-48 rounded bg-gradient-to-t from-slate-500 to-slate-900"
+                      className="min-w-52 max-w-52 h-48 rounded bg-gradient-to-t from-slate-500 to-slate-900"
                     />
-                    {!cart[item._id] ? (
-                      <div className="w-full flex justify-center -mt-6">
-                        <button
-                          onClick={() => addToCart(item._id)}
-                          className=" w-[65%] border bg-orange-500 py-1 text-zinc-100 font-medium rounded text-[16px] hover:bg-orange-600 hover:text-black hover:scale-105 transition-all duration-300"
-                        >
-                          Add To Cart
-                        </button>
-                      </div>
-                    ) : (
-                      <div className=" w-32 h-fit bg-white shadow shadow-zinc-700 absolute -bottom-3 left-10 rounded flex items-center justify-between p-1">
-                        <img
-                          onClick={() => addToCart(item._id)}
-                          src={plus}
-                          alt=""
-                          className=" w-6 cursor-pointer hover:scale-110 transition-all duration-500 "
-                        />
-                        <p className=" text-xl text-[#38913b] font-semibold">
-                          {cart[item._id]}
-                        </p>
-                        <img
-                          onClick={() => removeFromCart(item._id)}
-                          src={remove}
-                          alt=""
-                          className=" w-6 cursor-pointer hover:scale-110 transition-all duration-500"
-                        />
-                      </div>
-                    )}
+                    <div className="w-32 h-fit bg-white shadow shadow-zinc-700 absolute -bottom-3 left-10 rounded flex items-center justify-between p-1">
+                      <img
+                        onClick={() => addToCart(item._id)}
+                        src={plus}
+                        alt=""
+                        className="w-6 cursor-pointer hover:scale-110 transition-all duration-500"
+                      />
+                      <p className="text-xl text-[#38913b] font-semibold">
+                        {cart[item._id]}
+                      </p>
+                      <img
+                        onClick={() => removeFromCart(item._id)}
+                        src={remove}
+                        alt=""
+                        className="w-6 cursor-pointer hover:scale-110 transition-all duration-500"
+                      />
+                    </div>
                   </div>
-                  <div className=" max-md:ml-5 max-sm:mt-5">
-                    <div className=" flex gap-2 items-center ">
+                  <div className="max-md:ml-5 max-sm:mt-5">
+                    <div className="flex gap-2 items-center">
                       <img src={vegetarian} alt="" className="w-5" />
-                      <p className=" text-md text-red-700 font-semibold">
+                      <p className="text-md text-red-700 font-semibold">
                         {item.bestSeller === true && "Best Seller"}
                       </p>
                     </div>
-                    <p className=" text-xl font-bold text-zinc-900">
-                      {item.name}
-                    </p>
-                    <p className=" text-md font-semibold text-zinc-900 -mt-1">
+                    <p className="text-xl font-bold text-zinc-900">{item.name}</p>
+                    <p className="text-md font-semibold text-zinc-900 -mt-1">
                       {item.restoname}
                     </p>
-                    <div className=" mt-1 flex gap-3 item-center">
-                      <p className=" line-through font-semibold text-zinc-500">
+                    <div className="mt-1 flex gap-3 item-center">
+                      <p className="line-through font-semibold text-zinc-500">
                         <span>₹</span>
                         {item.oldprice}
                       </p>
-                      <p className=" font-semibold text-zinc-900">
+                      <p className="font-semibold text-zinc-900">
                         <span>₹</span>
                         {item.newprice}
                       </p>
                     </div>
-                    <div className=" flex items-center my-3">
+                    <div className="flex items-center my-3">
                       <svg
                         width="20"
                         height="20"
@@ -113,66 +147,89 @@ const Cart = () => {
                           fill="#1BA672"
                         ></path>
                       </svg>
-                      <p className=" text-green-700 font-semibold ml-1">
+                      <p className="text-green-700 font-semibold ml-1">
                         {item.rating}
                       </p>
                     </div>
-                    <p className=" text-md font-normal text-zinc-800 max-w-[90%]">
+                    <p className="text-md font-normal text-zinc-800 max-w-[90%]">
                       {item.desc}
                     </p>
                   </div>
                 </div>
-                <hr className=" w-[90%] border border-zinc-600 m-auto mt-10 outline-none" />
+                <hr className="w-[90%] border border-zinc-600 m-auto mt-10 outline-none" />
               </div>
             );
           }
         })}
       </div>
-      <div className=" mt-10 w-[300px] sm:w-[400px] px-5 py-10">
-        <p className=" text-zinc-900 font-medium text-lg mb-4">Bill details</p>
-        <div className=" mt-1 flex justify-between gap-5">
-          <p className=" text-sm text-zinc-700 ">Total Amount</p>
-          <p className=" text-sm text-zinc-700 ">
+      <div className="mt-10 w-[300px] sm:w-[400px] px-5 py-10">
+        <p className="text-zinc-900 font-medium text-lg mb-4">Bill Details</p>
+        <div className="mt-1 flex justify-between gap-5">
+          <p className="text-sm text-zinc-700">Total Amount</p>
+          <p className="text-sm text-zinc-700">
             <span className="text-[15px]">{currency}</span>
             {getTotalCartAmount()}
           </p>
         </div>
-        <div className=" mt-2 flex justify-between gap-5">
-          <p className=" text-sm text-zinc-700 ">Delivery charge</p>
-          <p className=" text-sm text-zinc-700 ">
+        <div className="mt-2 flex justify-between gap-5">
+          <p className="text-sm text-zinc-700">Delivery Charge</p>
+          <p className="text-sm text-zinc-700">
             <span className="text-[15px]">{currency}</span>
             {calculateDelivery()}
           </p>
         </div>
-        <div className=" mt-2 flex justify-between gap-5">
-          <p className=" text-sm text-zinc-700 ">Platform Fee</p>
-          <div className=" flex gap-3">
-            <p className=" text-sm text-zinc-500 line-through ">
+        <div className="mt-2 flex justify-between gap-5">
+          <p className="text-sm text-zinc-700">Platform Fee</p>
+          <div className="flex gap-3">
+            <p className="text-sm text-zinc-500 line-through">
               <span className="text-[15px]">{currency}</span>10
             </p>
-            <p className=" text-sm text-zinc-700 ">
+            <p className="text-sm text-zinc-700">
               <span className="text-[15px]">{currency}</span>
               {calculatePlatformFee()}
             </p>
           </div>
         </div>
-        <div className=" mt-2 flex justify-between gap-5">
-          <p className=" text-sm text-zinc-700 ">GST and Restaurant Charges</p>
-          <p className=" text-sm text-zinc-700 ">
+        <div className="mt-2 flex justify-between gap-5">
+          <p className="text-sm text-zinc-700">GST and Restaurant Charges</p>
+          <p className="text-sm text-zinc-700">
             <span className="text-[15px]">{currency}</span>
             {calculateGst()}
           </p>
         </div>
-        <hr className=" border border-zinc-600 mt-3" />
-        <div className=" flex justify-between mt-2 font-semibold text-zinc-900">
+        {appliedPromo && (
+          <div className="mt-2 flex justify-between gap-5">
+            <p className="text-sm text-green-700">
+              Discount ({appliedPromo.discount}% off)
+            </p>
+            <p className="text-sm text-green-700">
+              <span className="text-[15px]">{currency}</span>
+              {discount}
+            </p>
+          </div>
+        )}
+        <hr className="border border-zinc-600 mt-3" />
+        <div className="flex justify-between mt-2 font-semibold text-zinc-900">
           <p>To Pay</p>
           <p>
             <span>{currency}</span>
-            {getTotalCartAmount() +
-              calculateDelivery() +
-              calculatePlatformFee() +
-              calculateGst()}
+            {finalAmount}
           </p>
+        </div>
+        <div className="mt-4 flex gap-2">
+          <input
+            type="text"
+            value={offerCode}
+            onChange={(e) => setOfferCode(e.target.value)}
+            placeholder="Enter offer code"
+            className="w-full border p-2 rounded"
+          />
+          <button
+            onClick={applyOfferCode}
+            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+          >
+            Apply
+          </button>
         </div>
       </div>
       <button
