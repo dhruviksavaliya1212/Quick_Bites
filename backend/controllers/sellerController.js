@@ -7,6 +7,7 @@ import { generateOTP } from "../utills/generateOTP.js";
 import { sendMail } from "../utills/sendEmail.js";
 import { Admin } from "../models/adminModel.js";
 import userModel from "../models/userMOdel.js";
+import orderModel from "../models/orderModel.js";
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -421,5 +422,34 @@ const verifyOTPAndLogin = async (req, res) => {
   }
 };
 
-export { register, login, verifyOTPAndLogin ,verifyOTPAndForgetPasswordSeller, forgetPassword};
+const getAllResponses = async (req,res) => {
+  const {sellerId} = req.body;
+
+  try {
+    const data = await orderModel.find({sellerId})
+    if(!data)
+    {
+      return res.status(404).json({success:false,message:"Responses Not Found!"})
+    }
+
+    const ResponseData = data.map(order => ({
+      orderId: order._id,
+      items: order.items.map(item => ({
+        name: item.name,
+        quantity: item.quantity
+      })),
+      feedback: order.feedback,
+      response: order.response
+    }));
+    
+
+    return res.status(200).json({success:true,message:"responses fetched successfully!",ResponseData})
+
+  } catch (error) {
+    return res.status(500).json({success:false,message:"failed to fetch the responses!"})
+  }
+
+}
+
+export { register, login, verifyOTPAndLogin ,verifyOTPAndForgetPasswordSeller, forgetPassword,getAllResponses};
 

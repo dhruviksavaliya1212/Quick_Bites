@@ -241,21 +241,22 @@ const getAllOrders = async (req, res) => {
 
 const feedbackFromUser = async(req,res) => {
   try {
-    const {id, feedbackMsg} = req.body;
+    const {_id, feedbackMsg} = req.body;
 
-    await orderModel.findByIdAndUpdate(id, {feedback:feedbackMsg})
-    res.json({ success: true, message: "Feedback send" });
+   const data= await orderModel.findByIdAndUpdate(_id, {feedback:feedbackMsg})
+    res.json({ success: true, message: "Feedback send" ,data});
   } catch (err) {
     console.log(err);
     res.json({ success: false, message: "Something went wrong" });
   }
 }
+
 const responseFromSeller = async(req,res) => {
   try {
-    const {id, responseMsg} = req.body;
+    const {_id, responseMsg} = req.body;
 
-    await orderModel.findByIdAndUpdate(id, {response:responseMsg})
-    res.json({ success: true, message: "Response send" });
+   const data= await orderModel.findByIdAndUpdate(_id, {response:responseMsg})
+    res.json({ success: true, message: "response send" ,data});
   } catch (err) {
     console.log(err);
     res.json({ success: false, message: "Something went wrong" });
