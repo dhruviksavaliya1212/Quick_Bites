@@ -771,7 +771,7 @@ const deletPromotion = async (req, res) => {
 };
 
 const updatePromotion = async (req, res) => {
-  const { promotionId, promotionName, discount, offerCode, adminId } = req.body;
+  const { promotionId, promotionName, discount, offerCode, adminId,isActive } = req.body;
   const _id = promotionId;
   try {
     if (!promotionName || !discount || !offerCode) {
@@ -784,16 +784,16 @@ const updatePromotion = async (req, res) => {
     if (!isexist) {
       return res
         .status(404)
-        .json({ success: false, message: "Promotion Not Found For Deletion!" });
+        .json({ success: false, message: "Promotion Not Found For Updation!" });
     }
 
     let promotionurl;
 
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "promotionbanner is required!" });
-    }
+    // if (!req.file) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "promotionbanner is required!" });
+    // }
 
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file?.path, {
@@ -814,6 +814,7 @@ const updatePromotion = async (req, res) => {
         discount: discount,
         offerCode: offerCode,
         promotionBanner: promotionurl,
+        isActive : isActive
       }
     );
 
