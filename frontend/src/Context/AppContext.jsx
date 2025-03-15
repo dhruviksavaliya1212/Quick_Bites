@@ -18,7 +18,7 @@ const AppContextProvider = (props) => {
   const [appliedPromo, setAppliedPromo] = useState(null); // Store applied promotion
   const [discount, setDiscount] = useState(0); // S
 
-  const backend = 'https://quick-bites-backend.vercel.app';
+  const backend = 'http://localhost:3000';
   const currency = "₹"
   
 

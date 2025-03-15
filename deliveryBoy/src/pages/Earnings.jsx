@@ -45,7 +45,7 @@ function Earnings() {
     const fetchEarningsByType = async (type) => {
       try {
         const res = await axios.get(
-          `https://quick-bites-backend.vercel.app/api/delivery-agent/deliveryAgent-earnings/${deliveryAgentId}`,
+          `http://localhost:3000/api/delivery-agent/deliveryAgent-earnings/${deliveryAgentId}`,
           {
             params: { type },
           }

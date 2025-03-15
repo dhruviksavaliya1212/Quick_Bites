@@ -48,51 +48,51 @@ import plainPaper from '../assets/A4.webp'
 
 export const qualities = [
   {
-    id:1,
-    img:quality,
+    id: 1,
+    img: quality,
     title: "Quality Food",
-    desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    desc: "Enjoy fresh, delicious meals made with the finest ingredients, crafted to satisfy your taste buds every time."
   },
   {
-    id:2,
-    img:delivery,
+    id: 2,
+    img: delivery,
     title: "Fast Delivery",
-    desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    desc: "Get your food delivered hot and fresh to your door in record time, because we know you’re hungry!"
   },
   {
-    id:3,
-    img:pay,
-    title: "Online payment",
-    desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    id: 3,
+    img: pay,
+    title: "Online Payment",
+    desc: "Pay securely and conveniently with just a few clicks, making your ordering experience smooth and hassle-free."
   },
   {
-    id:1,
-    img:checkout,
+    id: 4, // Fixed duplicate ID (changed from 1 to 4)
+    img: checkout,
     title: "Check Out",
-    desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    desc: "Complete your order effortlessly with our streamlined checkout process, designed for speed and simplicity."
   }
-]
+];
 
 export const people = [
   {
-    id:1,
-    img:reliable,
+    id: 1,
+    img: reliable,
     title: "Convenient And Reliable",
-    desc:"Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    desc: "Order with ease and trust us to deliver your meal right on time, every time."
   },
   {
-    id:2,
-    img:menu,
+    id: 2,
+    img: menu,
     title: "Variety of Options",
-    desc:"Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    desc: "Explore a wide range of dishes to suit every craving, from comfort food to gourmet delights."
   },
   {
-    id:3,
-    img:support,
+    id: 3,
+    img: support,
     title: "Excellent Customer Support",
-    desc:"Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero, non!"
+    desc: "Our friendly team is here to assist you 24/7, ensuring a seamless and satisfying experience."
   }
-]
+];
 
 export const bestSeller = [
   {

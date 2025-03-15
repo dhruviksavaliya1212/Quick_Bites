@@ -459,35 +459,31 @@ const completeOrderAndVerifyOtp = async (req, res) => {
     if (!orderId || !otp) {
       return res
         .status(400)
-        .json({ success: false, message: "orderid and otp is required!" });
+        .json({ success: false, message: "orderId and otp are required!" });
     }
 
     const order = await orderModel.findById({ _id: orderId });
     if (!order) {
       return res
         .status(400)
-        .json({ success: false, message: "invalid order to complete!" });
+        .json({ success: false, message: "Invalid order to complete!" });
     }
 
     const checkOTP = await OTP.findOne({ otp });
     if (!checkOTP) {
       return res
         .status(400)
-        .json({ success: false, message: "invalid or expired otp!" });
+        .json({ success: false, message: "Invalid or expired OTP!" });
     }
 
-    // complete order
-
+    // Complete order
     order.isCompleted = true;
     order.status = "delivered";
-    order.completedAt = new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      hour12: true,
-    });
+    order.completedAt = new Date(); // Store as a Date object
 
     await order.save();
 
-    // deletes the otp after verifiying
+    // Delete the OTP after verifying
     await OTP.deleteOne({ otp: otp });
 
     // Add ₹40 to agent's totalEarnings
@@ -506,12 +502,12 @@ const completeOrderAndVerifyOtp = async (req, res) => {
 
     return res
       .status(200)
-      .json({ success: true, message: "otp verified and order completed!" });
+      .json({ success: true, message: "OTP verified and order completed!" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "failed to verify otp and complete order!",
+      message: "Failed to verify OTP and complete order!",
     });
   }
 };

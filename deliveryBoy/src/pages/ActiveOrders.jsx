@@ -6,6 +6,8 @@ import withAuth from "../../utills/withAuth";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { OrderContext } from "../../context/OrderContext";
+import { toast, ToastContainer } from "react-toastify"; // Import toastify
+import "react-toastify/dist/ReactToastify.css"; // Import CSS for toastify
 
 function ActiveOrders() {
   const [orders, setOrders] = useState([]);
@@ -25,15 +27,18 @@ function ActiveOrders() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-orders",
+        "http://localhost:3000/api/delivery-agent/get-orders",
         { sellerId: decoded.sellerId }
       );
+      console.log(data)
+
       if (data.success) {
-        // Filter out "accepted" orders initially, keep all others (e.g., placed, rejected, delivered)
-        const activeOrders = data.orderData.filter(
-          (order) => order.status !== "accepted"
-        );
+        // Filter out "accepted" orders and reverse the array (newest first)
+        const activeOrders = data.orderData
+          .filter((order) => order.status !== "accepted")
+          .reverse(); // Reverse to show newest orders first
         setOrders(activeOrders);
+        toast.success("Orders fetched successfully!"); // Add toast for success
       } else {
         alert(data.message);
       }
@@ -48,7 +53,7 @@ function ActiveOrders() {
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       const res = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/respondeto-order",
+        "http://localhost:3000/api/delivery-agent/respondeto-order",
         {
           orderId,
           action: newStatus,
@@ -57,16 +62,14 @@ function ActiveOrders() {
       );
 
       if (res.status === 200) {
-        alert(res.data.message || "Order status updated successfully.");
+        toast.success(res.data.message || "Order status updated successfully."); // Success toast
         if (newStatus === "accept") {
           const acceptedOrder = orders.find((order) => order._id === orderId);
-          addAcceptedOrder({ ...acceptedOrder, status: "accepted" }); // Add to context
-          // Remove from active orders
+          addAcceptedOrder({ ...acceptedOrder, status: "accepted" });
           setOrders((prevOrders) =>
             prevOrders.filter((order) => order._id !== orderId)
           );
         } else {
-          // Update status locally for other actions (e.g., reject, delivered), keep on page
           setOrders((prevOrders) =>
             prevOrders.map((order) =>
               order._id === orderId ? { ...order, status: newStatus } : order
@@ -91,11 +94,12 @@ function ActiveOrders() {
   const getStatsData = async () => {
     try {
       const res = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-specific-agents",
+        "http://localhost:3000/api/delivery-agent/get-specific-agents",
         { sellerId: decoded.sellerId }
       );
       if (res.data) {
         setAgentData(res.data.agentData);
+        toast.success("Agent stats fetched successfully!"); // Add toast for success
       } else {
         alert(res.data?.message || "Failed to fetch the stats-data.");
       }
@@ -163,6 +167,8 @@ function ActiveOrders() {
           ))
         )}
       </div>
+
+      <ToastContainer /> {/* Toast container to render toasts */}
     </div>
   );
 }

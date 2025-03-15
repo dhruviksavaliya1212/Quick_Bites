@@ -19,7 +19,7 @@ function DeliveryHistory() {
     setIsLoading(true);
     try {
       const { data } = await axios.get(
-        `https://quick-bites-backend.vercel.app/api/delivery-agent/delivery-history/${deliveryAgentId}`
+        `http://localhost:3000/api/delivery-agent/delivery-history/${deliveryAgentId}`
       );
       if (data.success) {
         setDeliveries(data.deliveryHistory);

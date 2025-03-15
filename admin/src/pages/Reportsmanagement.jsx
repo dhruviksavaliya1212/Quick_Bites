@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaDownload, FaFilter } from 'react-icons/fa';
@@ -11,80 +11,115 @@ const Reportsmanagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('users');
   const [filterData, setFilterData] = useState([]);
+  const [reportData, setReportData] = useState({ users: [], orders: { orders: [], statusSummary: {} }, restaurants: [], drivers: [] });
 
-  // Sample Data
-  const userData = [
-    { id: 1, name: 'Bholo', email: 'Bholo@example.com', registered: '2024-02-13', orders: 20 },
-    { id: 2, name: 'NA', email: 'na@example.com', registered: '2024-02-23', orders: 0 },
-    { id: 3, name: 'Ashima', email: 'ashima2@example.com', registered: '2024-07-03', orders: 4 },
-    { id: 4, name: 'Ridham', email: 'Ridham@example.com', registered: '2024-09-30', orders: 6 },
-  ];
+  // API Endpoints
+  const apiEndpoints = {
+    users: 'http://localhost:3000/api/auth/admin/generateUserReportsby-admin',
+    orders: 'http://localhost:3000/api/auth/admin/generateOrderStatusReportsby-admin',
+    restaurants: 'http://localhost:3000/api/auth/admin/generateRestaurantReportBy-admin',
+    drivers: 'http://localhost:3000/api/auth/admin/getDeliveryBoyReportsby-admin',
+  };
 
-  const ordersData = [
-    { id: 1, orderId: 'ORD001', customer: 'Milan', date: '2024-12-13', amount: 100 },
-    { id: 2, orderId: 'ORD002', customer: 'Ridham', date: '2024-02-14', amount: 500 },
-    { id: 3, orderId: 'ORD003', customer: 'Dhurivik', date: '2024-02-14', amount: 399 },
-    { id: 4, orderId: 'ORD004', customer: 'Bholo', date: '2024-02-14', amount: 400 },
-  ];
+  // Fetch data from API when activeTab changes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(apiEndpoints[activeTab], {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const result = await response.json();
 
-  const restaurantData = [
-    { id: 1, name: 'Food Palace', location: 'Delhi', registered: '2024-02-10', orderReceived: 120 },
-    { id: 2, name: 'Surti Ghaat', location: 'surat', registered: '2024-06-30', orderReceived: 10 },
-    { id: 3, name: 'Bihari Dahaba', location: 'Bihar', registered: '2024-08-20', orderReceived: 230 },
-  ];
+        if (result.success) {
+          let data;
+          switch (activeTab) {
+            case 'users':
+              data = result.userReport.map((user) => ({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                orders: user.orders,
+              }));
+              setReportData((prev) => ({ ...prev, [activeTab]: data }));
+              setFilterData(data);
+              break;
+            case 'orders':
+              data = {
+                orders: result.data.orders.map((order) => ({
+                  orderId: order.orderId,
+                  date: order.date,
+                  status: order.status,
+                })),
+                statusSummary: result.data.statusSummary,
+              };
+              setReportData((prev) => ({ ...prev, [activeTab]: data }));
+              setFilterData(data.orders); // Table shows individual orders
+              break;
+            case 'restaurants':
+              data = result.report.detailedReport.map((restaurant) => ({
+                restaurantId: restaurant.restaurantId,
+                ownerName: restaurant.ownerName,
+                phone: restaurant.phone,
+                ordersReceived: restaurant.ordersReceived,
+                totalAmount: restaurant.totalAmount,
+              }));
+              setReportData((prev) => ({ ...prev, [activeTab]: data }));
+              setFilterData(data);
+              break;
+            case 'drivers':
+              data = result.deliveryBoyReport.map((driver) => ({
+                firstname: driver.firstname,
+                lastname: driver.lastname,
+                RestorauntName: driver.RestorauntName,
+                contactNumber: driver.contactNumber,
+                ordersDelivered: driver.ordersDelivered,
+              }));
+              setReportData((prev) => ({ ...prev, [activeTab]: data }));
+              setFilterData(data);
+              break;
+            default:
+              data = [];
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching ${activeTab} report:`, error);
+      }
+    };
 
-  const driverData = [
-    { id: 1, name: 'John', phone: '1234567890', joined: '2024-02-01', ordersDelivered: 50 },
-    { id: 2, name: 'Ridham', phone: '1234567890', joined: '2024-03-07', ordersDelivered: 150 },
-    { id: 3, name: 'Kishan', phone: '1234567890', joined: '2024-09-21', ordersDelivered: 20 },
-  ];
+    fetchData();
+  }, [activeTab]);
 
   const handleFilter = () => {
-    let data = [];
-    switch (activeTab) {
-      case 'users':
-        data = userData.filter((item) => {
-          const matchDate = selectedDate
-            ? new Date(item.registered).toDateString() === selectedDate.toDateString()
-            : true;
-          const matchQuery = searchQuery
-            ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
-            : true;
-          return matchDate && matchQuery;
-        });
-        break;
-      case 'orders':
-        data = ordersData.filter((item) => {
-          const matchDate = selectedDate
-            ? new Date(item.date).toDateString() === selectedDate.toDateString()
-            : true;
-          const matchQuery = searchQuery
-            ? item.customer.toLowerCase().includes(searchQuery.toLowerCase())
-            : true;
-          return matchDate && matchQuery;
-        });
-        break;
-      case 'restaurants':
-        data = restaurantData;
-        break;
-      case 'drivers':
-        data = driverData;
-        break;
-      default:
-        data = [];
-    }
+    let data = activeTab === 'orders' ? reportData.orders.orders : reportData[activeTab];
+    data = data.filter((item) => {
+      const matchDate = selectedDate
+        ? new Date(item.date || '').toDateString() === selectedDate.toDateString()
+        : true;
+      const matchQuery = searchQuery
+        ? (
+            item.name || 
+            item.ownerName || 
+            `${item.firstname} ${item.lastname}` || 
+            item.orderId || 
+            ''
+          ).toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+      return matchDate && matchQuery;
+    });
     setFilterData(data);
   };
 
   const handleDownloadCSV = () => {
     const csvContent = [
       activeTab === 'users'
-        ? ['ID', 'Name', 'Email', 'Registered On', 'Total Orders']
+        ? ['ID', 'Name', 'Email', 'Phone', 'Orders']
         : activeTab === 'orders'
-        ? ['ID', 'Order ID', 'Customer', 'Date', 'Amount']
+        ? ['Order ID', 'Date', 'Status']
         : activeTab === 'restaurants'
-        ? ['ID', 'Name', 'Location', 'Registered On', 'Orders Received']
-        : ['ID', 'Name', 'Phone', 'Joined', 'Orders Delivered'],
+        ? ['Restaurant ID', 'Owner Name', 'Phone', 'Orders Received', 'Total Amount']
+        : ['Firstname', 'Lastname', 'Restaurant Name', 'Contact Number', 'Orders Delivered'],
       ...filterData.map((item) => Object.values(item)),
     ]
       .map((e) => e.join(','))
@@ -98,26 +133,42 @@ const Reportsmanagement = () => {
     a.click();
   };
 
-  const graphData = {
-    labels: filterData.map((item) => item.name || item.customer || item.location || item.phone),
-    datasets: [
-      {
-        label: `${activeTab} Data`,
-        data: filterData.map((item) =>
-          activeTab === 'users'
-            ? item.orders
-            : activeTab === 'orders'
-            ? item.amount
-            : activeTab === 'drivers'
-            ? item.ordersDelivered
-            : item.orderReceived
+  const graphData = activeTab === 'orders' 
+    ? {
+        labels: Object.keys(reportData.orders.statusSummary),
+        datasets: [
+          {
+            label: 'Order Status Summary',
+            data: Object.values(reportData.orders.statusSummary),
+            backgroundColor: 'rgba(242, 107, 15, 0.9)',
+            borderColor: 'rgba(255, 165, 0, 1)',
+            borderWidth: 1,
+          },
+        ],
+      }
+    : {
+        labels: filterData.map((item) => 
+          item.name || 
+          item.orderId || 
+          item.ownerName || 
+          `${item.firstname} ${item.lastname}`
         ),
-        backgroundColor: 'rgba(242, 107, 15, 0.9)',
-        borderColor: 'rgba(255, 165, 0, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
+        datasets: [
+          {
+            label: `${activeTab} Data`,
+            data: filterData.map((item) =>
+              activeTab === 'users'
+                ? item.orders
+                : activeTab === 'restaurants'
+                ? item.ordersReceived
+                : item.ordersDelivered
+            ),
+            backgroundColor: 'rgba(242, 107, 15, 0.9)',
+            borderColor: 'rgba(255, 165, 0, 1)',
+            borderWidth: 1,
+          },
+        ],
+      };
 
   return (
     <div className="min-h-screen p-6">
@@ -129,7 +180,7 @@ const Reportsmanagement = () => {
               key={tab}
               onClick={() => {
                 setActiveTab(tab);
-                setFilterData([]);
+                setFilterData(tab === 'orders' ? reportData.orders.orders : reportData[tab]);
               }}
               className={`px-4 py-2 rounded text-sm font-medium ${
                 activeTab === tab ? 'bg-orange-500 text-white' : 'bg-gray-200'
@@ -143,9 +194,8 @@ const Reportsmanagement = () => {
         <div className="flex flex-wrap gap-4 mb-6">
           <input
             type="text"
-            placeholder="Search by name"
+            placeholder="Search by name or ID"
             value={searchQuery}
-            
             onChange={(e) => setSearchQuery(e.target.value)}
             className="border p-2 rounded w-full sm:w-auto"
           />
@@ -171,7 +221,7 @@ const Reportsmanagement = () => {
 
         <div className="mb-6">
           {activeTab === 'users' && <Line data={graphData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />}
-          {activeTab === 'orders' && <Line data={graphData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />}
+          {activeTab === 'orders' && <Bar data={graphData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />}
           {activeTab === 'restaurants' && <Bar data={graphData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />}
           {activeTab === 'drivers' && <Line data={graphData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />}
         </div>
@@ -183,14 +233,14 @@ const Reportsmanagement = () => {
                 {filterData.length > 0 &&
                   Object.keys(filterData[0]).map((key) => (
                     <th key={key} className="border p-2">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                      {key.split(/(?=[A-Z])/).join(' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                     </th>
                   ))}
               </tr>
             </thead>
             <tbody>
-              {filterData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-100">
+              {filterData.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-100">
                   {Object.values(item).map((val, idx) => (
                     <td key={idx} className="border p-2">
                       {val}
@@ -206,4 +256,4 @@ const Reportsmanagement = () => {
   );
 };
 
-export default withAuth(Reportsmanagement) ;
+export default withAuth(Reportsmanagement);

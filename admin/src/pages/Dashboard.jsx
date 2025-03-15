@@ -45,6 +45,7 @@ const Dashboard = () => {
   const {backend, orderData, feedbackData} = useContext(AdminContext)
 
   const [dashData, setDashData] = useState(false)
+  const [contactData, setcontactData] = useState(false)
   
   const getDashData = async() => {
     try {
@@ -59,9 +60,26 @@ const Dashboard = () => {
       toast.success("Something went wrong")
     }
   }
+
+  const contactResponses = async (req,res) => {
+    try {
+
+      const {data} = await axios.get(`${backend}/api/auth/admin/getAllContactMessages`)
+      console.log("contact",data);
+
+      if(data.success)
+      {
+        setcontactData(data.data)
+      }          
+
+    } catch (error) {
+      toast.success(error)
+    }
+  }
   
   useEffect(()=>{
-    getDashData()
+    getDashData(),
+    contactResponses()
   },[])
   
   const handleSeeMore = () => {
@@ -80,15 +98,7 @@ const Dashboard = () => {
     ],
   };
 
-   // Sample order data
-   const recentOrders = [
-    { id: 1, product: "Pizza", quantity: 3, date: "2024-12-10" },
-    { id: 2, product: "Burger", quantity: 2, date: "2024-12-09" },
-    { id: 3, product: "Pasta", quantity: 1, date: "2024-12-08" },
-    { id: 4, product: "Fries", quantity: 5, date: "2024-12-07" },
-    { id: 5, product: "Sandwich", quantity: 4, date: "2024-12-06" },
-    { id: 6, product: "Salad", quantity: 2, date: "2024-12-05" },
-  ];
+
 
   // Line Chart - Revenue Trends
   const revenueChartData = {
@@ -111,23 +121,7 @@ const Dashboard = () => {
   const [responseText, setResponseText] = useState("");
   const [selectedReviewId, setSelectedReviewId] = useState(null);
 
-  // Handle Response Text Change
-  const handleResponseChange = (event) => {
-    setResponseText(event.target.value);
-  };
 
-  // Handle Submit Response
-  const handleSubmitResponse = (reviewId) => {
-    const updatedReviews = reviewsData.map((review) =>
-      review.id === reviewId
-        ? { ...review, response: responseText }
-        : review
-    );
-    setReviewsData(updatedReviews);
-    setResponseText(""); // Clear the input after submission
-    setSelectedReviewId(null); // Close the response textarea
- 
-  };
 
   return (
     <div className="lg:p-4  min-h-screen">
@@ -211,6 +205,34 @@ const Dashboard = () => {
         </table>
       </div>
 
+      <div className="bg-white p-4 mt-8 rounded-md">
+  <h2 className="text-lg font-bold mb-4">Contact-page Response</h2>
+  <div className="overflow-x-auto">
+    <table className="min-w-full text-sm text-left border-collapse border border-gray-300">
+      <thead>
+        <tr className="border-b">
+          <th className="p-2">Contact Id</th>
+          <th className="p-2">email</th>
+          <th className="p-2">name</th>
+          <th className="p-2">feedbackMessage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {contactData && contactData.map((review,index) => (
+          <tr key={index} className="border-b hover:bg-orange-300">
+            <td className="p-2">{review._id}</td>
+            <td className="p-2">{review.email}</td>
+            <td className="p-2">{review.name}</td>
+            <td className="p-2">{review.feedbackMessage}</td>
+            <td className="p-2">{review.isRegisteredUser}</td>
+            
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
     {/* Review and Feedback Section */}
 <div className="bg-white p-4 mt-8 rounded-md">
   <h2 className="text-lg font-bold mb-4">Customer Feedback & Seller Response</h2>
@@ -237,37 +259,7 @@ const Dashboard = () => {
                 ))}</td>
             <td className="p-2">{review.feedback}</td>
             <td className="p-2">{review.response === '' ? "No Response From Seller" : review.response}</td>
-            {/* <td className="p-2">
-              {review.response ? (
-                <p>{review.response}</p>
-              ) : selectedReviewId === review.id ? (
-                <textarea
-                  value={responseText}
-                  onChange={handleResponseChange}
-                  className="border rounded-md p-2 w-full"
-                  placeholder="Write your response..."
-                />
-              ) : (
-                <p>No response yet</p>
-              )}
-            </td>
-            <td className="p-2">
-              {selectedReviewId === review.id ? (
-                <button
-                  onClick={() => handleSubmitResponse(review.id)}
-                  className="text-green-500 hover:underline"
-                >
-                  Submit
-                </button>
-              ) : (
-                <button
-                  onClick={() => setSelectedReviewId(review.id)}
-                  className="text-blue-500 hover:underline"
-                >
-                  Respond
-                </button>
-              )}
-            </td> */}
+            
           </tr>
         ))}
       </tbody>

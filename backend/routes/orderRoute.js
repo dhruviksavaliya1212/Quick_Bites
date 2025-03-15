@@ -8,7 +8,7 @@ const orderRouter = express.Router();
 orderRouter.post('/cash-on-delivery', authUser, cashOnDelivery);
 orderRouter.post('/online-stripe', authUser, stripePayment);
 orderRouter.post('/verify', verifyPayment);
-orderRouter.post('/online-razorpay', authUser, paymentRazorpay);a
+orderRouter.post('/online-razorpay', authUser, paymentRazorpay);
 orderRouter.post('/verify-razorpay', authUser, verifyRazorpay);
 orderRouter.post('/get-orders', authUser, getOrders);
 orderRouter.post("/send-feedback", authUser, feedbackFromUser);

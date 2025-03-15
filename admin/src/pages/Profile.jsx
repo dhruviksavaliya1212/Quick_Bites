@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,6 +6,7 @@ import adminProfile from "../assets/adminProfile.jpg";
 import withAuth from '../utills/hoc/withAuth';
 import logout from '../utills/hoc/logOut';
 import { jwtDecode } from "jwt-decode";
+import { AdminContext } from '../Context/AdminContext';
 
 const Profile = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -19,6 +20,9 @@ const Profile = () => {
     address: '',
     gender: ''
   });
+
+
+  const {setprofileData,profileData} = useContext(AdminContext)
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(adminProfile);
   const navigate = useNavigate();
@@ -30,7 +34,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
-        const res = await fetch(`https://quick-bites-backend.vercel.app/api/auth/admin/getadmin-profile?adminId=${adminId}`);
+        const res = await fetch(`http://localhost:3000/api/auth/admin/getadmin-profile?adminId=${adminId}`);
         const data = await res.json();
         if (res.ok) {
           const admin = data.admin; // Extract from "admin" key
@@ -45,6 +49,7 @@ const Profile = () => {
             address: admin.address || '',
             gender: admin.gender || ''
           });
+          setprofileData({email:admin.email,name: admin.userName})
           if (admin.profilePhoto) {
             setPreviewImage(admin.profilePhoto); // Use Cloudinary URL directly
           }

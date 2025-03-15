@@ -25,7 +25,7 @@ function Profile() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-specific-agents",
+        "http://localhost:3000/api/delivery-agent/get-specific-agents",
         { sellerId }
       );
       if (data.success) {
@@ -103,7 +103,7 @@ function Profile() {
 
     try {
       const { data } = await axios.put(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/updateAgent-profile",
+        "http://localhost:3000/api/delivery-agent/updateAgent-profile",
         updatePayload,
         {
           headers: { "Content-Type": "multipart/form-data" },

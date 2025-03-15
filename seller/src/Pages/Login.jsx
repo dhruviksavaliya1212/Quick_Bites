@@ -23,7 +23,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    let url = backend;
+    let url = 'http://localhost:3000';
     let payload = {};
 
     if (state === "Sign Up") {
@@ -51,14 +51,14 @@ const Login = () => {
           setState("Login"); // Back to login after signup
         } else if (state === "Login" && data.otpId) {
           setOtpId(data.otpId);
-          setState("Verify OTP"); // Show OTP for login
+         setState("Verify OTP"); // Show OTP for login
         } else if (state === "Forgot Password") {
           setOtpId(data.otpId);
           setState("Reset Password"); // Show OTP and password reset
         } else if (state === "Verify OTP") {
           setStoken(data.token);
           localStorage.setItem("seller-token", data.token);
-          navigate("/"); // Login complete
+          navigate("/dashboard"); // Login complete
         } else if (state === "Reset Password") {
           setState("Login"); // Back to login after reset
           setOtp("");

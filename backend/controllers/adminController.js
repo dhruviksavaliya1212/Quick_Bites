@@ -12,6 +12,8 @@ import { PromotionModel } from "../models/promotion.js";
 import connectCloudinary from "../config/cloudinary.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import deliveryAgentModel from "../models/deliveryAgentModel.js";
+import { Feedback } from "../models/feedbackModel.js";
 
 const getDashData = async (req, res) => {
   try {
@@ -649,12 +651,10 @@ const getAllPromtions = async (req, res) => {
 
   try {
     if (!adminId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "adminId is required to fetch the promotions!",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "adminId is required to fetch the promotions!",
+      });
     }
 
     const promotions = await PromotionModel.find({ adminId });
@@ -664,13 +664,11 @@ const getAllPromtions = async (req, res) => {
         .json({ success: false, message: "promotions not found!" });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "promotions fetched successfully!",
-        promotions,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "promotions fetched successfully!",
+      promotions,
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -771,7 +769,8 @@ const deletPromotion = async (req, res) => {
 };
 
 const updatePromotion = async (req, res) => {
-  const { promotionId, promotionName, discount, offerCode, adminId,isActive } = req.body;
+  const { promotionId, promotionName, discount, offerCode, adminId, isActive } =
+    req.body;
   const _id = promotionId;
   try {
     if (!promotionName || !discount || !offerCode) {
@@ -814,17 +813,15 @@ const updatePromotion = async (req, res) => {
         discount: discount,
         offerCode: offerCode,
         promotionBanner: promotionurl,
-        isActive : isActive
+        isActive: isActive,
       }
     );
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "promotion updated successfully",
-        updatedPromtion,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "promotion updated successfully",
+      updatedPromtion,
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -844,12 +841,10 @@ const checkPromotion = async (req, res) => {
     }
 
     if (!promotion.isActive) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "promotion is not 'Availabe/Active' to use",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "promotion is not 'Availabe/Active' to use",
+      });
     }
 
     return res
@@ -861,6 +856,240 @@ const checkPromotion = async (req, res) => {
       .json({ success: false, message: "failed to check the promotion" });
   }
 };
+
+const getUserOrderReport = async (req, res) => {
+  try {
+    const users = await userModel.find().select("name email phone");
+    const orderCounts = await orderModel.aggregate([
+      { $group: { _id: "$userId", orders: { $sum: 1 } } },
+    ]);
+
+    // The part you highlighted
+    const orderCountMap = {};
+    orderCounts.forEach((count) => {
+      orderCountMap[count._id.toString()] = count.orders;
+    });
+
+    const report = users.map((user, index) => ({
+      id: index + 1,
+      name: user.name || "N/A",
+      email: user.email,
+      phone: user?.phone || "N/A",
+      orders: orderCountMap[user._id.toString()] || 0,
+    }));
+
+    res.status(200).json({
+      success: true,
+      userReport: report,
+      message: "User order report generated successfully",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+const getOrderStatusReport = async (req, res) => {
+  try {
+    // Step 1: Fetch all orders with relevant fields
+    const orders = await orderModel.find().select("_id date status");
+
+    // Step 2: Aggregate order counts by status
+    const statusCounts = await orderModel.aggregate([
+      {
+        $group: {
+          _id: "$status", // Group by status
+          count: { $sum: 1 }, // Count orders per status
+        },
+      },
+    ]);
+
+    // Step 3: Convert statusCounts to a map for easier lookup
+    const statusCountMap = {};
+    statusCounts.forEach((status) => {
+      statusCountMap[status._id] = status.count;
+    });
+
+    // Step 4: Format the detailed report
+    const detailedReport = orders.map((order) => ({
+      orderId: order._id.toString(), // Convert ObjectId to string
+      date: order.date.toISOString().split("T")[0], // Format as YYYY-MM-DD
+      status: order.status,
+    }));
+
+    // Step 5: Add total counts for each status
+    const summary = {
+      Delivered:
+        statusCountMap["Delivered"] || statusCountMap["delivered"] || 0,
+      Pending: statusCountMap["Pending"] || statusCountMap["pending"] || 0,
+      Accepted: statusCountMap["Accepted"] || statusCountMap["accepted"] || 0,
+      Placed: statusCountMap["Placed"] || statusCountMap["placed"] || 0,
+    };
+
+    // Step 6: Combine detailed report and summary
+    const report = {
+      statusSummary: summary,
+      orders: detailedReport,
+    };
+
+    // Step 7: Send the response
+    res.status(200).json({
+      success: true,
+      data: report,
+      message: "Order status report generated successfully",
+    });
+  } catch (error) {
+    console.error("Error generating order status report:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while generating report",
+      error: error.message,
+    });
+  }
+};
+
+const getRestaurantReport = async (req, res) => {
+  try {
+    // Aggregate all order data for all restaurants (grouped by sellerId)
+    const RestaurantReports = await orderModel.aggregate([
+      {
+        $match: {
+          // isCancelled: false,  // Exclude cancelled orders
+          // isCompleted: true    // Include only completed orders
+        },
+      },
+      {
+        $group: {
+          _id: "$sellerId", // Group by sellerId (restaurant)
+          ordersReceived: { $sum: 1 }, // Count orders for each sellerId
+          totalAmount: { $sum: "$amount" }, // Sum the total amount for each sellerId
+        },
+      },
+    ]);
+
+    // Fetch all restaurant details from the restaurantModel where sellerId matches
+    const restaurants = await restaurantModel
+      .find()
+      .select("name ownername phone sellerId _id");
+
+    // Create a map to store order data by sellerId
+    const countOrdersReceived = {};
+    RestaurantReports.forEach((order) => {
+      countOrdersReceived[order._id] = {
+        ordersReceived: order.ordersReceived,
+        totalAmount: order.totalAmount,
+      };
+    });
+
+    // Generate the detailed report by matching orders data with restaurants
+    const detailedReport = restaurants.map((restaurant) => {
+      // Ensure matching sellerId between orders and restaurants
+      const orderData = countOrdersReceived[restaurant.sellerId] || {
+        ordersReceived: 0,
+        totalAmount: 0,
+      };
+
+      return {
+        restaurantId: restaurant._id,
+        ownerName: restaurant.ownername,
+        phone: restaurant.phone,
+        ordersReceived: orderData.ordersReceived,
+        totalAmount: orderData.totalAmount,
+      };
+    });
+
+    // Final report structure
+    const report = {
+      detailedReport,
+    };
+
+    // Send the response with the report
+    res.status(200).json({
+      success: true,
+      message: "Report generated successfully",
+      report,
+    });
+  } catch (error) {
+    // Handle errors and send response
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate the RestaurantReports!",
+      error: error.message,
+    });
+  }
+};
+
+const getDeliveryBoyReport = async (req, res) => {
+  try {
+    const agent = await deliveryAgentModel
+      .find()
+      .select("firstName lastName restoname contactNo totalDeliveries");
+
+    const deliveryBoyReport = agent.map((agent) => {
+      return {
+        firstname: agent.firstName,
+        lastname: agent.lastName,
+        RestorauntName: agent.restoname,
+        contactNumber: agent.contactNo,
+        ordersDelivered: agent.totalDeliveries,
+      };
+    });
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "deliveryAgent Report Generated successully!",
+        deliveryBoyReport,
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "failed to generate the report for the deliveryBoy!",
+    });
+  }
+};
+
+const sendContactMessage = async (req, res) => {
+  try {
+    const { name, email, feedbackMsg } = req.body;
+
+    // Basic validation
+    if (!name || !email || !feedbackMsg) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    const newFeedback = await Feedback.create({
+      name,
+      email,
+      feedbackMessage: feedbackMsg,
+    });
+
+    const user = await userModel.findOne({ email });
+    if (user) {
+      newFeedback.isRegisteredUser = true;
+      await newFeedback.save();
+    }
+
+    res.status(201).json({ success: true, message: "Feedback sent", data: newFeedback });
+  } catch (err) {
+    console.error("Feedback error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const getAllContactMessages = async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find().sort({ createdAt: -1 }); // Newest first
+    res.status(200).json({ success: true, data: feedbacks });
+  } catch (err) {
+    console.error("Error fetching feedbacks:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch feedbacks" });
+  }
+};
+
+
 
 export {
   getDashData,
@@ -880,4 +1109,10 @@ export {
   updatePromotion,
   deletPromotion,
   checkPromotion,
+  getUserOrderReport,
+  getRestaurantReport,
+  getOrderStatusReport,
+  getDeliveryBoyReport,
+  sendContactMessage,
+  getAllContactMessages
 };

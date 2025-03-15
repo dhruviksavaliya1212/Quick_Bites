@@ -9,8 +9,12 @@ const AdminContextProvider = (props) => {
 
   const backend = "http://localhost:3000";
   const [orderData, setOrderData] = useState(false)
+  const [profileData, setprofileData] = useState({})
   const [feedbackData, setfeedbackData] = useState(false)
 
+
+  console.log('context',profileData);
+  
   const getOrders = async () => {
     try {
       const { data } = await axios.post(
@@ -34,7 +38,10 @@ const AdminContextProvider = (props) => {
   const values = {
     backend,
     orderData,
-    feedbackData
+    feedbackData,
+    profileData,
+    setprofileData
+
   }
 
   return(

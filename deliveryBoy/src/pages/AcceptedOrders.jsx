@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 const AcceptedOrders = () => {
   const { acceptedOrders, updateAcceptedOrder } = useContext(OrderContext);
 
+  
   const token = localStorage.getItem("deliveryAgent-token");
   const decoded = jwtDecode(token);
   const deliveryAgentId = decoded.agentId;

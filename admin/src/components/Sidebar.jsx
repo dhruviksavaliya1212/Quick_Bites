@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 // import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import logout from "../utills/hoc/logOut";
+import { AdminContext } from "../Context/AdminContext";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const closeSidebar = () => {
@@ -12,6 +13,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   const navigate = useNavigate()
+  const {profileData} = useContext(AdminContext)
 
   return (
     <>
@@ -166,21 +168,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </div>
             </nav>
 
-            {/* User Profile with Logout */}
+         
 
             {/* User Profile with Logout */}
-            <div className="mb-auto p-4 bg-[#e65c00] text-white flex items-center gap-4">
-              <div className="w-10 h-10 bg-orange-600 rounded-full flex justify-center items-center text-lg font-bold">
-                A
-              </div>
-
-              <div className="flex-1">
-                <p className="font-semibold">Admin Name</p>
-                <p className="text-sm text-orange-200">admin@example.com</p>
+            <div className="mb-auto p-4 bg-[#e65c00] overflow-x-hidden text-white flex items-center gap-4">
+            
+              <div className="flex-1 overflow-x-hidden">
+                <p className="font-semibold">{profileData.name}</p>
+                <p className="text-sm text-orange-200 ">{profileData.email}</p>
               </div>
 
               <button
-                className="text-sm text-red-200 hover:text-red-400"
+                className="text-sm  text-red-200 hover:text-red-400"
                 onClick={() => {
                   logout(navigate)
                 }}
