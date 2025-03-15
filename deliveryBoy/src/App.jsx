@@ -19,7 +19,7 @@ function App() {
       <OrderProvider>
       <Routes>
         {/* Public routes */}
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth" index element={<AuthPage />} />
         {/* Private (layout-wrapped) routes */}
         <Route element={<Layout />}>
           <Route path="/" element={<ActiveOrders />} />
