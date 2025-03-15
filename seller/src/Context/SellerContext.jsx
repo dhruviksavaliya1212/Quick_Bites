@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 export const SellerContext = createContext();
 
 const SellerContextProvider = (props) => {
-  const backend = "http://localhost:3000";
+  const backend = "https://quick-bites-backend.vercel.app";
 
   const currency = "₹";
 
