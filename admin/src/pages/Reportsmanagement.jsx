@@ -15,10 +15,10 @@ const Reportsmanagement = () => {
 
   // API Endpoints
   const apiEndpoints = {
-    users: 'http://localhost:3000/api/auth/admin/generateUserReportsby-admin',
-    orders: 'http://localhost:3000/api/auth/admin/generateOrderStatusReportsby-admin',
-    restaurants: 'http://localhost:3000/api/auth/admin/generateRestaurantReportBy-admin',
-    drivers: 'http://localhost:3000/api/auth/admin/getDeliveryBoyReportsby-admin',
+    users: 'https://quick-bites-backend.vercel.app/api/auth/admin/generateUserReportsby-admin',
+    orders: 'https://quick-bites-backend.vercel.app/api/auth/admin/generateOrderStatusReportsby-admin',
+    restaurants: 'https://quick-bites-backend.vercel.app/api/auth/admin/generateRestaurantReportBy-admin',
+    drivers: 'https://quick-bites-backend.vercel.app/api/auth/admin/getDeliveryBoyReportsby-admin',
   };
 
   // Fetch data from API when activeTab changes

@@ -34,7 +34,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/auth/admin/getadmin-profile?adminId=${adminId}`);
+        const res = await fetch(`https://quick-bites-backend.vercel.app/api/auth/admin/getadmin-profile?adminId=${adminId}`);
         const data = await res.json();
         if (res.ok) {
           const admin = data.admin; // Extract from "admin" key

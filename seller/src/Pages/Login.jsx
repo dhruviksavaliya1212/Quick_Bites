@@ -23,7 +23,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    let url = 'http://localhost:3000';
+    let url = 'https://quick-bites-backend.vercel.app';
     let payload = {};
 
     if (state === "Sign Up") {

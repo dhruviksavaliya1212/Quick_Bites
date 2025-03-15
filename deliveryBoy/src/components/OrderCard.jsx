@@ -41,7 +41,7 @@ function OrderCard({ order, onUpdateStatus }) {
   const handleEmail = async () => {
     setIsSendingOtp(true); // Start loading
     try {
-      const res = await axios.post("http://localhost:3000/api/delivery-agent/send-delivery-otp", {
+      const res = await axios.post("https://quick-bites-backend.vercel.app/api/delivery-agent/send-delivery-otp", {
         email: order.email,
         orderId: order._id,
       });
@@ -58,7 +58,7 @@ function OrderCard({ order, onUpdateStatus }) {
 
   const handleOtpSubmit = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/api/delivery-agent/verify-delivery-otp", {
+      const res = await axios.post("https://quick-bites-backend.vercel.app/api/delivery-agent/verify-delivery-otp", {
         orderId: order._id,
         otp: otpInput,
       });

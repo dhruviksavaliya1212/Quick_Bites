@@ -22,7 +22,7 @@ const PromotionManagement = () => {
   const adminId = decode.adminId;
   console.log(adminId);
   
-  const BASE_URL = "http://localhost:3000/api/auth/admin";
+  const BASE_URL = "https://quick-bites-backend.vercel.app/api/auth/admin";
 
   useEffect(() => {
     fetchPromotions();

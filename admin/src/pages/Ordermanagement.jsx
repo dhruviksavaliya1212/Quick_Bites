@@ -12,7 +12,7 @@ const Ordermanagement = () => {
     const fetchOrders = async () => {
       setIsLoading(true);
       try {
-        const res = await axios.get("http://localhost:3000/api/auth/admin/getall-orders");
+        const res = await axios.get("https://quick-bites-backend.vercel.app/api/auth/admin/getall-orders");
         if (res.data && Array.isArray(res.data.orderData)) {
           setOrders(res.data.orderData);
           setFilteredOrders(res.data.orderData);

@@ -23,7 +23,7 @@ const Contact = () => {
     setResponseMsg('');
 
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/admin/receiveFeedback', {
+      const res = await axios.post('https://quick-bites-backend.vercel.app/api/auth/admin/receiveFeedback', {
         name: formData.name,
         email: formData.email,
         feedbackMsg: formData.message,

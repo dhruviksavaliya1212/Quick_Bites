@@ -83,7 +83,7 @@ const AuthForm = () => {
     try {
       const dataToSend = getSubmissionData(); // Get filtered data (no email)
       const response = await axios.post(
-        "http://localhost:3000/api/delivery-agent/complete-registration",
+        "https://quick-bites-backend.vercel.app/api/delivery-agent/complete-registration",
         dataToSend
       );
      switchFormStep();
@@ -104,7 +104,7 @@ const AuthForm = () => {
     try {
       const dataToSend = getSubmissionData(); // Get filtered data (email and password)
       // Placeholder: Replace with actual login API endpoint
-      const response = await axios.post("http://localhost:3000/api/delivery-agent/agent-login", dataToSend);
+      const response = await axios.post("https://quick-bites-backend.vercel.app/api/delivery-agent/agent-login", dataToSend);
       localStorage.setItem("deliveryAgent-token",response.data.token);
       window.location.replace("/active-orders");
       console.log("Login successful:", response.data);

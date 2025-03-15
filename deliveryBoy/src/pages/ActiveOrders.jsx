@@ -27,7 +27,7 @@ function ActiveOrders() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:3000/api/delivery-agent/get-orders",
+        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-orders",
         { sellerId: decoded.sellerId }
       );
       console.log(data)
@@ -94,7 +94,7 @@ function ActiveOrders() {
   const getStatsData = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/delivery-agent/get-specific-agents",
+        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-specific-agents",
         { sellerId: decoded.sellerId }
       );
       if (res.data) {

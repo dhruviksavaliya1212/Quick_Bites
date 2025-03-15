@@ -7,7 +7,7 @@ export const AdminContext = createContext()
 
 const AdminContextProvider = (props) => {
 
-  const backend = "http://localhost:3000";
+  const backend = "https://quick-bites-backend.vercel.app";
   const [orderData, setOrderData] = useState(false)
   const [profileData, setprofileData] = useState({})
   const [feedbackData, setfeedbackData] = useState(false)
