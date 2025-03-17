@@ -36,6 +36,7 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "https://quick-bites-frontend-six.vercel.app",
+    "https://quickbites-admin-panel.vercel.app",
     "https://quick-bites-seller.vercel.app",
     "https://quick-bites-delivery.vercel.app",
     "http://localhost:5174",
