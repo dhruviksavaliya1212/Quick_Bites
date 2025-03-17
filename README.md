@@ -107,7 +107,7 @@ Contributions are always welcome! To contribute:
 
 ## 📧 Contact
 - **Project Author**: Ridham,Dhrvik,Milan,Rushik,Dishant,Jenish
-- **Email**: savaliyaridham46@gmail.com.com
+- **Email**: savaliyaridham46@gmail.com
 
 ---
 
