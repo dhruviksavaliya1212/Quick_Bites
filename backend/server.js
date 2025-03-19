@@ -55,14 +55,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // app.use(cors(corsOptions));
 
-
-const corsOptions = {
-  origin: "*", // Allow requests from any origin
+app.use(cors({
+  origin: (origin, callback) => callback(null, true), // Allows all origins
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
+}));
 
-app.use(cors(corsOptions));
+
 
 
 app.use("/api/food", foodRouter);
