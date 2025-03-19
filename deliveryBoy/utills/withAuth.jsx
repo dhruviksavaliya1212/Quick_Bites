@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const withAuth = (WrappedComponent) => {
-  return (props) => {
+  return function AuthenticatedComponent(props) {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -11,13 +11,10 @@ const withAuth = (WrappedComponent) => {
       if (!token) {
         navigate("/auth", { replace: true });
       }
-
-     }, []);
+    }, [navigate]);
 
     return <WrappedComponent {...props} />;
   };
 };
 
 export default withAuth;
-
-// withauth

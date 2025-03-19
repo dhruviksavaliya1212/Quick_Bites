@@ -12,7 +12,7 @@ const logout = async (navigate) => {
 
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/auth/admin/logout",
+      "https://quick-bites-backend.vercel.app/api/auth/admin/logout",
       {},
       {
         headers: {

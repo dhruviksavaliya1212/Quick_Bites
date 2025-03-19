@@ -55,11 +55,29 @@ app.use(express.urlencoded({ extended: true }));
 
 // app.use(cors(corsOptions));
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "https://quick-bites-frontend-six.vercel.app",
+  "https://quickbites-admin-panel.vercel.app",
+  "https://quick-bites-seller.vercel.app",
+  "https://quick-bites-delivery.vercel.app",
+];
+
 app.use(cors({
-  origin: (origin, callback) => callback(null, true), // Allows all origins
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS: " + origin));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
 
 
 

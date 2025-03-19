@@ -15,7 +15,7 @@ const AcceptedOrders = () => {
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       const res = await axios.post(
-        "https://quick-bites-backend.vercel.app//api/delivery-agent/respondeto-order",
+        "https://quick-bites-backend.vercel.app/api/delivery-agent/respondeto-order",
         {
           orderId,
           action: newStatus,

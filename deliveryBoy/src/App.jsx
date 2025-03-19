@@ -22,7 +22,7 @@ function App() {
         <Route path="/auth" index element={<AuthPage />} />
         {/* Private (layout-wrapped) routes */}
         <Route element={<Layout />}>
-          <Route path="/" element={<ActiveOrders />} />
+          {/* <Route path="/" element={<ActiveOrders />} /> */}
           <Route path="/active-orders" element={<ActiveOrders />} />
           <Route path="/accepted-orders" element={<AcceptedOrders />} />
           <Route path="/delivery-history" element={<DeliveryHistory />} />
