@@ -31,8 +31,8 @@ const AppContextProvider = (props) => {
         `${backend}/api/auth/admin/getallpromotions/${adminId}`
       );
       setPromotions(data.promotions);
-    } catch (err) {
-      toast.error("Failed to load promotions");
+    } catch (err) { 
+      // toast.error("Failed to load promotions");
     }
   };
 
