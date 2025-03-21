@@ -31,24 +31,28 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS configuration
 const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "https://quick-bites-frontend-six.vercel.app",
-    "https://quickbites-admin-panel.vercel.app",
-    "https://quick-bites-seller.vercel.app",
-    "https://quick-bites-delivery.vercel.app",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    ,
-  ],
-
-  credentials: true, // Allow cookies and authorization headers
-  exposedHeaders: ["Authorization"], //frontend can access this header
+  origin: function (origin, callback) {
+    console.log("Incoming Origin:", origin);
+    const allowed = [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      "http://localhost:5176",
+      "https://quick-bites-frontend-six.vercel.app",
+      "https://quickbites-admin-panel.vercel.app",
+      "https://quick-bites-seller.vercel.app",
+      "https://quick-bites-delivery.vercel.app"
+    ];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS: " + origin));
+    }
+  },
+  credentials: true,
+  exposedHeaders: ["Authorization"],
 };
-
 app.use(cors(corsOptions));
 
 app.use("/api/food", foodRouter);
