@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { FaUser, FaMotorcycle, FaIdCard } from "react-icons/fa";
 import withAuth from "../../utills/withAuth";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { OrderContext } from "../../context/OrderContext";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -11,6 +12,7 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [profilePhotoFile, setProfilePhotoFile] = useState(null);
+  const { backend } = useContext(OrderContext);
 
   const token = localStorage.getItem("deliveryAgent-token");
   const decoded = jwtDecode(token);
@@ -25,7 +27,7 @@ function Profile() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-specific-agents",
+        `${backend}/api/delivery-agent/get-specific-agents`,
         { sellerId }
       );
       if (data.success) {

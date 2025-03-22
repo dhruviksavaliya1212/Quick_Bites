@@ -59,6 +59,10 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isAccepted: {
+    type: Boolean,
+    default: false,
+  },
   isCompleted: {
     type: Boolean,
     default: false,

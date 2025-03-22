@@ -3,6 +3,8 @@ import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import withAuth from "../utills/hoc/withAuth";
 import axios from "axios";
 import {jwtDecode} from "jwt-decode"
+import { useContext } from "react";
+import { AdminContext } from "../Context/AdminContext";
 
 const PromotionManagement = () => {
   const [promotions, setPromotions] = useState([]);
@@ -16,13 +18,14 @@ const PromotionManagement = () => {
   const [bannerFile, setBannerFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" }); // Success or error
+  const {backend} = useContext(AdminContext)
 
   const token = localStorage.getItem('token');
   const decode = jwtDecode(token)
   const adminId = decode.adminId;
   console.log(adminId);
   
-  const BASE_URL = "https://quick-bites-backend.vercel.app/api/auth/admin";
+  const BASE_URL = `${backend}/api/auth/admin`;
 
   useEffect(() => {
     fetchPromotions();
@@ -32,6 +35,7 @@ const PromotionManagement = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${BASE_URL}/getallpromotions/${adminId}`);
+
       if (response.data.success) {
         setPromotions(response.data.promotions);
       }

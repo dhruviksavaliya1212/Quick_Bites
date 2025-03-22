@@ -61,6 +61,8 @@ const stripePayment = async (req, res) => {
 
     const sellerId = orderData.items.find((item) => item.sellerId)?.sellerId;
 
+    const sellerData = await restaurantModel.find({sellerId})
+
     const order = {
       userId,
       items: orderData.items,
@@ -68,6 +70,8 @@ const stripePayment = async (req, res) => {
       address: orderData.address,
       paymentType: "Online(Stripe)",
       sellerId,
+      restoName : sellerData[0].name,
+      restoAddress : sellerData[0].address
     };
 
     const newOrder = await new orderModel(order);
@@ -151,6 +155,8 @@ const paymentRazorpay = async (req, res) => {
 
     const sellerId = orderData.items.find((item) => item.sellerId)?.sellerId;
 
+    const sellerData = await restaurantModel.find({sellerId})
+
     const order = {
       userId,
       items: orderData.items,
@@ -158,6 +164,8 @@ const paymentRazorpay = async (req, res) => {
       address: orderData.address,
       paymentType: "Online(Razorpay)",
       sellerId,
+      restoName : sellerData[0].name,
+      restoAddress : sellerData[0].address
     };
 
     const newOrder = await new orderModel(order);

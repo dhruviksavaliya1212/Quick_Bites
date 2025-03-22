@@ -6,6 +6,7 @@ import withAuth from "../../utills/withAuth";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { OrderContext } from "../../context/OrderContext";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify"; // Import toastify
 import "react-toastify/dist/ReactToastify.css"; // Import CSS for toastify
 
@@ -13,21 +14,27 @@ function ActiveOrders() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [agentData, setAgentData] = useState([]);
-  const { addAcceptedOrder } = useContext(OrderContext);
+  // const [deliverAgentId, setDeliverAgentId] = useState(false);
+  const { addAcceptedOrder, backend } = useContext(OrderContext);
 
-  const token = localStorage.getItem("deliveryAgent-token");
-  const decoded = jwtDecode(token);
-  const deliveryAgentId = decoded.agentId;
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("deliveryAgent-token");
+  console.log(token)
+  if(token === null){
+    navigate('/auth')
+  } else {
     fetchActiveOrders();
+    getStatsData();
+  }
   }, []);
 
   const fetchActiveOrders = async () => {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-orders",
+        `${backend}/api/delivery-agent/get-orders`,
         { sellerId: decoded.sellerId }
       );
       console.log(data)
@@ -44,7 +51,7 @@ function ActiveOrders() {
       }
     } catch (err) {
       console.error("Error fetching orders:", err);
-      alert("Failed to fetch orders.");
+      // alert("Failed to fetch orders.");
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +60,7 @@ function ActiveOrders() {
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       const res = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/respondeto-order",
+        `${backend}/api/delivery-agent/respondeto-order`,
         {
           orderId,
           action: newStatus,
@@ -94,7 +101,7 @@ function ActiveOrders() {
   const getStatsData = async () => {
     try {
       const res = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/get-specific-agents",
+        "${bakend}/api/delivery-agent/get-specific-agents",
         { sellerId: decoded.sellerId }
       );
       if (res.data) {
@@ -107,10 +114,6 @@ function ActiveOrders() {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    getStatsData();
-  }, []);
 
   const stats = {
     totalOrders: agentData[0]?.totalDeliveries || 0,

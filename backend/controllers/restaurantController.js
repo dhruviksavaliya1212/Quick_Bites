@@ -9,7 +9,11 @@ const checkResto = async (req, res) => {
   try {
     const { sellerId } = req.body;
 
+    console.log(sellerId);
+
     const restaurant = await restaurantModel.findOne({ sellerId });
+
+    console.log(restaurant)
 
     if (restaurant) {
       return res.json({

@@ -22,7 +22,7 @@ const OrderDesc = () => {
   }, [orders, id]);
 
   const changeOrderStatus = async(orderId, status) => {
-    const {data} = await axios.post(`${backend}/api/restaurant/change-status`,{orderId, status},{headers:{token:stoken}});
+    const {data} = await axios.post(`${backend}/api/restaurant/change-status`,{orderId, status});
 
     if(data.success){
       toast.success(data.message);

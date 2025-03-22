@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useContext } from "react";
+import { AdminContext } from "../Context/AdminContext";
 
 const Ordermanagement = () => {
   const [orders, setOrders] = useState([]);
@@ -8,11 +10,13 @@ const Ordermanagement = () => {
   const [paymentFilter, setPaymentFilter] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const {backend} = useContext(AdminContext)
+
   useEffect(() => {
     const fetchOrders = async () => {
       setIsLoading(true);
       try {
-        const res = await axios.get("https://quick-bites-backend.vercel.app/api/auth/admin/getall-orders");
+        const res = await axios.get( `${backend}/api/auth/admin/getall-orders`);
         if (res.data && Array.isArray(res.data.orderData)) {
           setOrders(res.data.orderData);
           setFilteredOrders(res.data.orderData);
@@ -57,7 +61,7 @@ const Ordermanagement = () => {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="border border-orange-300 bg-white text-orange-700 p-2 rounded-md focus:ring-2 focus:ring-orange-400"
         >
-          <option value="">All Statuses</option>
+          <option value="">All</option>
           <option value="pending">Pending</option>
           <option value="accepted">Accepted</option>
           <option value="rejected">Rejected</option>
