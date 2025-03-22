@@ -5,7 +5,7 @@ import restaurantModel from "../models/restaurantModel.js";
 
 const addFood = async (req, res) => {
   try {
-    const { name, oldprice, newprice, category, veg, desc, sellerId } =
+    const { name, oldprice, newprice, category, subCategory, veg, desc, sellerId } =
       req.body;
 
     const imageFile = req.file;
@@ -39,6 +39,7 @@ const addFood = async (req, res) => {
       veg,
       desc,
       category,
+      subCategory,
       image: imageUrl,
     };
 
@@ -66,5 +67,16 @@ const allFoods = async (req, res) => {
     res.json({ success: false, message: "Foods not fetched" });
   }
 };
+const getFilteredFoods = async (req, res) => {
+  try {
+    const {category, subCategory} = req.body;
+    console.log(category, subCategory);
+    const filteredFoods = await foodModel.find({category, subCategory});
+    res.json({ success: true, filteredFoods, message: "Foods fetched" });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Foods not fetched" });
+  }
+};
 
-export { addFood, allFoods };
+export { addFood, allFoods, getFilteredFoods };
