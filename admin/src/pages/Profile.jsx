@@ -7,6 +7,8 @@ import withAuth from '../utills/hoc/withAuth';
 import logout from '../utills/hoc/logOut';
 import { jwtDecode } from "jwt-decode";
 import { AdminContext } from '../Context/AdminContext';
+import { useContext } from 'react';
+import { AdminContext } from '../Context/AdminContext';
 
 const Profile = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -26,6 +28,7 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(adminProfile);
   const navigate = useNavigate();
+  const {backend} = useContext(AdminContext)
 
   const token = localStorage.getItem("token");
   const decode = jwtDecode(token);
@@ -34,7 +37,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
-        const res = await fetch(`https://quick-bites-backend.vercel.app/api/auth/admin/getadmin-profile?adminId=${adminId}`);
+        const res = await fetch(`${backend}/api/auth/admin/getadmin-profile?adminId=${adminId}`);
         const data = await res.json();
         if (res.ok) {
           const admin = data.admin; // Extract from "admin" key
@@ -95,7 +98,7 @@ const Profile = () => {
     if (profileImage instanceof File) formData.append('profilePhoto', profileImage);
 
     try {
-      const response = await fetch(`https://quick-bites-backend.vercel.app/api/auth/admin/updateadmin-profile/${adminId}`, {
+      const response = await fetch(`${backend}/api/auth/admin/updateadmin-profile/${adminId}`, {
         method: 'PUT',
         body: formData,
       });

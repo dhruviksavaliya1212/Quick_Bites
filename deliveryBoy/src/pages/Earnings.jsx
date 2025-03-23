@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   FaRupeeSign,
@@ -11,6 +11,7 @@ import {
 import StatCard from '../components/StatCard';
 import withAuth from '../../utills/withAuth';
 import {jwtDecode} from 'jwt-decode'; // ✅ Fixed import
+import { OrderContext } from '../../context/OrderContext';
 
 function Earnings() {
   const [earnings, setEarnings] = useState({
@@ -21,6 +22,7 @@ function Earnings() {
     completedPayouts: 0,
     rating: 0,
   });
+  const { backend } = useContext(OrderContext);
 
   const [error, setError] = useState(null);
 
@@ -45,7 +47,7 @@ function Earnings() {
     const fetchEarningsByType = async (type) => {
       try {
         const res = await axios.get(
-          `https://quick-bites-backend.vercel.app/api/delivery-agent/deliveryAgent-earnings/${deliveryAgentId}`,
+          `${backend}/api/delivery-agent/deliveryAgent-earnings/${deliveryAgentId}`,
           {
             params: { type },
           }

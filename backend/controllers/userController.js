@@ -269,7 +269,6 @@ const login = async (req, res) => {
       return res.json({ success: false, message: "Invalid Credentials" });
     }
   } catch (err) {
-    console.log(err);
     res.json({ success: false, message: "Something went wrong" });
   }
 };
@@ -382,6 +381,8 @@ const forgetPassword = async (req, res) => {
 const verifyOTPAndForgetPasswordUser = async (req, res) => {
 
   const {otpId,verificationCode,newPassword,cPassword} = req.body;
+
+  console.log(otpId,verificationCode,newPassword,cPassword)
 
   try {
     

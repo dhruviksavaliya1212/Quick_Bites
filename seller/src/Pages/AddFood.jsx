@@ -19,7 +19,24 @@ const AddFood = () => {
   const [newprice, setNewprice] = useState("");
   const [desc, setDesc] = useState("");
   const [veg, setVeg] = useState("yes");
-  const [category, setCategory] = useState("Pizza");
+  const [category, setCategory] = useState("Fast Food");
+  const [subCategory, setSubCategory] = useState("Pizza");
+
+  const categories = {
+    "Fast Food": ["Burger", "Pizza", "Fries", "Chicken Wings", "Tacos", "Hot Dogs", "Pav Bhaji", "Rolls"],
+    "South Indian": ["Idli", "Dosa", "Vada", "Uttapam", "Sambar", "Rasam", "Biryani (South Style)"],
+    "North Indian": ["Paneer Butter Masala", "Dal Makhani", "Butter Chicken", "Naan", "Chole Bhature", "Rajma Chawal", "Paratha", "Khichdi", "Paneer Items"],
+    "Rajasthani": ["Dal Baati Churma", "Gatte ki Sabzi", "Ker Sangri", "Laal Maas", "Mirchi Bada"],
+    "Chinese": ["Noodles", "Manchurian", "Spring Roll", "Fried Rice", "Dim Sum", "Schezwan Dishes"],
+    "Beverages": ["Tea", "Coffee", "Juice", "Lassi", "Smoothies", "Milkshakes"],
+    "Desserts": ["Ice Cream", "Gulab Jamun", "Rasgulla", "Jalebi", "Kheer", "Halwa"],
+    "Gujarati": ["Dhokla", "Thepla", "Khandvi", "Undhiyu", "Fafda Jalebi"],
+    "Punjabi": ["Sarson da Saag", "Makki di Roti", "Chole", "Rajma", "Lassi", "Paratha"],
+    "Italian": ["Pasta", "Lasagna", "Risotto", "Garlic Bread", "Calzone"],
+    "Mexican": ["Burritos", "Quesadillas", "Nachos", "Enchiladas", "Tostadas"],
+    "Bakery": ["Bread", "Cake", "Pastries", "Cookies", "Muffins"],
+    "Continental":["Pasta", "Salad"]
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -40,6 +57,7 @@ const AddFood = () => {
       formData.append("desc", desc);
       formData.append("veg", veg);
       formData.append("category", category);
+      formData.append("subCategory", subCategory);
 
       // console.log;
       formData.forEach((value, key) => {
@@ -177,15 +195,21 @@ const AddFood = () => {
                   value={category}
                   className="w-full outline-none px-4 py-2 shadow-inner shadow-zinc-500 rounded"
                 >
-                  <option value="Pizza">Pizza</option>
-                  <option value="Burger">Burger</option>
-                  <option value="Dosa">Dosa</option>
-                  <option value="Chole Bhature">Chole Bhature</option>
-                  <option value="Cake">Cake</option>
-                  <option value="Pav Bhaji">Pav Bhaji</option>
-                  <option value="Tea">Tea</option>
-                  <option value="Coffee">Coffee</option>
-                  <option value="Rolls">Rolls</option>
+                  {Object.keys(categories).map((cat) => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+                </select>
+              </div>
+              <div className=" flex-1 flex flex-col gap-1">
+                <p>Food Sub Category</p>
+                <select
+                  onChange={(e) => setSubCategory(e.target.value)}
+                  value={subCategory}
+                  className="w-full outline-none px-4 py-2 shadow-inner shadow-zinc-500 rounded"
+                >
+                  {categories[category].map((sub) => (
+              <option key={sub} value={sub}>{sub}</option>
+            ))}
                 </select>
               </div>
             </div>

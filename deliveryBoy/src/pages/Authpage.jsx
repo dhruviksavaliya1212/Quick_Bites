@@ -1,5 +1,6 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useContext } from "react";
 import axios from "axios";
+import { OrderContext } from "../../context/OrderContext";
 
 // Reusable input field component (memoized to prevent cursor jumping)
 const FormInput = memo(({ name, type = "text", placeholder, value, onChange, error }) => (
@@ -34,6 +35,7 @@ const AuthForm = () => {
   // State for form validation errors and loading status
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const { backend } = useContext(OrderContext);
 
   // Update form values and clear error for the changed field
   const updateFormField = (event) => {
@@ -83,7 +85,7 @@ const AuthForm = () => {
     try {
       const dataToSend = getSubmissionData(); // Get filtered data (no email)
       const response = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/delivery-agent/complete-registration",
+        `${backend}/api/delivery-agent/complete-registration`,
         dataToSend
       );
      switchFormStep();
@@ -104,7 +106,7 @@ const AuthForm = () => {
     try {
       const dataToSend = getSubmissionData(); // Get filtered data (email and password)
       // Placeholder: Replace with actual login API endpoint
-      const response = await axios.post("https://quick-bites-backend.vercel.app/api/delivery-agent/agent-login", dataToSend);
+      const response = await axios.post(`${backend}/api/delivery-agent/agent-login`, dataToSend);
       localStorage.setItem("deliveryAgent-token",response.data.token);
       window.location.replace("/active-orders");
       console.log("Login successful:", response.data);

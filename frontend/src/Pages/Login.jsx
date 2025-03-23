@@ -118,7 +118,7 @@ const Login = () => {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen py-28">
+    <div className="flex items-center justify-center min-h-screen py-5">
       {/* Main Form */}
       {!showOtpModal ? (
         <form
@@ -137,7 +137,7 @@ const Login = () => {
               ? "Please sign up to place an order"
               : state === "Forget Password"
               ? "Enter your email to reset your password"
-              : "Please login to book an appointment"}
+              : "Please login to place an order"}
           </p>
 
           {state === "Sign Up" && (

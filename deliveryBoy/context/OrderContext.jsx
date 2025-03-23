@@ -5,6 +5,8 @@ export const OrderContext = createContext();
 export const OrderProvider = ({ children }) => {
   const [acceptedOrders, setAcceptedOrders] = useState([]);
 
+  const backend = 'http://localhost:3000';
+
   const addAcceptedOrder = (order) => {
     setAcceptedOrders((prev) => {
       if (!prev.some((o) => o._id === order._id)) {
@@ -28,7 +30,7 @@ export const OrderProvider = ({ children }) => {
   };
 
   return (
-    <OrderContext.Provider value={{ acceptedOrders, addAcceptedOrder, updateAcceptedOrder }}>
+    <OrderContext.Provider value={{ acceptedOrders, addAcceptedOrder, updateAcceptedOrder, backend }}>
       {children}
     </OrderContext.Provider>
   );

@@ -1,40 +1,57 @@
 import React, { useContext, useEffect, useState } from "react";
-import { bestSeller, filterFood } from "../assets/assets";
 import vegetarian from "../assets/vegetarian.webp";
 import plus from "../assets/plus.png";
 import remove from "../assets/remove.png";
-import { useNavigate, useParams } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
+import axios from 'axios';
 
 const AllFoods = () => {
-  const navigate = useNavigate();
 
-  const { cart, addToCart, removeFromCart, food_list } = useContext(AppContext);
+  const { cart, addToCart, removeFromCart, food_list, backend } = useContext(AppContext);
 
-  const [popup, setPopup] = useState(false);
-  const [filter, setFilter] = useState([]);
-  const [category, setCategory] = useState("All");
-
-  const applyFilter = () => {
-    if (category !== "All") {
-      console.log(category);
-      const filterFoods = food_list.filter((food) => {
-        return food.category.toLowerCase() === category
-      })
-      setFilter(filterFoods);
-    } else {
-      setFilter(food_list);
-    }
+  const categories = {
+    "Fast Food": ["Burger", "Pizza", "Fries", "Chicken Wings", "Tacos", "Hot Dogs", "Pav Bhaji", "Rolls"],
+    "South Indian": ["Idli", "Dosa", "Vada", "Uttapam", "Sambar", "Rasam", "Biryani (South Style)"],
+    "North Indian": ["Paneer Butter Masala", "Dal Makhani", "Butter Chicken", "Naan", "Chole Bhature", "Rajma Chawal", "Paratha", "Khichdi", "Paneer Items"],
+    "Rajasthani": ["Dal Baati Churma", "Gatte ki Sabzi", "Ker Sangri", "Laal Maas", "Mirchi Bada"],
+    "Chinese": ["Noodles", "Manchurian", "Spring Roll", "Fried Rice", "Dim Sum", "Schezwan Dishes"],
+    "Beverages": ["Tea", "Coffee", "Juice", "Lassi", "Smoothies", "Milkshakes"],
+    "Desserts": ["Ice Cream", "Gulab Jamun", "Rasgulla", "Jalebi", "Kheer", "Halwa"],
+    "Gujarati": ["Dhokla", "Thepla", "Khandvi", "Undhiyu", "Fafda Jalebi"],
+    "Punjabi": ["Sarson da Saag", "Makki di Roti", "Chole", "Rajma", "Lassi", "Paratha"],
+    "Italian": ["Pasta", "Lasagna", "Risotto", "Garlic Bread", "Calzone"],
+    "Mexican": ["Burritos", "Quesadillas", "Nachos", "Enchiladas", "Tostadas"],
+    "Bakery": ["Bread", "Cake", "Pastries", "Cookies", "Muffins"],
+    "Continental":["Pasta", "Salad"]
   };
 
+  const [popup, setPopup] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [filteredData, setFilteredData] = useState(false);
+
+  const getFilteredData = async() => {
+    try {
+      const {data} = await axios.post(`${backend}/api/food/filtered-foods`,{category:selectedCategory, subCategory:selectedSubCategory});
+      console.log(data);
+      if(data.success){
+        setFilteredData(data.filteredFoods);
+      }
+      setPopup(false)
+    } catch (err) {
+      
+    }
+  }
+
   const removeFilter = () => {
-    setCategory("All");
+    setSelectedSubCategory(null);
+    setSelectedCategory(null);
+    setFilteredData(false);
   };
 
   useEffect(() => {
-    applyFilter();
-    console.log(category);
-  }, [food_list, category]);
+    
+  }, [filteredData]);
 
   const handlePopup = () => {
     setPopup((prev) => !prev);
@@ -49,42 +66,77 @@ const AllFoods = () => {
         >
           Filter
         </button>
-        <button
-          onClick={removeFilter}
-          className={` px-5 py-1 border border-zinc-500 rounded-full cursor-pointer ${
-            category === "All" ? "hidden" : "flex"
-          }`}
-        >
-          Remove Filter
-        </button>
+        {
+          filteredData && (<button onClick={removeFilter}
+            className={` px-5 py-1 border border-zinc-500 rounded-full cursor-pointer`}
+          >
+            Remove Filter
+          </button>)
+        }
       </div>
-      {popup === true && (
-        <div className=" w-full flex gap-5 overflow-scroll py-5">
-          {filterFood.map((item, index) => (
-            <img
-              key={index}
-              src={item.img}
-              alt=""
-              className={` w-32 cursor-pointer hover:scale-105 transition-all duration-700  ${
-                category === item.category &&
-                "bg-gradient-to-t from-orange-400 to-orange-700 text-zinc-100 rounded-full p-2"
-              }`}
-              onClick={() => setCategory(item.category)}
-            />
-          ))}
+      {/* Popup for Category Selection */}
+      {popup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-5 rounded-lg shadow-lg w-[70%]">
+            <h2 className="text-lg font-semibold mb-3">Choose Category</h2>
+            <div className="flex flex-wrap gap-2">
+              {Object.keys(categories).map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`py-2 px-4 w-fit rounded-md border ${
+                    selectedCategory === category
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+
+            {/* Subcategories */}
+            {selectedCategory && (
+              <div className="mt-4">
+                <h3 className="text-md font-semibold">Select Item</h3>
+                <div className="flex flex-wrap  gap-2 mt-2">
+                  {categories[selectedCategory].map((sub) => (
+                    <button
+                      key={sub}
+                      onClick={() => {
+                        setSelectedSubCategory(sub);
+                      }}
+                      className={`py-2 px-4 w-fit rounded-md border ${
+                        selectedSubCategory === sub
+                          ? "bg-orange-500 text-white"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          <div className=" mt-5 flex gap-10">
+            <button onClick={()=> setPopup(false)} className="px-5 py-1 border border-red-500 rounded cursor-pointer text-red-500 hover:bg-red-500 hover:text-zinc-200 hover:transition-all hover:duration-500">Close</button>
+            <button onClick={getFilteredData}  className="px-5 py-1 border border-green-500 rounded cursor-pointer text-green-500 hover:bg-green-500 hover:text-zinc-200 hover:transition-all hover:duration-500">Filter</button>
+          </div>
+          </div>
         </div>
       )}
 
-      <div className="flex items-center justify-center flex-col mb-20">
+      <div className="flex items-center justify-center flex-col mb-20 w-[70rem]">
         <div className="  mt-10 w-full lg:w-[90%] xl:w-[80%]">
-          {filter.map((item, index) => (
+          {(filteredData || food_list).map((item, index) => (
             <div key={index}>
               <div className=" my-5 flex flex-col sm:flex-row items-center justify-start gap-5 lg:gap-10 ">
                 <div className=" relative">
                   <img
                     src={item.image}
                     alt=""
-                    className=" min-w-52 max-w-52 h-48 rounded bg-gradient-to-t from-slate-500 to-slate-900"
+                    className="min-w-52 max-w-52 h-48 rounded bg-gradient-to-t from-slate-500 to-slate-900"
                   />
                   {!cart[item._id] ? (
                     <div className="w-full flex justify-center -mt-6">
@@ -157,7 +209,7 @@ const AllFoods = () => {
                       {item.rating}
                     </p>
                   </div>
-                  <p className=" text-md font-normal text-zinc-800 max-w-[90%]">
+                  <p className=" text-md font-normal text-zinc-800 w-full pr-10">
                     {item.desc}
                   </p>
                 </div>

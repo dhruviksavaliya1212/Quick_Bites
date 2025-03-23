@@ -16,7 +16,7 @@ restaurantRouter.post('/reject-order', authSeller, rejectOrder);
 restaurantRouter.post('/complete-order', authSeller, completeOrder);
 restaurantRouter.post('/update-profile', authSeller, updateProfile);
 restaurantRouter.post('/change-availability', authSeller, changeAvailability);
-restaurantRouter.post('/change-status', authSeller, changeOrderStatus);
+restaurantRouter.post('/change-status', changeOrderStatus);
 restaurantRouter.post('/get-resto-data', getRestoData);
 restaurantRouter.post('/update-data-admin', updateProfileAdmin);
 restaurantRouter.post('/delete-resto', deleteResto);

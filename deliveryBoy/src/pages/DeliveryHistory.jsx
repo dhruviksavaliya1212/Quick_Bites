@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import withAuth from "../../utills/withAuth";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { OrderContext } from "../../context/OrderContext";
 
 function DeliveryHistory() {
   const [deliveries, setDeliveries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { backend } = useContext(OrderContext);
 
   const token = localStorage.getItem("deliveryAgent-token");
   const decoded = jwtDecode(token);
@@ -19,7 +21,7 @@ function DeliveryHistory() {
     setIsLoading(true);
     try {
       const { data } = await axios.get(
-        `https://quick-bites-backend.vercel.app/api/delivery-agent/delivery-history/${deliveryAgentId}`
+        `${backend}/api/delivery-agent/delivery-history/${deliveryAgentId}`
       );
       if (data.success) {
         setDeliveries(data.deliveryHistory);
@@ -28,7 +30,7 @@ function DeliveryHistory() {
       }
     } catch (err) {
       console.error("Error fetching delivery history:", err);
-      alert("Failed to fetch delivery history.");
+      // alert("Failed to fetch delivery history.");
     } finally {
       setIsLoading(false);
     }

@@ -30,10 +30,8 @@ const AllOrders = () => {
                     {/* <p>{item.address.firstName}</p>
                       <p>{item.address.lastName}</p> */}
                     {item.items.map((item, index) => (
-                      <div key={index} className=" flex gap-1 text-zinc-700 text-sm">
-                        <p>{item.name}</p>
-                        <p>-</p>
-                        <p>{item.quantity}</p>
+                        <div key={index} className=" grid grid-cols-1 gap-1 text-zinc-700 text-sm">
+                        <p>{item.name} - {item.quantity}</p>
                       </div>
                     ))}
                   </div>

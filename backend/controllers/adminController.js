@@ -717,7 +717,7 @@ const getAllPromtions = async (req, res) => {
       });
     }
 
-    const promotions = await PromotionModel.find({ adminId });
+    const promotions = await PromotionModel.find({ });
     if (!promotions) {
       return res
         .status(404)
