@@ -7,8 +7,6 @@ import withAuth from '../utills/hoc/withAuth';
 import logout from '../utills/hoc/logOut';
 import { jwtDecode } from "jwt-decode";
 import { AdminContext } from '../Context/AdminContext';
-import { useContext } from 'react';
-import { AdminContext } from '../Context/AdminContext';
 
 const Profile = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);

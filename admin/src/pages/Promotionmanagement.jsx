@@ -4,8 +4,6 @@ import withAuth from "../utills/hoc/withAuth";
 import axios from "axios";
 import { AdminContext } from "../Context/AdminContext";
 import {jwtDecode} from "jwt-decode"
-import { useContext } from "react";
-import { AdminContext } from "../Context/AdminContext";
 
 const PromotionManagement = () => {
   const [promotions, setPromotions] = useState([]);
