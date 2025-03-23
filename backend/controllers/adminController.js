@@ -51,6 +51,66 @@ const getDashData = async (req, res) => {
   }
 };
 
+const getMonthlyRevenue = async (req, res) => {
+  try {
+    const revenuePerMonth = await orderModel.aggregate([
+      {
+        $match: {
+          isCancelled: false,
+          payment: true
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m", date: "$date" }
+          },
+          totalRevenue: { $sum: "$amount" }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.json(revenuePerMonth);
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
+
+const getDailyOrders = async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // includes today
+
+    const ordersPerDay = await orderModel.aggregate([
+      {
+        $match: {
+          isCancelled: false,
+          date: { $gte: sevenDaysAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$date" }
+          },
+          totalOrders: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.json(ordersPerDay);
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error for daily-orders' });
+  }
+};
+
+
 const approvResto = async (req, res) => {
   try {
     const { restoId } = req.body;
@@ -1114,5 +1174,7 @@ export {
   getOrderStatusReport,
   getDeliveryBoyReport,
   sendContactMessage,
-  getAllContactMessages
+  getAllContactMessages,
+  getDailyOrders,
+  getMonthlyRevenue
 };

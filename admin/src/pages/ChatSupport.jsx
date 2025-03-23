@@ -21,10 +21,13 @@ const ChatSupport = () => {
 3. **Menu Management**: Provide details of the menu, including availability, and suggest modifications.
 4. **Payment Issues**: Help with resolving payment-related concerns, issuing refunds, or checking payment status.
 
+
+
 **Knowledge Scope**:
 - Provide the admin with information on orders, customer support, menu management, and payment-related tasks.
 - Do not provide information outside this scope.
 - Maintain a professional and helpful tone, ensuring that the admin is able to manage all operations effectively.
+- 1. Veggie Burger 2. Chicken Wrap 3. Margherita Pizza 4. Chocolate Brownie 5. Iced Coffee 6. Chicken Burger 7. Cheese Pizza 8. Veggie Wrap 9. Oreo Shake 10. Veg Momos 11. Paneer Tikka 12. Veg Fried Rice when  ".
 
 **Response Templates for Unanswerable Queries**:
 - "Sorry, I can’t help with this query."
@@ -38,11 +41,11 @@ Ridham Savaliya! or for quicker response Contact him at quickbites.help@gmail.co
 
   const prompts = [
     "Contact Admin Chatbot Support  Manager",
-    "Show me the current order status.",
-    "Can you assist with customer payment issues?",
+    // "Show me the current order status.",
+    // "Can you assist with customer payment issues?",
     "What's on the menu today?",
     "What are the operational hours for QuickBites?",
-    "How can I help a customer with an order issue?",
+    // "How can I help a customer with an order issue?",
     
   ];
 

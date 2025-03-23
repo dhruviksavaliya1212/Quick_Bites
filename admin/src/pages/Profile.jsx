@@ -208,12 +208,7 @@ const Profile = () => {
           </div>
 
           <div className="mt-8 flex justify-end space-x-4">
-            <button
-              onClick={toggleDropdown}
-              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow"
-            >
-              Settings
-            </button>
+        
             {isEditing ? (
               <button
                 onClick={handleSaveProfile}

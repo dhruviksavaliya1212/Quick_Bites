@@ -43,6 +43,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const {backend, orderData, feedbackData} = useContext(AdminContext)
+  const [dailyOrders, setDailyOrders] = useState([]);
+const [monthlyRevenue, setMonthlyRevenue] = useState([]);
 
   const [dashData, setDashData] = useState(false)
   const [contactData, setcontactData] = useState(false)
@@ -51,7 +53,7 @@ const Dashboard = () => {
     try {
       
       const {data} = await axios.get(`${backend}/api/admin/dash-data`)
-      console.log(data);
+      console.log("dash-data",data);
 
       if(data.success){-
         setDashData(data.dashData)
@@ -76,43 +78,71 @@ const Dashboard = () => {
       toast.success(error)
     }
   }
+
+  const getDailyOrders = async () => {
+    try {
+      const { data } = await axios.get(`${backend}/api/admin/get-dailyorders`);
+      setDailyOrders(data);
+    } catch (err) {
+      toast.error("Failed to fetch daily orders");
+    }
+  };
+  
+  const getRevenueData = async () => {
+    try {
+      const { data } = await axios.get(`${backend}/api/admin/get-revenue`);
+      setMonthlyRevenue(data);
+    } catch (err) {
+      toast.error("Failed to fetch revenue data");
+    }
+  };
   
   useEffect(()=>{
     getDashData(),
-    contactResponses()
+    contactResponses(),
+    getDailyOrders(),
+    getRevenueData()
   },[])
   
   const handleSeeMore = () => {
     navigate("/Ordermanagement");
   };
 
-  // Bar Chart - Orders by Day
-  const ordersChartData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        label: "Orders",
-        data: [120, 200, 150, 300, 250, 280, 320],
-        backgroundColor: "rgba(242, 107, 15, 0.6)",
-      },
-    ],
-  };
+  // Bar Chart - Orders by Day (dates in 'Mar 17', etc.)
+const ordersChartData = {
+  labels: dailyOrders.map(order => {
+    const date = new Date(order._id);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }),
+  datasets: [
+    {
+      label: "Orders",
+      data: dailyOrders.map(order => order.totalOrders),
+      backgroundColor: "rgba(242, 107, 15, 0.6)",
+    },
+  ],
+};
 
+// Line Chart - Revenue Trends (months in 'Feb', 'Mar')
+const revenueChartData = {
+  labels: monthlyRevenue.map(rev => {
+    const [year, month] = rev._id.split("-");
+    return new Date(`${year}-${month}-01`).toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
+  }),
+  datasets: [
+    {
+      label: "Revenue (₹)",
+      data: monthlyRevenue.map(rev => rev.totalRevenue),
+      borderColor: "#F26B0F",
+      backgroundColor: "rgba(242, 107, 15, 0.2)",
+      fill: true,
+    },
+  ],
+};
 
-
-  // Line Chart - Revenue Trends
-  const revenueChartData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-    datasets: [
-      {
-        label: "Revenue (₹)",
-        data: [10000, 12000, 15000, 20000, 18000, 22000, 24000],
-        borderColor: "#F26B0F",
-        backgroundColor: "rgba(242, 107, 15, 0.2)",
-        fill: true,
-      },
-    ],
-  };
 
 
 

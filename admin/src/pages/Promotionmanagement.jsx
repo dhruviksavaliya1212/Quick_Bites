@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import withAuth from "../utills/hoc/withAuth";
 import axios from "axios";
+import { AdminContext } from "../Context/AdminContext";
 import {jwtDecode} from "jwt-decode"
 
 const PromotionManagement = () => {
@@ -21,8 +22,11 @@ const PromotionManagement = () => {
   const decode = jwtDecode(token)
   const adminId = decode.adminId;
   console.log(adminId);
+
+  const {backend} = useContext(AdminContext)
   
-  const BASE_URL = "https://quick-bites-backend.vercel.app/api/auth/admin";
+  const BASE_URL = backend;
+  
 
   useEffect(() => {
     fetchPromotions();
@@ -31,7 +35,7 @@ const PromotionManagement = () => {
   const fetchPromotions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${BASE_URL}/getallpromotions/${adminId}`);
+      const response = await axios.get(`${BASE_URL}/api/auth/admin/getallpromotions/${adminId}`);
       if (response.data.success) {
         setPromotions(response.data.promotions);
       }
