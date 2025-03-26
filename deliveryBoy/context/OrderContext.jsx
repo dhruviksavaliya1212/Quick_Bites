@@ -4,6 +4,7 @@ export const OrderContext = createContext();
 
 export const OrderProvider = ({ children }) => {
   const [acceptedOrders, setAcceptedOrders] = useState([]);
+  const [deliveryAgentId, setDeliveryAgentId] = useState(false);
 
   const backend = 'http://localhost:3000';
 

@@ -18,9 +18,11 @@ function ActiveOrders() {
   const { addAcceptedOrder, backend } = useContext(OrderContext);
 
   const navigate = useNavigate();
+  const token = localStorage.getItem("deliveryAgent-token");
+  const decoded = jwtDecode(token);
+  const deliveryAgentId = decoded.agentId;
 
   useEffect(() => {
-    const token = localStorage.getItem("deliveryAgent-token");
   console.log(token)
   if(token === null){
     navigate('/auth')
@@ -101,8 +103,8 @@ function ActiveOrders() {
   const getStatsData = async () => {
     try {
       const res = await axios.post(
-        "${bakend}/api/delivery-agent/get-specific-agents",
-        { sellerId: decoded.sellerId }
+        `http://localhost:3000/api/delivery-agent/get-specific-agents`,
+        { deliveryAgentId: deliveryAgentId }
       );
       if (res.data) {
         setAgentData(res.data.agentData);

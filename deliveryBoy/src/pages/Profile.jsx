@@ -28,7 +28,7 @@ function Profile() {
     try {
       const { data } = await axios.post(
         `${backend}/api/delivery-agent/get-specific-agents`,
-        { sellerId }
+        { deliveryAgentId}
       );
       if (data.success) {
         const agent = data.agentData.find(

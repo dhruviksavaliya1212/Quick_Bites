@@ -64,7 +64,7 @@ const Dashboard = () => {
 
   const contactResponses = async () => {
     try {
-      const { data } = await axios.get(`${backend}/api/auth/admin/getAllContactMessages`);
+      const { data } = await axios.get(`http://localhost:3000/api/auth/admin/getAllContactMessages`);
       console.log("contact", data);
       if (data.success) {
         setContactData(data.data);
@@ -85,7 +85,7 @@ const Dashboard = () => {
 
   const getRevenueData = async () => {
     try {
-      const { data } = await axios.get(`${backend}/api/admin/get-revenue`);
+      const { data } = await axios.get(`http://localhost:3000/api/admin/get-revenue`);
       setMonthlyRevenue(data);
     } catch (err) {
       toast.error("Failed to fetch revenue data");

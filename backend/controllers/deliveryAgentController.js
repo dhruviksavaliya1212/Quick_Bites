@@ -445,7 +445,7 @@ const sendOrderCompleteOtp = async (req, res) => {
       success: true,
       otpId,
       orderId,
-      message: "deliervy otp has been sent!",
+      message: "delivery otp has been sent!",
     });
   } catch (error) {
     console.error(error);
@@ -686,9 +686,9 @@ const updateDeliveryAgentProfile = async (req, res) => {
 };
 
 const getSpecificAgentData = async (req, res) => {
-  const { sellerId } = req.body;
+  const { deliveryAgentId } = req.body;
   try {
-    const agentData = await deliveryAgentModel.find({ sellerId: sellerId });
+    const agentData = await deliveryAgentModel.find({ _id: deliveryAgentId });
     res.json({ success: true, agentData, message: "Done" });
   } catch (err) {
     console.log(err);
