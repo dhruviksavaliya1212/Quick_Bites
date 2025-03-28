@@ -1,6 +1,6 @@
 import express from "express"
 import authSeller from "../middlewares/authSeller.js";
-import { inviteDeliveryAgent, deleteAgent, getAgentData, getSpecificAgentData,completeDeliveryAgentRegistration ,loginDeliveryAgent,getOrders,respondeToOrder,sendOrderCompleteOtp,completeOrderAndVerifyOtp,getDeliveryAgentHistory,getGroupedEarnings,updateDeliveryAgentProfile} from "../controllers/deliveryAgentController.js";
+import { inviteDeliveryAgent, deleteAgent, getAgentData, getSpecificAgentData,completeDeliveryAgentRegistration ,loginDeliveryAgent,getOrders,respondeToOrder,sendOrderCompleteOtp,completeOrderAndVerifyOtp,getDeliveryAgentHistory,getGroupedEarnings,updateDeliveryAgentProfile,getAgentProfile} from "../controllers/deliveryAgentController.js";
 import upload from "../middlewares/multer.js";
 
 const DeliveryAgentModelRouter = express.Router();
@@ -10,6 +10,7 @@ DeliveryAgentModelRouter.post('/invite-agent', inviteDeliveryAgent)
 DeliveryAgentModelRouter.post('/complete-registration', completeDeliveryAgentRegistration)
 DeliveryAgentModelRouter.post('/agent-login', loginDeliveryAgent)
 DeliveryAgentModelRouter.post('/get-agents', getAgentData)
+DeliveryAgentModelRouter.post('/get-agentprofile', getAgentProfile)
 DeliveryAgentModelRouter.post('/respondeto-order', respondeToOrder)
 DeliveryAgentModelRouter.post('/send-delivery-otp', sendOrderCompleteOtp)
 DeliveryAgentModelRouter.post('/verify-delivery-otp', completeOrderAndVerifyOtp)

@@ -1,34 +1,31 @@
-import React, { useState } from 'react';
-import { useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { FaTrash, FaPlus } from 'react-icons/fa';
 import { SellerContext } from '../Context/SellerContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { useEffect } from 'react';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 const AddDeliveryAgent = () => {
-  const [agents, setAgents] = useState(false);
-  const {stoken, backend} = useContext(SellerContext)
+  const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(false); // Loading state for adding an agent
+  const [fetchingAgents, setFetchingAgents] = useState(false); // Loading state for fetching agents
+  const { stoken, backend } = useContext(SellerContext);
 
   const [showModal, setShowModal] = useState(false);
   const [editDriver, setEditDriver] = useState(null);
-  const [firstName, setfirstName] = useState('');
-  const [lastName, setlastName] = useState('');
-  const [contactNo, setcontactNo] = useState('');
-  const [email, setemail] = useState('');
-  const [gender, setgender] = useState('Male');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [contactNo, setContactNo] = useState('');
+  const [email, setEmail] = useState('');
+  const [gender, setGender] = useState('Male');
+  
   const token = localStorage.getItem("seller-token");
- 
-    const decoded = jwtDecode(token);
-    const sellerId = decoded.id; // or decoded.sellerId depending on your backend token structure
-    console.log("Decoded token:", decoded);
-    console.log("Seller ID:", sellerId);
- 
-  // console.log(agents)
-  const onSubmitHandler = async () => {
-    try {
+  const decoded = jwtDecode(token);
+  const sellerId = decoded.id;
 
+  const onSubmitHandler = async () => {
+    setLoading(true); // Start loading
+    try {
       const agentData = {
         firstName,
         lastName,
@@ -36,80 +33,92 @@ const AddDeliveryAgent = () => {
         email,
         gender,
         sellerId
-      }
+      };
 
-      console.log(agentData)
       const { data } = await axios.post(
         `${backend}/api/delivery-agent/invite-agent`,
         agentData,
-        { headers: { Authorization: `Bearer ${stoken}` } } 
+        { headers: { Authorization: `Bearer ${stoken}` } }
       );
-
-      console.log(data);
 
       if (data.success) {
         toast.success(data.message);
-        getAgents()
-        setShowModal(false)
-        setfirstName('');
-        setlastName("");
-        setcontactNo("");
-        setemail("");
-        setgender("Male");
+        getAgents(); // Refresh agents list
+        setShowModal(false); // Close modal
+        resetForm(); // Clear form inputs
       } else {
-        toast.info(data.message)
+        toast.info(data.message);
       }
     } catch (err) {
-      console.log(err)
-      toast.error("Something went wrong");
+      const errorMessage = err.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
-  const getAgents = async () =>  {
+  const getAgents = async () => {
+    setFetchingAgents(true); // Start fetching agents
     try {
       const { data } = await axios.post(
-        `${backend}/api/delivery-agent/get-specific-agents`,{sellerId},{ headers: { Authorization: `Bearer ${stoken}` } } 
-    );
-    if(data.success){
-      setAgents(data.agentData)
-    }
+        `${backend}/api/delivery-agent/get-specific-agents`,
+        { sellerId },
+        { headers: { Authorization: `Bearer ${stoken}` } }
+      );
+      if (data.success) {
+        setAgents(data.agentData);
+        toast.success("Agents loaded successfully");
+      } else {
+        toast.info(data.message);
+      }
     } catch (err) {
-      console.log(err)
-      toast.error("Something went wrong");
+      const errorMessage = err.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+    } finally {
+      setFetchingAgents(false); // Stop fetching
     }
-  }
+  };
 
-  useEffect(()=>{
-    getAgents()
-  },[])
+  const resetForm = () => {
+    setFirstName('');
+    setLastName('');
+    setContactNo('');
+    setEmail('');
+    setGender('Male');
+  };
+
+  useEffect(() => {
+    getAgents();
+  }, []);
 
   const handleAdd = () => {
     setEditDriver(null);
     setShowModal(true);
   };
 
-  const handleDelete = async(id) => {
-    console.log(id)
+  const handleDelete = async (id) => {
     try {
       if (window.confirm('Are you sure you want to delete this delivery agent?')) {
-        const {data} = await axios.post(`${backend}/api/delivery-agent/delete-agents`,{id})
-        if(data.success){
-          getAgents()
-          toast.success(data.message)
+        const { data } = await axios.post(
+          `${backend}/api/delivery-agent/delete-agents`,
+          { id }
+        );
+        if (data.success) {
+          getAgents();
+          toast.success(data.message);
         } else {
-          toast.info(data.message)
+          toast.info(data.message);
         }
       }
     } catch (err) {
-      console.log(err)
-      toast.error("Something went wrong")
+      const errorMessage = err.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
     }
-    
-  }
+  };
 
   return (
-    <div className="p-4  min-h-screen">
-      <h1 className="text-xl text-zinc-800 font-semibold mb-6 ">Add Delivery Agent</h1>
+    <div className="p-4 min-h-screen">
+      <h1 className="text-xl text-zinc-800 font-semibold mb-6">Add Delivery Agent</h1>
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <button
           onClick={handleAdd}
@@ -118,38 +127,46 @@ const AddDeliveryAgent = () => {
           <FaPlus className="mr-2" /> Add Agent
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full bg-white shadow-lg rounded">
-          <thead>
-            <tr className="bg-gray-200 text-zinc-800 text-base">
-              <th className="p-2">No</th>
-              <th className="p-2">First Name</th>
-              <th className="p-2">Last Name</th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Contact No</th>
-              <th className="p-2">Gender</th>
-              <th className="p-2">Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            {agents && agents.reverse().map((agent,index) => (
-              <tr key={index} className="text-center border-b">
-                <td className="p-2">{index+1}</td>
-                <td className="p-2">{agent.firstName}</td>
-                <td className="p-2">{agent.lastName}</td>
-                <td className="p-2">{agent.email}</td>
-                <td className="p-2">{agent.contactNo}</td>
-                <td className="p-2">{agent.gender}</td>
-                <td>
-                <button onClick={() => handleDelete(agent._id)} className="text-red-500 hover:text-red-700">
-                    <FaTrash />
-                  </button>
-                </td>
+
+      {fetchingAgents ? (
+        <p>Loading agents...</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full bg-white shadow-lg rounded">
+            <thead>
+              <tr className="bg-gray-200 text-zinc-800 text-base">
+                <th className="p-2">No</th>
+                <th className="p-2">First Name</th>
+                <th className="p-2">Last Name</th>
+                <th className="p-2">Email</th>
+                <th className="p-2">Contact No</th>
+                <th className="p-2">Gender</th>
+                <th className="p-2">Delete</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {agents?.reverse().map((agent, index) => (
+                <tr key={index} className="text-center border-b">
+                  <td className="p-2">{index + 1}</td>
+                  <td className="p-2">{agent.firstName}</td>
+                  <td className="p-2">{agent.lastName}</td>
+                  <td className="p-2">{agent.email}</td>
+                  <td className="p-2">{agent.contactNo}</td>
+                  <td className="p-2">{agent.gender}</td>
+                  <td>
+                    <button
+                      onClick={() => handleDelete(agent._id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -160,55 +177,44 @@ const AddDeliveryAgent = () => {
             <input
               type="text"
               placeholder="First Name"
-              onChange={(e)=> setfirstName(e.target.value)}
+              onChange={(e) => setFirstName(e.target.value)}
               value={firstName}
               className="border p-2 w-full mb-4"
             />
             <input
               type="text"
               placeholder="Last Name"
-              onChange={(e)=> setlastName(e.target.value)}
+              onChange={(e) => setLastName(e.target.value)}
               value={lastName}
               className="border p-2 w-full mb-4"
             />
             <input
               type="text"
               placeholder="Contact No"
-              onChange={(e)=> setcontactNo(e.target.value)}
+              onChange={(e) => setContactNo(e.target.value)}
               value={contactNo}
               className="border p-2 w-full mb-4"
             />
             <input
               type="text"
               placeholder="Email"
-              onChange={(e)=> setemail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               value={email}
               className="border p-2 w-full mb-4"
             />
-            <div className=' flex gap-5 mb-5'>
-              <label htmlFor="gender">Gender : </label>
-            <input
-              type="radio"
-              onChange={(e)=> setgender(e.target.value)}
-              value='Male'
-              name='gender'
-              className="border"
-            />
-            <p>Male</p>
-            <input
-              type="radio"
-              onChange={(e)=> setgender(e.target.value)}
-              value='Female'
-              name='gender'
-              className="border"
-            />
-            <p>Female</p>
+            <div className='flex gap-5 mb-5'>
+              <label htmlFor="gender">Gender:</label>
+              <select onChange={(e) => setGender(e.target.value)} value={gender} className="border p-2">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
             </div>
             <button
-              onClick={() => onSubmitHandler()}
+              onClick={onSubmitHandler}
               className="bg-orange-500 text-white p-2 rounded hover:bg-orange-600"
+              disabled={loading}
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </button>
             <button
               onClick={() => setShowModal(false)}

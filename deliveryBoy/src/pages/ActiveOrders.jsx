@@ -103,7 +103,7 @@ function ActiveOrders() {
   const getStatsData = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:3000/api/delivery-agent/get-specific-agents`,
+        `http://localhost:3000/api/delivery-agent/get-agentprofile`,
         { deliveryAgentId: deliveryAgentId }
       );
       if (res.data) {

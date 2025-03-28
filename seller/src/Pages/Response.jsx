@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 const Response = () => {
   const { seller } = useContext(SellerContext); // assuming seller contains sellerId
   const [feedbackData, setFeedbackData] = useState([]);
+  const [isLoading, setisLoading] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('seller-token');
@@ -15,6 +16,7 @@ const Response = () => {
 
   const fetchResponses = async () => {
     try {
+      setisLoading(true);
       const res = await axios.post(
         'https://quick-bites-backend.vercel.app/api/seller/getallresponses',
         { sellerId }
@@ -26,6 +28,7 @@ const Response = () => {
           (review) => review.feedback && review.feedback.trim() !== ''
         );
         setFeedbackData(filteredData);
+        setisLoading(false);
       } else {
         console.error(res.data.message);
       }
@@ -37,6 +40,15 @@ const Response = () => {
   useEffect(() => {
     fetchResponses();
   }, []);
+
+  if(isLoading) {
+    return (
+      <div className='h-screen flex justify-center items-center'>
+          <div className="w-16 h-16 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className='text-orange-500 text-2xl font-semibold mx-4'>Loading Responses!</p>
+      </div>
+    )
+  }
 
   return (
     <div className="mt-8 mx-5">

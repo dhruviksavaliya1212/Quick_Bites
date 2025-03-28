@@ -686,6 +686,17 @@ const updateDeliveryAgentProfile = async (req, res) => {
 };
 
 const getSpecificAgentData = async (req, res) => {
+  const { sellerId } = req.body;
+  try {
+    const agentData = await deliveryAgentModel.find({ sellerId: sellerId });
+    res.json({ success: true, agentData, message: "Done" });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Something went wrong" });
+  }
+};
+
+const getAgentProfile = async (req, res) => {
   const { deliveryAgentId } = req.body;
   try {
     const agentData = await deliveryAgentModel.find({ _id: deliveryAgentId });
@@ -711,6 +722,7 @@ const deleteAgent = async (req, res) => {
 export {
   inviteDeliveryAgent,
   getAgentData,
+  getAgentProfile,
   deleteAgent,
   getSpecificAgentData,
   completeDeliveryAgentRegistration,

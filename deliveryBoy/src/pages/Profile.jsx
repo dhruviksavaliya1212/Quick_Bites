@@ -27,7 +27,7 @@ function Profile() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        `${backend}/api/delivery-agent/get-specific-agents`,
+        `${backend}/api/delivery-agent/get-agentprofile`,
         { deliveryAgentId}
       );
       if (data.success) {
