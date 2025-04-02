@@ -10,37 +10,37 @@ import rushik  from "../assets/members/rushik.png"
 const teamData = [
   {
     name: "Ridham Savaliya",
-    role: "Founder & CEO",
+    role: "Full stack developer",
     description: "John is the visionary behind QuickBites, ensuring the best customer experience and innovative services.",
     img: `${ridham}`,
   },
   {
     name: "Dhruvik Savaliya",
-    role: "Chief Operating Officer",
+   role: "Full stack developer",
     description: "Jane ensures that every dish we deliver is of the highest quality and made with the finest ingredients.",
     img: `${dhruvik}`,
   },
   {
     name: "Jenish Galani",
-    role: "Marketing Specialist",
+    role: "UI/UX Designer",
     description: "Michael brings QuickBites to the world with creative campaigns and social media strategies.",
     img: `${jenish}`,
   },
   {
     name: "Milan Panchani",
-    role: "Customer Support",
+    role: "UI/UX Designer",
     description: "Sara ensures that all of our customers' needs are met with the utmost care and attention.",
     img: `${milan}`,
   },
   {
     name: "Rushik Khothiya",
-    role: "Operations Manager",
+    role: "UI/UX Designer",
     description: "Emily oversees day-to-day operations, ensuring smooth service and customer satisfaction.",
     img: `${rushik}`,
   },
   {
     name: "Dishant Domadiya",
-    role: "Finance Director",
+    role: "Brand Designer",
     description: "James handles all financial operations, ensuring our business stays on track and profitable.",
     img: `${dishant}`,
   },
