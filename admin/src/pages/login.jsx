@@ -164,7 +164,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/auth/admin/login",
+        "http://localhost:3000/api/auth/admin/login",
         {
           userName: username,
           email,
@@ -194,7 +194,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/auth/admin/verify-otp-login",
+        "http://localhost:3000/api/auth/admin/verify-otp-login",
         {
           verificationCode,
           otpId,
@@ -224,7 +224,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/auth/admin/forgot-password",
+        "http://localhost:3000/api/auth/admin/forgot-password",
         { email }
       );
       if (response.data.success) {
@@ -249,7 +249,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://quick-bites-backend.vercel.app/api/auth/admin/verify-otp-forgot-password",
+        "http://localhost:3000/api/auth/admin/verify-otp-forgot-password",
         {
           otpId,
           verificationCode,

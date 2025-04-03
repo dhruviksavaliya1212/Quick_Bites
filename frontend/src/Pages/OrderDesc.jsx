@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 
 const OrderDesc = () => {
   const { id } = useParams();
+  const _id = id;
 
   const [order, setOrder] = useState([]);
   const [feedbackMsg, setFeedbackMsg] = useState("");
@@ -35,7 +36,7 @@ const OrderDesc = () => {
 
       const { data } = await axios.post(
         `${backend}/api/order/send-feedback`,
-        { id, feedbackMsg },
+        { _id, feedbackMsg },
         { headers: { token } }
       );
       if (data.success) {

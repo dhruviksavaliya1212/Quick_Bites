@@ -87,21 +87,23 @@ const AppContextProvider = (props) => {
         totalAmount += itemInfo.newprice * cart[item];
       }
     }
-    return totalAmount;
+    const platformFee = totalAmount * 0.07; // 7% platform fee
+    return Math.round(totalAmount + platformFee)
+  
   };
 
     // calculations
     const calculateGst = () => {
       let gstAmount = (getTotalCartAmount() * 5) / 100;
-      return gstAmount;
+      return Math.round(gstAmount);
     };
     const calculateDelivery = () => {
       let deliveryFee = getTotalCartAmount() && 39;
-      return deliveryFee;
+      return Math.round(deliveryFee);
     };
     const calculatePlatformFee = () => {
-      let platformFee = getTotalCartAmount() && 7;
-      return platformFee;
+      let platformFee = (getTotalCartAmount() * 7) / 100;
+      return Math.round(platformFee);
     };
 
   // fetch foods liist

@@ -52,7 +52,7 @@ const Dashboard = () => {
 
   const getDashData = async () => {
     try {
-      const { data } = await axios.get(`${backend}/api/admin/dash-data`);
+      const { data } = await axios.get(`http://localhost:3000/api/admin/dash-data`);
       console.log("dash-data", data);
       if (data.success) {
         setDashData(data.dashData);
@@ -76,7 +76,7 @@ const Dashboard = () => {
 
   const getDailyOrders = async () => {
     try {
-      const { data } = await axios.get(`${backend}/api/admin/get-dailyorders`);
+      const { data } = await axios.get(`http://localhost:3000/api/admin/get-dailyorders`);
       setDailyOrders(data);
     } catch (err) {
       toast.error("Failed to fetch daily orders");

@@ -166,13 +166,7 @@ function OrderCard({ order, onUpdateStatus }) {
               <option value="pickedup">Picked Up</option>
               <option value="delivered" disabled>Delivered (via OTP)</option>
             </select>
-            <button
-              onClick={() => setShowIssueModal(true)}
-              className="flex items-center justify-center gap-2 text-red-500 hover:text-red-600 transition-colors p-2"
-            >
-              <FaExclamationTriangle />
-              Report Issue
-            </button>
+         
           </div>
         )}
 

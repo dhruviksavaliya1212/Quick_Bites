@@ -108,7 +108,7 @@ function ActiveOrders() {
       );
       if (res.data) {
         setAgentData(res.data.agentData);
-        toast.success("Agent stats fetched successfully!"); // Add toast for success
+        // toast.success("Agent stats fetched successfully!"); // Add toast for success
       } else {
         alert(res.data?.message || "Failed to fetch the stats-data.");
       }

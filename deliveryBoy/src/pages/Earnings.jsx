@@ -124,10 +124,10 @@ function Earnings() {
             <span>Pending Payouts</span>
             <span className="font-bold text-orange-500">₹{earnings.thisMonth}</span>
           </div>
-          <div className="flex justify-between items-center p-4 bg-gray-50 rounded">
+          {/* <div className="flex justify-between items-center p-4 bg-gray-50 rounded">
             <span>Completed Payouts</span>
             <span className="font-bold text-green-500">₹{earnings.completedPayouts}</span>
-          </div>
+          </div> */}
           <div className="flex justify-between items-center p-4 bg-gray-50 rounded">
             <span>Total Earnings (This Month)</span>
             <span className="font-bold">₹{earnings.thisMonth}</span>

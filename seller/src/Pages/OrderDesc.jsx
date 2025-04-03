@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 const OrderDesc = () => {
   const { id } = useParams();
+  const _id = id;
 
   const { orders, currency, acceptOrder, rejectOrder, completeOrder, backend, stoken, getOrders } =
     useContext(SellerContext);
@@ -42,7 +43,7 @@ const OrderDesc = () => {
 
       const { data } = await axios.post(
         `${backend}/api/order/send-response`,
-        { id, responseMsg }
+        { _id, responseMsg }
       );
       if (data.success) {
         setResponseMsg("");
