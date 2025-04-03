@@ -15,10 +15,10 @@ const Reportsmanagement = () => {
 
   // API Endpoints
   const apiEndpoints = {
-    users: 'https://quick-bites-backend.vercel.app/api/auth/admin/generateUserReportsby-admin',
-    orders: 'https://quick-bites-backend.vercel.app/api/auth/admin/generateOrderStatusReportsby-admin',
-    restaurants: 'https://quick-bites-backend.vercel.app/api/auth/admin/generateRestaurantReportBy-admin',
-    drivers: 'https://quick-bites-backend.vercel.app/api/auth/admin/getDeliveryBoyReportsby-admin',
+      users: 'http://localhost:3000/api/auth/admin/generateUserReportsby-admin',
+      orders: 'http://localhost:3000/api/auth/admin/generateOrderStatusReportsby-admin',
+      restaurants: 'http://localhost:3000/api/auth/admin/generateRestaurantReportBy-admin',
+      drivers: 'http://localhost:3000/api/auth/admin/getDeliveryBoyReportsby-admin',
   };
 
   // Fetch data from API when activeTab changes
@@ -59,7 +59,7 @@ const Reportsmanagement = () => {
               break;
             case 'restaurants':
               data = result.report.detailedReport.map((restaurant) => ({
-                restaurantId: restaurant.restaurantId,
+                restaurantName: restaurant.restaurantName,
                 ownerName: restaurant.ownerName,
                 phone: restaurant.phone,
                 ordersReceived: restaurant.ordersReceived,
@@ -118,7 +118,7 @@ const Reportsmanagement = () => {
         : activeTab === 'orders'
         ? ['Order ID', 'Date', 'Status']
         : activeTab === 'restaurants'
-        ? ['Restaurant ID', 'Owner Name', 'Phone', 'Orders Received', 'Total Amount']
+        ? ['Restaurant Name', 'Owner Name', 'Phone', 'Orders Received', 'Total Amount']
         : ['Firstname', 'Lastname', 'Restaurant Name', 'Contact Number', 'Orders Delivered'],
       ...filterData.map((item) => Object.values(item)),
     ]

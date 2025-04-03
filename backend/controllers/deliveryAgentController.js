@@ -295,6 +295,7 @@ const respondeToOrder = async (req, res) => {
       }
 
       order.status = "accepted";
+      order.isAccepted = true;
       order.deliveryAgentId = deliverAgentId;
       agent.pendingDeliveries += 1;
 
@@ -310,10 +311,12 @@ const respondeToOrder = async (req, res) => {
         agent.pendingDeliveries = Math.max(agent.pendingDeliveries - 1, 0);
       }
 
-      order.status = "rejected";
+      // order.status = "rejected";
       order.deliveryAgentId = null;
+      order.rejectedBy = [{deliverAgentId: deliverAgentId, date: new Date()}];  
 
     } else if (action === "pickedup") {
+      
       if (order.status !== "accepted") {
         return res.status(400).json({
           success: false,
@@ -327,9 +330,9 @@ const respondeToOrder = async (req, res) => {
           message: "Only the assigned agent can mark this order as picked up",
         });
       }
-      order.status = "pickedup";
+      order.status = "Out for Delivery";
       order.ispickedUp = true;
-
+     
     } else {
       return res.status(400).json({
         success: false,
@@ -478,7 +481,8 @@ const completeOrderAndVerifyOtp = async (req, res) => {
 
     // Complete order
     order.isCompleted = true;
-    order.status = "delivered";
+    order.status = "Delivered";
+    order.payment = true;
     order.completedAt = new Date(); // Store as a Date object
 
     await order.save();

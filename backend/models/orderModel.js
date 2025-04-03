@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'rejected', 'delivered','placed','pickedup'],
+    enum: ['pending', 'accepted', 'rejected', 'Delivered','placed','pickedup','Out for Delivery'],
     default: 'placed',
   },  
   ispickedUp:{
@@ -58,6 +58,10 @@ const orderSchema = new mongoose.Schema({
   isCancelled: {
     type: Boolean,
     default: false,
+  },
+  rejectedBy : {
+    type: Array,
+    default: [],
   },
   isAccepted: {
     type: Boolean,

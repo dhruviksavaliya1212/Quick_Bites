@@ -5,6 +5,7 @@ import axios from "axios";
 import vegetarian from "../assets/vegetarian.webp";
 import { assets } from "../assets/assets";
 import easyinvoice from "easyinvoice";
+import logo from "../assets/logo.png";
 import { toast } from "react-toastify";
 
 const OrderDesc = () => {
@@ -13,25 +14,31 @@ const OrderDesc = () => {
 
   const [order, setOrder] = useState([]);
   const [feedbackMsg, setFeedbackMsg] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false); // Loading state for invoice generation
+  const [isDownloading, setIsDownloading] = useState(false); // Loading state for download
 
   const { backend, token, currency } = useContext(AppContext);
 
   const getOrder = async () => {
-    const { data } = await axios.post(
-      `${backend}/api/order/get-orders`,
-      {},
-      { headers: { token } }
-    );
-
-    if (data.success) {
-      data.orderData.find((item) => item._id === id && setOrder(item));
+    try {
+      const { data } = await axios.post(
+        `${backend}/api/order/get-orders`,
+        {},
+        { headers: { token } }
+      );
+      if (data.success) {
+        const foundOrder = data.orderData.find((item) => item._id === id);
+        if (foundOrder) setOrder(foundOrder);
+      }
+    } catch (err) {
+      toast.error("Failed to fetch order details");
     }
   };
 
   const sendFeedback = async () => {
     try {
       if (feedbackMsg === "") {
-        return toast.info("Please Enter Feeback");
+        return toast.info("Please Enter Feedback");
       }
 
       const { data } = await axios.post(
@@ -42,97 +49,89 @@ const OrderDesc = () => {
       if (data.success) {
         setFeedbackMsg("");
         toast.success(data.message);
-        getOrder()
+        getOrder();
       }
     } catch (err) {
       toast.error("Something went wrong");
     }
   };
 
-  const generateInvoice = () => {
-    const productsFromOrder = order.items.map((item) => ({
-      quantity: item.quantity, // Corrected typo: item.quantity
-      description: item.name,
-      price: item.newprice,
-      taxRate: 5, // Important: Use item's tax rate or 0
-    }));
+  const platformFees = order?.items?.[0]?.newprice
+    ? Math.round(order.items[0].newprice * 0.07)
+    : "N/A";
 
-    const platformFee = {
-      quantity: 1,
-      description: "Platform Fee",
-      taxRate: 0, // Or the applicable tax rate
-      price: 7,
+    const generateInvoice = async () => {
+      setIsGenerating(true);
+      try {
+        const productsFromOrder = order.items.map((item) => ({
+          quantity: item.quantity,
+          description: item.name,
+          price: item.newprice,
+          taxRate: 5,
+        }));
+    
+        const platformFee = {
+          quantity: 1,
+          description: "Platform Fee",
+          taxRate: 0,
+          price: platformFees,
+        };
+    
+        const deliveryFee = {
+          quantity: 1,
+          description: "Delivery Fee",
+          taxRate: 0,
+          price: 39,
+        };
+    
+        const products = [...productsFromOrder, platformFee, deliveryFee];
+    
+        const data = {
+          apiKey: "free",
+          mode: "development",
+          images: {
+            // logo: "https://res.cloudinary.com/dzrzfsu9u/image/upload/v1743656847/promotions/m7glnwqvq0vp3qzvtryb.png",
+          },
+          sender: {
+            company: `${order.restoName} - Powered by QuickBite Online Dining Solutions`,
+            address: order.restoAddress,
+          },
+          client: {
+            company: `${order.address.firstName} ${order.address.lastName}`,
+            address: `${order.address.flatno}, ${order.address.societyName}`,
+            zip: order.address.zipcode,
+            city: order.address.city,
+            state: order.address.state,
+          },
+          information: {
+            number: "2021.0001",
+            date: new Date().toLocaleDateString(),
+          },
+          products: products,
+          bottomNotice: "GST 5%, platform fee and delivery fees are applied on total",
+          settings: {
+            currency: "INR",
+          },
+        };
+    
+        const result = await easyinvoice.createInvoice(data);
+    
+        // Optimized download using Blob
+        const blob = new Blob([Uint8Array.from(atob(result.pdf), c => c.charCodeAt(0))], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "invoice.pdf";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    
+        toast.success("Invoice downloaded successfully");
+      } catch (error) {
+        toast.error("Failed to generate invoice");
+      } finally {
+        setIsGenerating(false);
+      }
     };
-
-    const deliveryFee = {
-      quantity: 1,
-      description: "Delivery Fee",
-      taxRate: 0, // Or the applicable tax rate
-      price: 39,
-    };
-
-    const products = [...productsFromOrder, platformFee, deliveryFee];
-
-    var data = {
-      apiKey: "free", // Please register to receive a production apiKey: https://app.budgetinvoice.com/register
-      mode: "development", // Production or development, defaults to production
-      images: {
-        // The logo on top of your invoice
-        logo: "https://public.budgetinvoice.com/img/watermark-draft.jpg",
-        // The invoice background
-        background: "https://papersdb.com/img/formats/15.png",
-      },
-      // Your own data
-      sender: {
-        company: order.restoName,
-        address: order.restoAddress,
-        // zip: "1234 AB",
-      },
-      // Your recipient
-      client: {
-        company: order.address.firstName + order.address.lastName,
-        address: order.address.flatno + order.address.societyName,
-        zip: order.address.zipcode,
-        city: order.address.city,
-        state: order.address.state,
-      },
-      information: {
-        // Invoice number
-        number: "2021.0001",
-        // Invoice data
-        // date: new Date(order.date).toLocaleDateString(),
-        date: new Date().toLocaleDateString(),
-        //
-      },
-      // The products you would like to see on your invoice
-      products: products,
-      bottomNotice:
-        "GST 5%, platform fee and delivery fees are applied on total",
-      // Settings to customize your invoice
-      settings: {
-        currency: "INR", // See documentation 'Locales and Currency' for more info. Leave empty for no currency.
-      },
-    };
-
-    easyinvoice.createInvoice(data, function (result) {
-      // Create a hidden link element
-
-      console.log("PDF Data:", result.pdf); // Check this!
-      // ... rest of your code
-      const link = document.createElement("a");
-      link.href = `data:application/pdf;base64,${result.pdf}`;
-      link.download = "invoice.pdf"; // Set the filename
-      link.style.display = "none"; // Hide the link
-
-      // Add the link to the DOM and trigger the download
-      document.body.appendChild(link);
-      link.click();
-
-      // Clean up: Remove the link from the DOM
-      document.body.removeChild(link);
-    });
-  };
-
+    
   useEffect(() => {
     if (token) {
       getOrder();
@@ -143,68 +142,68 @@ const OrderDesc = () => {
     <div className="flex flex-col mb-20 pt-24 min-h-screen w-full xl:w-[90%]">
       {order && (
         <div className="flex items-center justify-center flex-col mb-20">
-          <div className="  mt-5 w-full lg:w-[90%] xl:w-[80%]">
-            <div className=" flex flex-col gap-3 text-base font-semibold text-zinc-800">
-              <div className=" flex flex-col sm:flex-row gap-2">
+          <div className="mt-5 w-full lg:w-[90%] xl:w-[80%]">
+            <div className="flex flex-col gap-3 text-base font-semibold text-zinc-800">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <p>Order Id :</p>
-                <p className=" text-zinc-700">{order._id}</p>
+                <p className="text-zinc-700">{order._id}</p>
               </div>
               <div>
-                {
-                  order.payment && (
-                    <button
-                      onClick={generateInvoice}
-                      className=" px-5 py-1.5 bg-slate-300 hover:bg-zinc-400 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full "
-                    >
-                      Download Invoice
-                    </button>
-                  ) /* Button to trigger generation and download */
-                }
+                {order.payment && (
+                  <button
+                    onClick={generateInvoice}
+                    className="px-5 py-1.5 bg-slate-300 hover:bg-zinc-400 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full flex items-center gap-2"
+                    disabled={isGenerating || isDownloading}
+                  >
+                    {isGenerating && (
+                      <span className="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full"></span>
+                    )}
+                    {isDownloading ? "Downloading..." : "Download Invoice"}
+                  </button>
+                )}
               </div>
             </div>
             {order.items &&
               order.items.map((item, index) => (
                 <div key={index}>
-                  <div className=" mt-10 mb-5 flex flex-col sm:flex-row items-center justify-start gap-5 lg:gap-7 ">
-                    <div className=" relative">
+                  <div className="mt-10 mb-5 flex flex-col sm:flex-row items-center justify-start gap-5 lg:gap-7">
+                    <div className="relative">
                       <img
                         src={item.image}
                         alt=""
-                        className=" min-w-44 max-w-44 h-44 rounded bg-gradient-to-t from-slate-500 to-slate-900"
+                        className="min-w-44 max-w-44 h-44 rounded bg-gradient-to-t from-slate-500 to-slate-900"
                       />
                     </div>
-                    <div className=" max-md:ml-5 max-sm:mt-3">
-                      <div className=" flex gap-2 items-center ">
+                    <div className="max-md:ml-5 max-sm:mt-3">
+                      <div className="flex gap-2 items-center">
                         <img src={vegetarian} alt="" className="w-5" />
-                        <p className=" text-md text-red-700 font-semibold">
+                        <p className="text-md text-red-700 font-semibold">
                           {item.bestSeller === true && "Best Seller"}
                         </p>
                       </div>
-                      <div className=" flex gap-2">
-                        <p className=" text-xl font-bold text-zinc-900">
+                      <div className="flex gap-2">
+                        <p className="text-xl font-bold text-zinc-900">
                           {item.name}
                         </p>
-                        <span className=" text-xl font-bold text-zinc-900">
-                          -
-                        </span>
-                        <p className=" text-xl font-bold text-zinc-900">
+                        <span className="text-xl font-bold text-zinc-900">-</span>
+                        <p className="text-xl font-bold text-zinc-900">
                           {item.quantity}
                         </p>
                       </div>
-                      <p className=" text-md font-semibold text-zinc-900 -mt-1">
+                      <p className="text-md font-semibold text-zinc-900 -mt-1">
                         {item.restoname}
                       </p>
-                      <div className=" mt-1 flex gap-3 item-center">
-                        <p className=" line-through font-semibold text-zinc-500">
+                      <div className="mt-1 flex gap-3 item-center">
+                        <p className="line-through font-semibold text-zinc-500">
                           <span>₹</span>
                           {item.oldprice}
                         </p>
-                        <p className=" font-semibold text-zinc-900">
+                        <p className="font-semibold text-zinc-900">
                           <span>₹</span>
                           {item.newprice}
                         </p>
                       </div>
-                      <div className=" flex items-center my-2">
+                      <div className="flex items-center my-2">
                         <svg
                           width="20"
                           height="20"
@@ -219,57 +218,54 @@ const OrderDesc = () => {
                             fill="#1BA672"
                           ></path>
                         </svg>
-                        <p className=" text-green-700 font-semibold ml-1">
+                        <p className="text-green-700 font-semibold ml-1">
                           {item.rating}
                         </p>
                       </div>
-                      <p className=" text-md font-normal text-zinc-800 max-w-[90%]">
+                      <p className="text-md font-normal text-zinc-800 max-w-[90%]">
                         {item.desc}
                       </p>
                     </div>
                   </div>
-                  <hr className=" w-[90%] border border-zinc-600 m-auto mt-5 outline-none" />
+                  <hr className="w-[90%] border border-zinc-600 m-auto mt-5 outline-none" />
                 </div>
               ))}
-            <div className=" mt-10 w-full flex flex-wrap gap-5 justify-between">
+            <div className="mt-10 w-full flex flex-wrap gap-5 justify-between">
               <div>
-                <div className=" flex gap-3 items-center ">
-                  <p className=" text-xl font-semibold text-zinc-800">
+                <div className="flex gap-3 items-center">
+                  <p className="text-xl font-semibold text-zinc-800">
                     Total Amount
                   </p>
-                  <p className=" text-sm font-normal text-red-600">
+                  <p className="text-sm font-normal text-red-600">
                     * All charges applied{" "}
                   </p>
                 </div>
-                <p className=" mt-2 text-lg font-medium text-zinc-700">
-                  <span className=" font-semibold">{currency}</span>{" "}
+                <p className="mt-2 text-lg font-medium text-zinc-700">
+                  <span className="font-semibold">{currency}</span>{" "}
                   <span>{order.amount}</span>
                 </p>
               </div>
-              <div className=" text-xl font-semibold text-zinc-800">
+              <div className="text-xl font-semibold text-zinc-800">
                 <p>Payment Type </p>
-                <div className=" flex items-center gap-3 mt-3">
+                <div className="flex items-center gap-3 mt-3">
                   {order.paymentType === "Cash On Delivery" ? (
                     <img src={assets.cashondelivery} className="w-8"></img>
                   ) : (
                     <img src={assets.paymentmethod} alt="" className="w-8" />
                   )}
-
-                  <p className=" text-base font-medium text-zinc-800">
-                    {" "}
-                    {order.paymentType}{" "}
+                  <p className="text-base font-medium text-zinc-800">
+                    {order.paymentType}
                   </p>
                 </div>
               </div>
-              <div className=" flex gap-2 items-center ">
+              <div className="flex gap-2 items-center">
                 {order.payment ? (
                   <img src={assets.checkmark} className="w-8"></img>
                 ) : order.paymentType === "Cash On Delivery" ? (
-                  <img src={assets.pending} className=" w-9"></img>
+                  <img src={assets.pending} className="w-9"></img>
                 ) : (
-                  <img src={assets.close} className=" w-7"></img>
+                  <img src={assets.close} className="w-7"></img>
                 )}
-
                 <span
                   className={`text-base font-medium text-zinc-800 ${
                     order.payment
@@ -280,22 +276,22 @@ const OrderDesc = () => {
                   }`}
                 >
                   {order.payment
-                    ? "Payment successfull"
+                    ? "Payment successful"
                     : order.paymentType === "Cash On Delivery"
                     ? "Payment Pending"
                     : "Payment Failed"}
                 </span>
               </div>
             </div>
-            <div className=" w-full flex flex-col justify-between">
-              <p className=" mt-10 text-xl font-semibold text-zinc-800">
+            <div className="w-full flex flex-col justify-between">
+              <p className="mt-10 text-xl font-semibold text-zinc-800">
                 Delivery Address
               </p>
               {order.address && (
                 <div
-                  className={` w-full rounded mt-3 shadow-inner shadow-slate-800 py-5 px-5 bg-slate-200 cursor-pointer relative `}
+                  className={`w-full rounded mt-3 shadow-inner shadow-slate-800 py-5 px-5 bg-slate-200 cursor-pointer relative`}
                 >
-                  <div className=" text-lg font-medium text-zinc-800 flex gap-2 items-center">
+                  <div className="text-lg font-medium text-zinc-800 flex gap-2 items-center">
                     {order.address.category === "Office" && (
                       <img src={assets.office} className="w-8" />
                     )}
@@ -307,24 +303,19 @@ const OrderDesc = () => {
                     )}
                     {order.address.category}
                   </div>
-                  <div className=" flex gap-2 capitalize text-lg font-medium text-zinc-800 mt-5 ">
+                  <div className="flex gap-2 capitalize text-lg font-medium text-zinc-800 mt-5">
                     <p>{order.address.firstName}</p>
                     <p>{order.address.lastName}</p>
                   </div>
-                  <div className=" flex flex-wrap gap-2 capitalize text-[17px] text-zinc-700 font-normal my-1 ">
+                  <div className="flex flex-wrap gap-2 capitalize text-[17px] text-zinc-700 font-normal my-1">
                     <p>{order.address.flatno},</p>
-
                     <p>{order.address.societyName},</p>
-
                     <p>{order.address.city},</p>
-
                     <p>{order.address.state},</p>
-
                     <p>{order.address.zipcode},</p>
-
                     <p>{order.address.country}</p>
                   </div>
-                  <div className=" flex gap-2 capitalize text-base text-zinc-700 font-normal ">
+                  <div className="flex gap-2 capitalize text-base text-zinc-700 font-normal">
                     <p>{order.address.phone}</p>
                   </div>
                 </div>
@@ -333,7 +324,7 @@ const OrderDesc = () => {
             {order.status === "Delivered" && (
               <div>
                 <p className="mt-10 text-xl font-semibold text-zinc-800">
-                  {order.feedback === '' ?  "Give Feedback" : "Your Feedback"}
+                  {order.feedback === "" ? "Give Feedback" : "Your Feedback"}
                 </p>
                 {order.feedback === "" ? (
                   <>
@@ -359,19 +350,19 @@ const OrderDesc = () => {
               </div>
             )}
             {order.response !== "" && (
-              <div className=" mt-5 ">
-                <p className=" text-xl font-semibold text-zinc-800">Seller Response</p>
-                  <p className="text-md font-semibold text-zinc-700 mt-3">
-                   {order.response}
-                  </p>
+              <div className="mt-5">
+                <p className="text-xl font-semibold text-zinc-800">
+                  Seller Response
+                </p>
+                <p className="text-md font-semibold text-zinc-700 mt-3">
+                  {order.response}
+                </p>
               </div>
             )}
-
             <div className="">
               <p className="mt-10 text-xl font-semibold text-zinc-800">
                 Delivery Status
               </p>
-
               <div className="mt-2">
                 <div className="mt-5 text-lg font-semibold text-zinc-700">
                   <p>Order History</p>
@@ -437,11 +428,7 @@ const OrderDesc = () => {
                         <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
                         <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
                           <p>🟠</p>
-                          <img
-                            src={assets.processing}
-                            alt=""
-                            className="w-10"
-                          />
+                          <img src={assets.processing} alt="" className="w-10" />
                           <p>Order Processing</p>
                         </div>
                         <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
@@ -453,11 +440,7 @@ const OrderDesc = () => {
                         <hr className="w-12 mt-5 -ml-3 border border-orange-500 text-orange-600 rotate-90" />
                         <div className="flex items-center justify-start gap-3 mt-2 text-lg font-semibold text-zinc-700">
                           <p>🟠</p>
-                          <img
-                            src={assets.fooddelivery}
-                            alt=""
-                            className="w-10"
-                          />
+                          <img src={assets.fooddelivery} alt="" className="w-10" />
                           <p>Order Delivered</p>
                         </div>
                       </>

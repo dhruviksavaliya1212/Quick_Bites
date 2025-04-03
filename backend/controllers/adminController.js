@@ -1051,7 +1051,7 @@ const getRestaurantReport = async (req, res) => {
       };
 
       return {
-        restaurantId: restaurant._id,
+        restaurantName: restaurant.name,
         ownerName: restaurant.ownername,
         phone: restaurant.phone,
         ordersReceived: orderData.ordersReceived,
