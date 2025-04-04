@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 import StatCard from '../components/StatCard';
 import withAuth from '../../utills/withAuth';
-import {jwtDecode} from 'jwt-decode'; // ✅ Fixed import
+import { jwtDecode } from 'jwt-decode';
 import { OrderContext } from '../../context/OrderContext';
 
 function Earnings() {
@@ -23,7 +23,6 @@ function Earnings() {
     rating: 0,
   });
   const { backend } = useContext(OrderContext);
-
   const [error, setError] = useState(null);
 
   const getDeliveryAgentId = () => {
@@ -59,25 +58,51 @@ function Earnings() {
       }
     };
 
+    const getCurrentWeekNumber = (date) => {
+      const firstDay = new Date(date.getFullYear(), 0, 1);
+      const pastDays = Math.floor((date - firstDay) / (24 * 60 * 60 * 1000));
+      return Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+    };
+
     const fetchAllEarnings = async () => {
       try {
-        const [todayData, weekData, monthData] = await Promise.all([
+        const [dayData, weekData, monthData] = await Promise.all([
           fetchEarningsByType('day'),
           fetchEarningsByType('week'),
           fetchEarningsByType('month'),
         ]);
 
-        const getTotal = (data) =>
-          Array.isArray(data)
-            ? data.reduce((sum, item) => sum + (item.totalEarnings || 0), 0)
-            : 0;
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        const currentDay = now.getDate();
+        const currentWeek = getCurrentWeekNumber(now);
+
+        const filterByDate = (data, type) => {
+          if (!Array.isArray(data)) return 0;
+
+          return data
+            .filter((item) => {
+              const { year, month, day, week } = item._id || {};
+              if (type === 'day') {
+                return year === currentYear && month === currentMonth && day === currentDay;
+              }
+              if (type === 'week') {
+                return year === currentYear && week === currentWeek;
+              }
+              if (type === 'month') {
+                return year === currentYear && month === currentMonth;
+              }
+              return false;
+            })
+            .reduce((sum, item) => sum + (item.totalEarnings || 0), 0);
+        };
 
         setEarnings((prev) => ({
           ...prev,
-          today: getTotal(todayData),
-          thisWeek: getTotal(weekData),
-          thisMonth: getTotal(monthData),
-          // You can extend this later if your backend sends payout & rating details
+          today: filterByDate(dayData, 'day'),
+          thisWeek: filterByDate(weekData, 'week'),
+          thisMonth: filterByDate(monthData, 'month'),
         }));
       } catch (err) {
         setError(err.message);
@@ -124,10 +149,6 @@ function Earnings() {
             <span>Pending Payouts</span>
             <span className="font-bold text-orange-500">₹{earnings.thisMonth}</span>
           </div>
-          {/* <div className="flex justify-between items-center p-4 bg-gray-50 rounded">
-            <span>Completed Payouts</span>
-            <span className="font-bold text-green-500">₹{earnings.completedPayouts}</span>
-          </div> */}
           <div className="flex justify-between items-center p-4 bg-gray-50 rounded">
             <span>Total Earnings (This Month)</span>
             <span className="font-bold">₹{earnings.thisMonth}</span>
