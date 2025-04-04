@@ -94,14 +94,14 @@ const OrderDesc = () => {
           },
           sender: {
             company: `${order.restoName} - Powered by QuickBite Online Dining Solutions`,
-            address: order.restoAddress,
+            address: order.restoAddress
           },
           client: {
             company: `${order.address.firstName} ${order.address.lastName}`,
             address: `${order.address.flatno}, ${order.address.societyName}`,
             zip: order.address.zipcode,
             city: order.address.city,
-            state: order.address.state,
+            state: order.address.state
           },
           information: {
             number: "2021.0001",

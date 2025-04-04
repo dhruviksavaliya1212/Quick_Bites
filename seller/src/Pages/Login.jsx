@@ -23,7 +23,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    let url = 'https://quick-bites-backend.vercel.app';
+    let url = 'http://localhost:3000';
     let payload = {};
 
     if (state === "Sign Up") {
@@ -69,7 +69,12 @@ const Login = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      const errMsg =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Something went wrong";
+    toast.error(errMsg);
     }
     setLoading(false);
   };
