@@ -55,14 +55,16 @@ const OrderDesc = () => {
     }
   };
 
+  console.log(orderData, "orderData");  
+  
   return (
     <div className="flex flex-col mb-20 pt-5 px-5 min-h-screen ">
       {orderData && (
         <div className="flex items-center justify-center flex-col mb-20">
           <div className="  mt-5 w-full lg:w-[90%] xl:w-[80%]">
             <div className=" flex gap-3 text-base font-semibold text-zinc-800">
-              <p className=" hidden sm:block">Order Id :</p>
-              <p className=" text-zinc-700">{orderData._id}</p>
+              <p className=" hidden sm:block">Order Name :</p>
+              <p className=" text-zinc-700">  {orderData.items?.map((data) => data.name).join(", ")}</p>
             </div>
             {!orderData.isCancelled && !orderData.isAccepted ? (
               <div className=" mt-5  w-fit">

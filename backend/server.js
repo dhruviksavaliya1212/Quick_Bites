@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import http from "http";
+import { Server } from "socket.io"; // ✅ Correct named import
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import connectCloudinary from "./config/cloudinary.js";
@@ -45,9 +46,33 @@ connectDB();
 connectCloudinary();
 
 // Middlewares
+// middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ Correct socket.io usage
+// const io = new Server(server, {
+//   cors: { origin: "*" }
+// });
+
+const deliveryNamespace = io.of('/track');
+
+deliveryNamespace.on('connection', (socket) => {
+  console.log('Client connected to /track');
+
+  socket.on('joinRoom', (deliveryBoyId) => {
+    socket.join(deliveryBoyId);
+  });
+
+  socket.on('locationUpdate', ({ deliveryBoyId, lat, lng }) => {
+    deliveryNamespace.to(deliveryBoyId).emit('location', { lat, lng });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
 
 const corsOptions = {
   origin: function (origin, callback) {
