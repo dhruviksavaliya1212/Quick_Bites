@@ -38,7 +38,7 @@ function ActiveOrders() {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        `${backend}/api/delivery-agent/get-orders`,
+        `http://localhost:3000/api/delivery-agent/get-orders`,
         { sellerId: decoded.sellerId }
       );
       console.log(data);
@@ -73,7 +73,7 @@ function ActiveOrders() {
 const handleUpdateStatus = async (orderId, newStatus) => {
   try {
     const res = await axios.post(
-      `${backend}/api/delivery-agent/respondeto-order`,
+      `http://localhost:3000/api/delivery-agent/respondeto-order`,
       {
         orderId,
         action: newStatus,

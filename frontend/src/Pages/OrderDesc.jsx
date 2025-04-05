@@ -421,9 +421,11 @@ const OrderDesc = () => {
                       <img src={assets.delivery} alt="" className="w-10" />
                       <p>Out for Delivery</p>
                     </div>
-                    {order.status === "Out for Delivery" && deliveryAgentId && (
+                  <div className="z-10 relative">
+                  {order.status === "Out for Delivery" && deliveryAgentId && (
                       <DeliveryTracker deliveryAgentId={deliveryAgentId} />
                     )}
+                  </div>
                   </>
                 ) : (
                   order.status === "Delivered" && (

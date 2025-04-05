@@ -34,6 +34,7 @@ const io = new Server(server, {
       "https://quickbites-admin-panel.vercel.app",
       "https://quick-bites-seller.vercel.app",
       "https://quick-bites-delivery.vercel.app",
+      "http://192.168.237.229:5173"
     ],
     methods: ['GET', 'POST'],
     credentials: true,
@@ -51,10 +52,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Correct socket.io usage
-// const io = new Server(server, {
-//   cors: { origin: "*" }
-// });
 
 const deliveryNamespace = io.of('/track');
 
@@ -65,8 +62,8 @@ deliveryNamespace.on('connection', (socket) => {
     socket.join(deliveryBoyId);
   });
 
-  socket.on('locationUpdate', ({ deliveryBoyId, lat, lng }) => {
-    deliveryNamespace.to(deliveryBoyId).emit('location', { lat, lng });
+  socket.on('locationUpdate', ({ deliveryBoyId, lat, lng,agentInfo }) => {
+    deliveryNamespace.to(deliveryBoyId).emit('location', { lat, lng,agentInfo });
   });
 
   socket.on('disconnect', () => {
@@ -119,16 +116,16 @@ io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
 socket.on('sendLocation', (data) => {
-  const { deliveryAgentId, latitude, longitude } = data;
-  deliveryLocations[deliveryAgentId] = { latitude, longitude };
+  const { deliveryAgentId, latitude, longitude,agentInfo } = data;
+  deliveryLocations[deliveryAgentId] = { latitude, longitude};
   
-  console.log(`🚀 Broadcasting location of ${deliveryAgentId}, ${latitude}, ${longitude}`);
+  console.log(`🚀 Broadcasting location of ${deliveryAgentId}, ${latitude}, ${longitude},${agentInfo}`);
   
   // ✅ Log if emitting works
-  console.log("📢 Emitting to all clients:", { deliveryAgentId, latitude, longitude });
+  console.log("📢 Emitting to all clients:", { deliveryAgentId, latitude, longitude, agentInfo });
   
   // Emit location update to all connected clients
-  io.emit('locationUpdate', { deliveryAgentId, latitude, longitude });
+  io.emit('locationUpdate', { deliveryAgentId, latitude, longitude,agentInfo });
 });
 
   socket.on('disconnect', () => {
