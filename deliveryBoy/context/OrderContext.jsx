@@ -9,7 +9,7 @@ export const OrderProvider = ({ children }) => {
 
   // const {orders,setOrders} = useContext(OrderContext);
 
-  const backend = 'http://localhost:3000';
+  const backend = 'https://quick-bites-backend.vercel.app';
 
   const addAcceptedOrder = (order) => {
     setAcceptedOrders((prev) => {

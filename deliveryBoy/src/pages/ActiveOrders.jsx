@@ -9,6 +9,7 @@ import { OrderContext } from "../../context/OrderContext";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DeliveryPanel from "../../utills/delivreylocation.jsx";
 
 function ActiveOrders() {
   // const [orders, setOrders] = useState([]);
@@ -191,6 +192,8 @@ const handleUpdateStatus = async (orderId, newStatus) => {
         <h2 className="text-xl sm:text-2xl font-bold">Active Orders</h2>
       
       </div>
+
+    <DeliveryPanel deliveryAgentId={deliveryAgentId}/>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <StatCard

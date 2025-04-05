@@ -12,21 +12,39 @@ import cartRouter from "./routes/cartRoute.js";
 import addressRouter from "./routes/addressRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import sellerRouter from "./routes/sellerRoute.js";
+import { Server } from 'socket.io'
 import { AdminAuthRouter } from "./routes/adminAuthRoutes.js";
 import adminRouter from "./routes/adminRoute.js";
 import { DeliveryAgentModelRouter } from "./routes/deliveryAgentRoute.js";
-// import { app, server } from './config/socket.js';
 
-// app config
+// App config
 const app = express();
 const server = http.createServer(app);
 
-// port
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      "http://localhost:5176",
+      "http://localhost:5177",
+      "https://quick-bites-frontend-six.vercel.app",
+      "https://quickbites-admin-panel.vercel.app",
+      "https://quick-bites-seller.vercel.app",
+      "https://quick-bites-delivery.vercel.app",
+    ],
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
+// Port
 const port = process.env.PORT || 4000;
 connectDB();
 connectCloudinary();
 
-//midlewares
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -43,7 +61,8 @@ const corsOptions = {
       "https://quick-bites-frontend-six.vercel.app",
       "https://quickbites-admin-panel.vercel.app",
       "https://quick-bites-seller.vercel.app",
-      "https://quick-bites-delivery.vercel.app"
+      "https://quick-bites-delivery.vercel.app",
+      "http://192.168.237.229:5173"
     ];
     if (!origin || allowed.includes(origin)) {
       callback(null, true);
@@ -56,6 +75,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Routes
 app.use("/api/food", foodRouter);
 app.use("/api/restaurant", restaurantRouter);
 app.use("/api/user", userRouter);
@@ -67,9 +87,33 @@ app.use("/api/auth/admin", AdminAuthRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/delivery-agent", DeliveryAgentModelRouter);
 
-// testing api
+// Socket.IO logic for location tracking
+const deliveryLocations = {};
+
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+socket.on('sendLocation', (data) => {
+  const { deliveryAgentId, latitude, longitude } = data;
+  deliveryLocations[deliveryAgentId] = { latitude, longitude };
+  
+  console.log(`🚀 Broadcasting location of ${deliveryAgentId}, ${latitude}, ${longitude}`);
+  
+  // ✅ Log if emitting works
+  console.log("📢 Emitting to all clients:", { deliveryAgentId, latitude, longitude });
+  
+  // Emit location update to all connected clients
+  io.emit('locationUpdate', { deliveryAgentId, latitude, longitude });
+});
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// Testing API
 app.get("/", (req, res) => {
   res.send("Hello");
 });
 
-server.listen(port, () => console.log("server running on port " + port));
+server.listen(port, () => console.log("Server running on port " + port));
