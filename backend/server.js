@@ -13,7 +13,7 @@ import cartRouter from "./routes/cartRoute.js";
 import addressRouter from "./routes/addressRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import sellerRouter from "./routes/sellerRoute.js";
-import { Server } from 'socket.io'
+// import { Server } from 'socket.io'
 import { AdminAuthRouter } from "./routes/adminAuthRoutes.js";
 import adminRouter from "./routes/adminRoute.js";
 import { DeliveryAgentModelRouter } from "./routes/deliveryAgentRoute.js";
