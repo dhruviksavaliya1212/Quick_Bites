@@ -4,18 +4,18 @@ import { AppContext } from "../Context/AppContext";
 import axios from "axios";
 import vegetarian from "../assets/vegetarian.webp";
 import { assets } from "../assets/assets";
-import easyinvoice from "easyinvoice";
+import { jsPDF } from "jspdf";
 import { toast } from "react-toastify";
 import DeliveryTracker from "../Components/DeliveryTracker";
 
 const OrderDesc = () => {
   const { id } = useParams();
-  const [order, setOrder] = useState(null); // Initialize as null instead of []
+  const [order, setOrder] = useState(null);
   const [feedbackMsg, setFeedbackMsg] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const currency = "₹"
 
-  const { backend, token, currency } = useContext(AppContext);
+  const { backend, token } = useContext(AppContext);
 
   const getOrder = async () => {
     try {
@@ -39,7 +39,7 @@ const OrderDesc = () => {
     }
   }, [token]);
 
-  const deliveryAgentId = order?.deliveryAgentId; // Use optional chaining
+  const deliveryAgentId = order?.deliveryAgentId;
 
   const sendFeedback = async () => {
     try {
@@ -61,89 +61,151 @@ const OrderDesc = () => {
     }
   };
 
+  const loadImageAsBase64 = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("../assests/logo.png"));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  };
+
+  
   const platformFees = order?.items?.[0]?.newprice
     ? Math.round(order.items[0].newprice * 0.07)
     : "N/A";
-
-  const generateInvoice = async () => {
-    setIsGenerating(true);
-    try {
-      const productsFromOrder = order.items.map((item) => ({
-        quantity: item.quantity,
-        description: item.name,
-        price: item.newprice,
-        taxRate: 5,
-      }));
-
-      const platformFee = {
-        quantity: 1,
-        description: "Platform Fee",
-        taxRate: 0,
-        price: platformFees,
-      };
-
-      const deliveryFee = {
-        quantity: 1,
-        description: "Delivery Fee",
-        taxRate: 0,
-        price: 39,
-      };
-
-      const products = [...productsFromOrder, platformFee, deliveryFee];
-
-      const data = {
-        apiKey: "free",
-        mode: "development",
-        images: {},
-        sender: {
-          company: `${order.restoName} - Powered by QuickBite Online Dining Solutions`,
-          address: order.restoAddress,
-        },
-        client: {
-          company: `${order.address.firstName} ${order.address.lastName}`,
-          address: `${order.address.flatno}, ${order.address.societyName}`,
-          zip: order.address.zipcode,
-          city: order.address.city,
-          state: order.address.state,
-        },
-        information: {
-          number: "2021.0001",
-          date: new Date().toLocaleDateString(),
-        },
-        products: products,
-        bottomNotice: "GST 5%, platform fee and delivery fees are applied on total",
-        settings: {
-          currency: "INR",
-        },
-      };
-
-      const result = await easyinvoice.createInvoice(data);
-      const blob = new Blob(
-        [Uint8Array.from(atob(result.pdf), (c) => c.charCodeAt(0))],
-        { type: "application/pdf" }
-      );
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "invoice.pdf";
-      link.click();
-      URL.revokeObjectURL(link.href);
-
-      toast.success("Invoice downloaded successfully");
-    } catch (error) {
-      toast.error("Failed to generate invoice");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+    const generateInvoice = async () => {
+      setIsGenerating(true);
+      try {
+        const doc = new jsPDF();
+        const orange = "#f7931e";
+        const gray = "#666";
+        const deliveryFee = 39;
+    
+        // Load base64 logo image
+        const logoBase64 = await loadImageAsBase64(assets.logo);
+    
+        // Header
+        doc.addImage(logoBase64, "PNG", 20, 10, 30, 20);
+        doc.setTextColor(orange);
+        doc.setFontSize(20);
+        doc.text("QuickBites", 60, 18);
+        doc.setFontSize(12);
+        doc.text("Online Dining Solutions", 60, 26);
+    
+        doc.setFontSize(16);
+        doc.text("INVOICE", 160, 20);
+    
+        // Seller Info
+        doc.setTextColor(0);
+        doc.setFontSize(11);
+        doc.text("From:", 20, 45);
+        doc.setFontSize(10);
+        doc.text(`${order.restoName}`, 20, 52);
+        doc.text(order.restoAddress, 20, 59);
+    
+        // Customer Info
+        doc.setFontSize(11);
+        doc.text("Bill To:", 20, 75);
+        doc.setFontSize(10);
+        doc.text(`${order.address.firstName} ${order.address.lastName}`, 20, 82);
+        doc.text(`${order.address.flatno}, ${order.address.societyName}`, 20, 89);
+        doc.text(`${order.address.city}, ${order.address.state} ${order.address.zipcode}`, 20, 96);
+    
+        // Invoice Meta
+        doc.setTextColor(gray);
+        doc.setFontSize(10);
+        doc.text(`Order ID: ${order._id}`, 140, 45);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 52);
+    
+        // Table Header
+        doc.setTextColor(orange);
+        doc.setFontSize(11);
+        const tableTop = 115;
+        doc.text("Description", 20, tableTop);
+        doc.text("Qty", 100, tableTop);
+        doc.text("Price", 130, tableTop);
+        doc.text("Total", 190, tableTop, { align: "right" });
+        doc.setDrawColor(orange);
+        doc.line(20, tableTop + 2, 190, tableTop + 2);
+    
+        // Table Content
+        let yPos = tableTop + 12;
+        doc.setTextColor(0);
+        doc.setFontSize(10);
+    
+        let totalItemsAmount = 0;
+        order.items.forEach((item) => {
+          const itemTotal = item.newprice * item.quantity;
+          totalItemsAmount += itemTotal;
+    
+          doc.text(item.name, 20, yPos);
+          doc.text(item.quantity.toString(), 100, yPos, { align: "right" });
+          doc.text(`${item.newprice}`, 130, yPos, { align: "right" });
+          doc.text(`${itemTotal}`, 190, yPos, { align: "right" });
+          yPos += 8;
+        });
+    
+        // Additional Charges
+        const addCharge = (label, value) => {
+          doc.text(label, 20, yPos);
+          doc.text("1", 100, yPos, { align: "right" });
+          doc.text(`${value}`, 130, yPos, { align: "right" });
+          doc.text(`${value}`, 190, yPos, { align: "right" });
+          yPos += 8;
+        };
+    
+        addCharge("Platform Fee", platformFees);
+        addCharge("Delivery Fee", deliveryFee);
+    
+        // Calculate Total
+        const finalTotal = totalItemsAmount + platformFees + deliveryFee;
+    
+        // Total Line
+        doc.setDrawColor(orange);
+        doc.line(20, yPos + 2, 190, yPos + 2);
+        yPos += 10;
+    
+        doc.setFontSize(11);
+        doc.setTextColor(orange);
+        doc.text("Total Amount", 130, yPos);
+        doc.setTextColor(0);
+        doc.text(`${finalTotal} Rupees Only/-`, 190, yPos, { align: "right" });
+    
+        // Footer
+        yPos += 20;
+        doc.setFontSize(9);
+        doc.setTextColor(gray);
+        doc.text("GST 5%, platform fee and delivery fees applied on total.", 20, yPos);
+        doc.setTextColor(orange);
+        doc.setFontSize(10);
+        doc.text("Thank you for your order!", 20, yPos + 10);
+    
+        doc.save(`invoice_${order._id}.pdf`);
+        toast.success("Invoice downloaded successfully");
+      } catch (error) {
+        toast.error("Failed to generate invoice");
+        console.error(error);
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+    
+     
+    
+    
 
   if (!order) {
-    return <div>Loading order details...</div>; // Early return while loading
+    return <div>Loading order details...</div>;
   }
-
-  const itemNamesJoined = order.items.map(item => item.name).join(', ');
-
-  console.log(itemNamesJoined);
-  
 
   return (
     <div className="flex flex-col mb-20 pt-24 min-h-screen w-full xl:w-[90%]">
@@ -151,7 +213,7 @@ const OrderDesc = () => {
         <div className="mt-5 w-full lg:w-[90%] xl:w-[80%]">
           <div className="flex flex-col gap-3 text-base font-semibold text-zinc-800">
             <div className="flex flex-col sm:flex-row gap-2">
-              <p>Order Id :</p>
+              <p>Order Name :</p>
               <p className="text-zinc-700">{order.items.map(item => item.name).join(', ')}</p>
             </div>
             <div>
@@ -159,12 +221,12 @@ const OrderDesc = () => {
                 <button
                   onClick={generateInvoice}
                   className="px-5 py-1.5 bg-slate-300 hover:bg-zinc-400 hover:transition-all hover:duration-700 shadow-md shadow-zinc-600 rounded-full flex items-center gap-2"
-                  disabled={isGenerating || isDownloading}
+                  disabled={isGenerating}
                 >
                   {isGenerating && (
                     <span className="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full"></span>
                   )}
-                  {isDownloading ? "Downloading..." : "Download Invoice"}
+                  {isGenerating ? "Generating..." : "Download Invoice"}
                 </button>
               )}
             </div>
@@ -375,7 +437,7 @@ const OrderDesc = () => {
                 <div className="flex items-center justify-start gap-3 mt-2">
                   <p>🟠</p>
                   <img src={assets.checkout} alt="" className="w-10" />
-                  <p>Order Placed</p>
+                  <p>Order placed</p>
                 </div>
                 {order.status === "Accepted" ? (
                   <>
@@ -421,11 +483,11 @@ const OrderDesc = () => {
                       <img src={assets.delivery} alt="" className="w-10" />
                       <p>Out for Delivery</p>
                     </div>
-                  <div className="z-10 relative">
-                  {order.status === "Out for Delivery" && deliveryAgentId && (
-                      <DeliveryTracker deliveryAgentId={deliveryAgentId} />
-                    )}
-                  </div>
+                    <div className="z-10 relative">
+                      {order.status === "Out for Delivery" && deliveryAgentId && (
+                        <DeliveryTracker deliveryAgentId={deliveryAgentId} />
+                      )}
+                    </div>
                   </>
                 ) : (
                   order.status === "Delivered" && (
