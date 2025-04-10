@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node init && vite",
+    "build": "node init && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -16,6 +16,7 @@
     "dotenv": "^16.4.7",
     "easyinvoice": "^3.0.47",
     "gapi-script": "^1.2.0",
+    "jspdf": "^3.0.1",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.479.0",
