@@ -18,13 +18,14 @@ const Checkout = () => {
     currency,
     backend,
     food_list,
-    appliedPromo, // Access applied promo
-    discount, // Access discount
+    appliedPromo,
+    discount,
   } = useContext(AppContext);
 
   const [popup, setPopup] = useState(false);
   const [Address, setAddress] = useState({});
   const [listOfAdd, setListOfAdd] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // New loading state
 
   const [addressData, setAddressData] = useState({
     firstName: "",
@@ -121,9 +122,9 @@ const Checkout = () => {
     let orderData = {
       address: Address,
       items: orderItems,
-      amount: finalAmount, // Use discounted amount
-      discount: discount, // Include discount in order data
-      appliedPromo: appliedPromo ? appliedPromo.offerCode : null, // Include offer code
+      amount: finalAmount,
+      discount: discount,
+      appliedPromo: appliedPromo ? appliedPromo.offerCode : null,
     };
 
     const { data } = await axios.post(
@@ -141,34 +142,46 @@ const Checkout = () => {
   };
 
   const stripePayment = async () => {
-    let orderItems = [];
-    food_list.map((item) => {
-      if (cart[item._id] > 0) {
-        let itemInfo = item;
-        itemInfo["quantity"] = cart[item._id];
-        orderItems.push(itemInfo);
+    if (!Address || Object.keys(Address).length === 0) {
+      toast.error("Please select a delivery address");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      let orderItems = [];
+      food_list.map((item) => {
+        if (cart[item._id] > 0) {
+          let itemInfo = item;
+          itemInfo["quantity"] = cart[item._id];
+          orderItems.push(itemInfo);
+        }
+      });
+
+      let orderData = {
+        address: Address,
+        items: orderItems,
+        amount: finalAmount,
+        discount: discount,
+        appliedPromo: appliedPromo ? appliedPromo.offerCode : null,
+      };
+
+      const { data } = await axios.post(
+        `${backend}/api/order/online-stripe`,
+        { orderData },
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        const { session_url } = data;
+        window.location.replace(session_url);
+      } else {
+        toast.error(data.message);
+        setIsLoading(false);
       }
-    });
-
-    let orderData = {
-      address: Address,
-      items: orderItems,
-      amount: finalAmount, // Use discounted amount
-      discount: discount, // Include discount in order data
-      appliedPromo: appliedPromo ? appliedPromo.offerCode : null, // Include offer code
-    };
-
-    const { data } = await axios.post(
-      `${backend}/api/order/online-stripe`,
-      { orderData },
-      { headers: { token } }
-    );
-
-    if (data.success) {
-      const { session_url } = data;
-      window.location.replace(session_url);
-    } else {
-      toast.error(data.message);
+    } catch (error) {
+      toast.error("Payment processing failed. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -177,8 +190,8 @@ const Checkout = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
       currency: order.currency,
-      name: "Food delivery payment",
-      description: "",
+      name: "QuickBites Foods&Beverages Payment",
+      description: "Order Payment",
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
@@ -196,8 +209,20 @@ const Checkout = () => {
             toast.error(data.message);
           }
         } catch (err) {
-          toast.error("Something went wrong");
+          toast.error("Payment verification failed");
+        } finally {
+          setIsLoading(false);
         }
+      },
+      prefill: {
+        contact: Address.phone,
+        name: `${Address.firstName} ${Address.lastName}`,
+      },
+      theme: {
+        color: "#F97316",
+      },
+      modal: {
+        ondismiss: () => setIsLoading(false),
       },
     };
     const rzp = new window.Razorpay(options);
@@ -205,33 +230,45 @@ const Checkout = () => {
   };
 
   const paymentRazorpay = async () => {
-    let orderItems = [];
-    food_list.map((item) => {
-      if (cart[item._id] > 0) {
-        let itemInfo = item;
-        itemInfo["quantity"] = cart[item._id];
-        orderItems.push(itemInfo);
+    if (!Address || Object.keys(Address).length === 0) {
+      toast.error("Please select a delivery address");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      let orderItems = [];
+      food_list.map((item) => {
+        if (cart[item._id] > 0) {
+          let itemInfo = item;
+          itemInfo["quantity"] = cart[item._id];
+          orderItems.push(itemInfo);
+        }
+      });
+
+      let orderData = {
+        address: Address,
+        items: orderItems,
+        amount: finalAmount,
+        discount: discount,
+        appliedPromo: appliedPromo ? appliedPromo.offerCode : null,
+      };
+
+      const { data } = await axios.post(
+        `${backend}/api/order/online-razorpay`,
+        { orderData },
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        initPay(data.Order);
+      } else {
+        toast.error(data.message);
+        setIsLoading(false);
       }
-    });
-
-    let orderData = {
-      address: Address,
-      items: orderItems,
-      amount: finalAmount, // Use discounted amount
-      discount: discount, // Include discount in order data
-      appliedPromo: appliedPromo ? appliedPromo.offerCode : null, // Include offer code
-    };
-
-    const { data } = await axios.post(
-      `${backend}/api/order/online-razorpay`,
-      { orderData },
-      { headers: { token } }
-    );
-
-    if (data.success) {
-      initPay(data.Order);
-    } else {
-      toast.error(data.message);
+    } catch (error) {
+      toast.error("Payment processing failed. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -241,6 +278,21 @@ const Checkout = () => {
 
   return (
     <div className="flex flex-col items-center mb-20 py-28 min-h-screen relative w-full">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+            <p className="mt-4 text-lg font-medium text-zinc-800">
+              Processing Payment...
+            </p>
+            <p className="text-sm text-zinc-600 mt-2">
+              Please wait while we securely process your transaction
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="w-full xl:w-[90%]">
         <button
           onClick={showPopup}
@@ -476,7 +528,12 @@ const Checkout = () => {
             <div className="w-full">
               <button
                 onClick={cashOnDelivery}
-                className="w-full border bg-orange-500 py-3 text-zinc-100 font-medium rounded mt-4 text-[16px] hover:bg-orange-600 hover:text-black hover:scale-105 transition-all duration-300"
+                disabled={isLoading}
+                className={`w-full border bg-orange-500 py-3 text-zinc-100 font-medium rounded mt-4 text-[16px] transition-all duration-300 ${
+                  isLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-orange-600 hover:text-black hover:scale-105"
+                }`}
               >
                 Cash on Delivery
               </button>
@@ -485,15 +542,28 @@ const Checkout = () => {
               </p>
               <button
                 onClick={stripePayment}
-                className="w-full bg-white py-3 text-[#635AFF] shadow-md shadow-[#625aff7a] font-bold rounded text-xl hover:scale-105 transition-all duration-300"
+                disabled={isLoading}
+                className={`w-full bg-white py-3 text-[#635AFF] shadow-md shadow-[#625aff7a] font-bold rounded text-xl transition-all duration-300 ${
+                  isLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-105"
+                }`}
               >
-                Stripe
+                {isLoading ? "Processing..." : "Stripe"}
               </button>
               <div
-                onClick={paymentRazorpay}
-                className="w-full border bg-white py-3 font-medium rounded text-[16px] hover:scale-105 transition-all duration-300 flex justify-center mt-3 shadow-md shadow-zinc-500 cursor-pointer"
+                onClick={!isLoading ? paymentRazorpay : null}
+                className={`w-full border bg-white py-3 font-medium rounded text-[16px] flex justify-center mt-3 shadow-md shadow-zinc-500 transition-all duration-300 ${
+                  isLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-105 cursor-pointer"
+                }`}
               >
-                <img src={assets.payment} alt="" className="w-28 text-center" />
+                {isLoading ? (
+                  "Processing..."
+                ) : (
+                  <img src={assets.payment} alt="Razorpay" className="w-28 text-center" />
+                )}
               </div>
             </div>
           </div>
